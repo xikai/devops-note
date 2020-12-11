@@ -1,0 +1,22 @@
+卸载ID
+slmgr /upk
+slmgr /ckms
+slmgr /rearm
+
+激活
+slmgr /ipk CB7KF-BWN84-R7R2Y-793K2-8XDDG
+slmgr /skms kms.03k.org
+slmgr /ato
+
+
+Windows Server 2016 数据中心
+CB7KF-BWN84-R7R2Y-793K2-8XDDG
+
+Windows Server 2016 标准版
+WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY
+
+Windows Server 2016 嵌入式版
+JCKRF-N37P4-C2D82-9YXRT-4M63B
+
+Windows Server 2016 Datacenter Evaluation升级正式版
+https://blog.csdn.net/vivisosog/article/details/82799062

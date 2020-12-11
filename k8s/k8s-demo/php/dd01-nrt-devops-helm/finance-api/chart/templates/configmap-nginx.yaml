@@ -1,0 +1,93 @@
+{{- if .Values.nginx -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-nginx-conf
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+data:
+  nginx.conf: |-
+    user  nginx;
+    worker_processes  auto;
+    
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+    
+    
+    events {
+        worker_connections  102400;
+    }
+    
+    
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+        # server_tokens off;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for" '
+                      '"$request_time" "$upstream_response_time"';
+
+        server_names_hash_bucket_size 128;
+        client_header_buffer_size 32k;
+        large_client_header_buffers 4 32k;
+        client_max_body_size 20m;
+        # server_name_in_redirect off;
+
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+        charset      utf-8;
+
+        fastcgi_connect_timeout 300;
+        fastcgi_send_timeout 300;
+        fastcgi_read_timeout 300;
+        fastcgi_buffer_size 4k;
+        fastcgi_buffers 4 32k;
+        fastcgi_busy_buffers_size 64k;
+        fastcgi_temp_file_write_size 64k;
+    
+        access_log  /var/log/nginx/access.log  main;
+    
+        gzip              on;
+        gzip_min_length   1k;
+        gzip_buffers      4 16k;
+        gzip_http_version 1.1;
+        gzip_comp_level   2;
+        gzip_types        text/plain application/x-javascript text/css application/xml application/javascript;
+        gzip_vary         on;
+    
+        include /etc/nginx/conf.d/*.conf;
+    }
+  nginx-vhosts.conf: |-
+    server {
+        listen       80;
+        {{- range .Values.ingress.hosts }}
+        server_name  {{ .host }};
+        {{- end }}
+        index  index.html index.htm index.php;
+        root   /var/www/html/public;
+    
+        if (!-e $request_filename) {
+            rewrite ^/index.php(.*)$ /index.php?s=$1 last;
+            rewrite ^(.*)$ /index.php?s=$1 last;
+            break;
+        }
+        location / {
+            try_files $uri $uri/ =404;
+        }
+    
+        location ~ \.php$ {
+            fastcgi_pass   unix:/var/run/php/php-fpm.sock;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+            include        fastcgi_params;
+        }
+    }
+{{- end }}

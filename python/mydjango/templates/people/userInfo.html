@@ -1,0 +1,13 @@
+{% extends "people/base.html" %}
+
+{% block title %}
+帐号管理
+{% endblock %}
+
+{% block main %}
+	帐号管理子模板
+	{% include "people/userlist.html" %}
+	{% block userlist %}
+	这是usrlist里面的block
+	{% endblock%}
+{% endblock %}

@@ -1,0 +1,69 @@
+stages:
+  - test
+  - build_image
+  - deploy
+
+test:
+  stage: test
+  image: reg.dadi01.cn/library/php:7.2
+  tags:
+    - xinnet-runner
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+      - vendor/
+  before_script:
+    - composer install
+  script:
+    - echo "test stage1212"
+  only:
+    - master@web/per-dadi01-net
+    - /^release.*$/@web/per-dadi01-net
+    - development@web/per-dadi01-net
+
+build_image:
+  stage: build_image
+  image: reg.dadi01.cn/library/docker:18.09
+  tags:
+    - xinnet-runner
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+      - vendor/
+    policy: pull
+  script:
+    - docker login -u $HARBOR_USER -p $HARBOR_PWD reg.dadi01.cn
+    - |-
+      if [ $CI_COMMIT_REF_NAME == "development" ]; then
+        docker build -t reg.dadi01.cn/test/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA .
+        docker push reg.dadi01.cn/test/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA
+      fi
+      if echo $CI_COMMIT_REF_NAME | grep -q "release"; then
+        docker build -t reg.dadi01.cn/staging/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA .
+        docker push reg.dadi01.cn/staging/$CI_PROJECT_NAME:$CI_COMMIT_SHORT_SHA
+      fi
+  only:
+    - master@web/per-dadi01-net
+    - /^release.*$/@web/per-dadi01-net
+    - development@web/per-dadi01-net
+
+deploy_test:
+  stage: deploy
+  image: reg.dadi01.cn/library/helm-kubectl:latest
+  tags:
+    - xinnet-runner
+  script:
+    - echo $CI_PROJECT_NAME
+    - helm init --client-only --skip-refresh
+    - cd helm/chart
+    - sed -i "s/PARAM-ENV/test/" values.yaml
+    - sed -i "s/PARAM-WWWROOT/$CI_PROJECT_NAME/" values.yaml
+    - sed -i "s/PARAM-TAGS/$CI_COMMIT_SHORT_SHA/" values.yaml
+    - helm dep update .
+    - export DEPLOYS=$(helm ls | grep $CI_PROJECT_NAME | wc -l)
+    - if [ ${DEPLOYS}  -eq 0 ]; then helm install --name="$CI_PROJECT_NAME" . --namespace=kube-test; else helm upgrade $CI_PROJECT_NAME . --namespace=kube-test; fi
+  environment:
+    name: test
+    url: http://per-api.dadi01.net
+  only:
+    - development@web/per-dadi01-net

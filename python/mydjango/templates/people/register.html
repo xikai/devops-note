@@ -1,0 +1,138 @@
+{% load staticfiles %}
+<!doctype html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+		<title>某某科技</title>
+		<meta name="keywords" content="某某科技" />
+		<meta name="description" content="某某科技" />
+		<link href="{% static 'Css/layout.css' %}" rel="stylesheet" type="text/css">
+		<link href="{% static 'Css/login.css' %}" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="{% static 'Js/jquery-1.7.2.min.js' %}"></script>
+		<script type="text/javascript" src="{% static 'Js/js.js' %}"></script>
+		<script type="text/javascript" src="{% static 'Js/jquery.cookie.js' %}"></script>
+	</head>
+
+	<body class="login-bg">
+		<!--登录-->
+		<div class="main">
+			<div class="login-dom">
+				<div class="logo text-center">
+					<img src="{% static 'Images/logo.png' %}" width="180" height="180">
+				</div>
+				<!--注册-->
+				<div class="text-big text-center logo-color">同一个账号，连接一切</div>
+				<div class=" text-center margin-small-top logo-color text-small">控制台 | 云平台 | 论坛 | 云市场 </div>
+				<form class="register-form" name="register" action="/register/" method="post" autocomplete="off">
+					{% csrf_token %}
+					<div class="reg-wrap border">
+						<div class="name border-bottom">
+								<input type="text" placeholder="手机 / 邮箱 / 某某账号" id="username" name="username" datatype="*" nullmsg="请填写帐号信息">
+						</div>
+						<div class="pwd">
+							<input type="password" placeholder="密码" datatype="*" id="password" name="password" nullmsg="请填写帐号密码">
+						</div>
+					</div>
+					<div class="margin-large-top padding-big-top">
+						<input type="submit" class="btn text-big" value="立即注册">
+					</div>
+				</form>
+				<div class="forget">
+					<a href="repassword.html" class="forget-pwd text-small fl">忘记登录密码？</a>
+					<a href="login.html" class="forget-new text-small fr" id="forger-login">已有账号，立即登录</a>
+				</div>
+			</div>
+			<div class="footer text-center  text-small">
+				Copyright 2013-2016 某某科技有限公司 版权所有 <a href="#" target="_blank">滇ICP备13005806号</a>
+				<span class="margin-left margin-right">|</span>
+				<script src="#" language="JavaScript"></script>
+			</div>
+		</div>
+
+		<div class="popupDom">
+			<div class="popup  text-default">
+			</div>
+		</div>
+		</div>
+		<script type="text/javascript" src="Js/Validform_v5.3.2_min.js"></script>
+		<script type="text/javascript">
+			/*动画（注册）*/
+			$(document).ready(function(e) {
+				var register = [];
+
+				/*仿刷新：检测是否存在cookie*/
+				$mobile = '';
+				$time = 0;
+				if (register) {
+					$time = parseInt(new Date().getTime() / 1000 - register.time);
+					$("input[name=mobile]").attr('value', register.mobile);
+					_status($time);
+				}
+				$("input[name=mobile]").focus();
+
+				$('form[name=register]').Validform({
+					ajaxPost: true,
+					tiptype: function(msg) {
+						if (msg) popup('' + msg + '');
+					},
+					callback: function(ret) {
+						popup('' + ret.info + '');
+						if (ret.status == 1) {
+							if (ret.uc_user_synlogin) {
+								$("body").append(ret.uc_user_synlogin);
+							}
+							window.location.href = ret.url;
+						}
+					}
+				})
+			});
+
+			/*发送验证码*/
+			$("#send").click(function() {
+				var obj = $("input[name=mobile]");
+				if ($(this).attr('disabled')) {
+					return false;
+				}
+				if (obj.val() == "") {
+					popup("请输入手机号码")
+					obj.focus();
+					return false;
+				}
+				$.post("http://account.haidao.la/index.php?c=Index&a=vcode", {
+					mobile: obj.val(),
+				}, function(ret) {
+					if (ret.status == 0) {
+						popup(ret.info);
+						return false;
+					}
+					$("input[name=vcode]").removeAttr('disabled');
+					_status(60);
+				}, 'json');
+			});
+
+			function _status(count) {
+				var $send_sms = $("#send");
+				var count = count;
+				$send_sms.attr('disabled', 'disabled');
+				var resend = setInterval(function() {
+					count--;
+					if (count > 0) {
+						$('#send').html(count + '秒后重试');
+						$("input[name='vcode']").removeAttr('disabled');
+						$.cookie("register_vcode", count, {
+							path: '/',
+							expires: (1 / 86400) * count
+						});
+
+					} else {
+						clearInterval(resend);
+						$send_sms.html("重获验证码").removeAttr('disabled');
+						$.cookie("register_vcode", null);
+					}
+				}, 1000);
+			}
+		</script>
+	</body>
+
+</html>

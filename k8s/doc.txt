@@ -1,0 +1,9 @@
+参考文档：
+https://imroc.io/
+https://github.com/yangpeng14/DevOps/tree/master/kubernetes
+https://www.qikqiak.com/
+
+http://blog.itpub.net/28624388/
+
+
+https://www.k8stech.net/

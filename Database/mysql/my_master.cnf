@@ -1,0 +1,84 @@
+[client]
+port = 3306
+socket = /tmp/mysql.sock
+default-character-set = utf8
+
+[mysqld]
+server-id = 1
+port = 3306
+bind-address = 0.0.0.0
+socket = /tmp/mysql.sock
+basedir = /usr/local/mysql
+datadir = /data/mysql
+pid-file = /data/mysql/mysql.pid
+character_set_server = utf8
+
+log-bin=mysql-bin
+binlog_format = MIXED
+log-bin-index = mysql-bin.index
+relay-log = relay-log
+relay_log_index = relay-log.index
+max_binlog_size = 1G
+expire_logs_days = 30
+log_warnings
+long-query-time = 1
+slow_query_log = ON
+slow_query_log_file = /data/mysql/slow.log
+
+max_connections = 1000
+max_allowed_packet = 64M
+binlog_cache_size = 1M
+max_heap_table_size = 128M
+sort_buffer_size = 16M
+join_buffer_size = 8M
+thread_concurrency = 8
+query_cache_size = 64M
+query_cache_limit = 2M
+tmp_table_size = 64M
+
+key_buffer_size = 16G
+read_buffer_size = 8M
+read_rnd_buffer_size = 16M
+bulk_insert_buffer_size = 64M
+myisam_sort_buffer_size = 128M
+
+skip-federated
+skip-name-resolve
+
+innodb_additional_mem_pool_size = 16M
+innodb_buffer_pool_size = 48G
+innodb_data_home_dir = /data/mysql
+innodb_data_file_path = ibdata1:10M:autoextend
+innodb_file_io_threads = 4
+innodb_thread_concurrency = 16
+innodb_log_group_home_dir = /data/mysql
+innodb_flush_log_at_trx_commit = 1
+innodb_log_buffer_size = 8M
+innodb_log_file_size = 256M
+innodb_log_files_in_group = 6
+innodb_max_dirty_pages_pct = 90
+innodb_lock_wait_timeout = 120
+
+[mysqldump]
+quick
+max_allowed_packet = 64M
+
+[mysql]
+no-auto-rehash
+
+[myisamchk]
+key_buffer = 512M
+sort_buffer_size = 64M
+read_buffer = 8M
+write_buffer = 8M
+
+[mysqlhotcopy]
+interactive-timeout
+
+[mysqld_safe]
+log-error = /data/mysql/mysql.err
+pid-file = /data/mysql/mysql.pid
+
+
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES 
+

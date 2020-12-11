@@ -1,0 +1,302 @@
+pipeline {
+    agent none
+
+    environment {
+        PROJECT_NAME      = "mall-admin"
+        HOST_PRODUCTION_1 = "47.112.28.116"
+        HOST_PRODUCTION_2 = "47.106.75.85"
+    }
+
+    stages {
+        stage('Test & build') {
+            when {
+                expression { BRANCH_NAME ==~ /(master|^release.*|development|erp-dev|crm-dev)/ }
+            }
+            agent {
+                docker {
+                    image "reg.dadi01.cn/library/node:8.10.0"
+                    args "-v /root/.node_modules:/root/.node_modules -v /var/run/docker.sock:/var/run/docker.sock"
+                }
+            }
+            environment {
+                HARBOR = credentials('secret-harbor-registry-dadi01-cn')
+            }
+            steps {
+                echo "Testing"
+                sh """
+                    docker login -u $HARBOR_USR -p $HARBOR_PSW reg.dadi01.cn
+                    yarn config set registry https://registry.npm.taobao.org --global
+                    yarn config set disturl https://npm.taobao.org/dist --global
+                    yarn config set cache-folder /root/.node_modules
+                    yarn 
+                """
+                script {
+                    if ("${env.BRANCH_NAME}" == "development") {
+                        sh "npm run build:stg"
+                        sh "docker build -t reg.dadi01.cn/test/$PROJECT_NAME:${env.GIT_COMMIT.take(7)} ."
+                        sh "docker push reg.dadi01.cn/test/$PROJECT_NAME:${env.GIT_COMMIT.take(7)}"
+                    }
+                    if ("${env.BRANCH_NAME}" == "erp-dev") {
+                        sh "npm run build:stg"
+                        sh "docker build -t reg.dadi01.cn/test/$PROJECT_NAME-erp:${env.GIT_COMMIT.take(7)} ."
+                        sh "docker push reg.dadi01.cn/test/$PROJECT_NAME-erp:${env.GIT_COMMIT.take(7)}"
+                    }
+                    if ("${env.BRANCH_NAME}" == "crm-dev") {
+                        sh "npm run build:stg"
+                        sh "docker build -t reg.dadi01.cn/test/$PROJECT_NAME-crm:${env.GIT_COMMIT.take(7)} ."
+                        sh "docker push reg.dadi01.cn/test/$PROJECT_NAME-crm:${env.GIT_COMMIT.take(7)}"
+                    }
+                    if ("${env.BRANCH_NAME}" ==~ /^release.*/) {
+                        sh "npm run build:prod"
+                        sh "docker build -t reg.dadi01.cn/staging/$PROJECT_NAME:${env.GIT_COMMIT.take(7)} ."
+                        sh "docker push reg.dadi01.cn/staging/$PROJECT_NAME:${env.GIT_COMMIT.take(7)}"
+                    }
+                    if ("${env.BRANCH_NAME}" == "master") {
+                        sh "npm run build:prod"
+                        sh "docker build -t reg.dadi01.cn/prod/$PROJECT_NAME:${env.GIT_COMMIT.take(7)} ."
+                        sh "docker push reg.dadi01.cn/prod/$PROJECT_NAME:${env.GIT_COMMIT.take(7)}"
+                        withCredentials(bindings: [sshUserPrivateKey(credentialsId: 'jenkins-ssh-key-for-prod', \
+                                                             keyFileVariable: 'SSH_KEY_FOR_PROD')]) {
+                            sh """
+                                rsync -avzp --delete --partial --exclude='.git/' -e "ssh -i ${SSH_KEY_FOR_PROD} -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no" ./dist root@$HOST_PRODUCTION_1:/srv/admin-shop-dadi01-com |grep -v /\$
+                                rsync -avzp --delete --partial --exclude='.git/' -e "ssh -i ${SSH_KEY_FOR_PROD} -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no" ./dist root@$HOST_PRODUCTION_2:/srv/admin-shop-dadi01-com |grep -v /\$
+                            """
+                        }   
+                    }
+                }
+            }
+        }
+
+        stage('Deploy Test') {
+            when {
+                branch 'development'
+            }
+            agent { 
+                docker {
+                    image "reg.dadi01.cn/library/helm-kubectl:latest"
+                    args "-v /root/.kube/config-test:/root/.kube/config"
+                } 
+            }
+            steps {
+                echo 'Deploying Test'
+                dir('helm'){
+                    git credentialsId: 'github-dd01bot', url: 'https://github.com/dadi01/dd01-nrt-devops-helm.git'
+                }
+                sh """
+                    helm init --client-only --skip-refresh
+                    cd helm/$PROJECT_NAME/chart
+                    sed -i "s/PARAM-WWWROOT/$PROJECT_NAME/" values-test.yaml
+                    sed -i "s/PARAM-TAGS/${env.GIT_COMMIT.take(7)}/" values-test.yaml
+                    helm dep update .
+                    export DEPLOYS=\$(helm ls |awk '{print \$1}' |grep "^qa-$PROJECT_NAME\$" |wc -l)
+                    if [ \${DEPLOYS}  -eq 0 ]; then helm install --name="qa-$PROJECT_NAME" -f values-test.yaml . --namespace=kube-test; else helm upgrade -f values-test.yaml qa-$PROJECT_NAME . --namespace=kube-test; fi
+                
+                    while true
+                    do
+                       kubectl rollout status deployment/qa-$PROJECT_NAME -n kube-test
+                       if [ \$? != 0 ] ;then
+                          sleep 3
+                          continue
+                       else
+                          echo "deployment successfully"
+                          break
+                       fi
+                    done
+                """
+            }
+        }
+
+        stage('Deploy Test erp') {
+            when {
+                branch 'erp-dev'
+            }
+            agent { 
+                docker {
+                    image "reg.dadi01.cn/library/helm-kubectl:latest"
+                    args "-v /root/.kube/config-test:/root/.kube/config"
+                } 
+            }
+            steps {
+                echo 'Deploying Test erp'
+                dir('helm'){
+                    git credentialsId: 'github-dd01bot', url: 'https://github.com/dadi01/dd01-nrt-devops-helm.git'
+                }
+                sh """
+                    helm init --client-only --skip-refresh
+                    cd helm/$PROJECT_NAME/chart
+                    sed -i "s/PARAM-WWWROOT/$PROJECT_NAME-erp/" values-erp.yaml
+                    sed -i "s/PARAM-TAGS/${env.GIT_COMMIT.take(7)}/" values-erp.yaml
+                    helm dep update .
+                    export DEPLOYS=\$(helm ls |awk '{print \$1}' |grep "^qa-$PROJECT_NAME-erp\$" |wc -l)
+                    if [ \${DEPLOYS}  -eq 0 ]; then helm install --name="qa-$PROJECT_NAME-erp" -f values-erp.yaml . --namespace=kube-test; else helm upgrade -f values-erp.yaml qa-$PROJECT_NAME-erp . --namespace=kube-test; fi
+                
+                    while true
+                    do
+                       kubectl rollout status deployment/qa-$PROJECT_NAME-erp -n kube-test
+                       if [ \$? != 0 ] ;then
+                          sleep 3
+                          continue
+                       else
+                          echo "deployment successfully"
+                          break
+                       fi
+                    done
+                """
+            }
+        }
+
+        stage('Deploy Test crm') {
+            when {
+                branch 'crm-dev'
+            }
+            agent { 
+                docker {
+                    image "reg.dadi01.cn/library/helm-kubectl:latest"
+                    args "-v /root/.kube/config-test:/root/.kube/config"
+                } 
+            }
+            steps {
+                echo 'Deploying Test crm'
+                dir('helm'){
+                    git credentialsId: 'github-dd01bot', url: 'https://github.com/dadi01/dd01-nrt-devops-helm.git'
+                }
+                sh """
+                    helm init --client-only --skip-refresh
+                    cd helm/$PROJECT_NAME/chart
+                    sed -i "s/PARAM-WWWROOT/$PROJECT_NAME-crm/" values-crm.yaml
+                    sed -i "s/PARAM-TAGS/${env.GIT_COMMIT.take(7)}/" values-crm.yaml
+                    helm dep update .
+                    export DEPLOYS=\$(helm ls |awk '{print \$1}' |grep "^qa-$PROJECT_NAME-crm\$" |wc -l)
+                    if [ \${DEPLOYS}  -eq 0 ]; then helm install --name="qa-$PROJECT_NAME-crm" -f values-crm.yaml . --namespace=kube-test; else helm upgrade -f values-crm.yaml qa-$PROJECT_NAME-crm . --namespace=kube-test; fi
+                
+                    while true
+                    do
+                       kubectl rollout status deployment/qa-$PROJECT_NAME-crm -n kube-test
+                       if [ \$? != 0 ] ;then
+                          sleep 3
+                          continue
+                       else
+                          echo "deployment successfully"
+                          break
+                       fi
+                    done
+                """
+            }
+        }
+
+        stage('Deploy staging') {
+            when {
+                expression { BRANCH_NAME ==~ /^release.*/ }
+            }
+            agent { 
+                docker {
+                    image "reg.dadi01.cn/library/helm-kubectl:latest"
+                    args "-v /root/.kube/config-test:/root/.kube/config"
+                } 
+            }
+            steps {
+                echo 'Deploying Staging'
+                dir('helm'){
+                    git credentialsId: 'github-dd01bot', url: 'https://github.com/dadi01/dd01-nrt-devops-helm.git'
+                }
+                sh """
+                    helm init --client-only --skip-refresh
+                    cd helm/$PROJECT_NAME/chart
+                    sed -i "s/PARAM-WWWROOT/$PROJECT_NAME/" values-staging.yaml
+                    sed -i "s/PARAM-TAGS/${env.GIT_COMMIT.take(7)}/" values-staging.yaml
+                    helm dep update .
+                    export DEPLOYS=\$(helm ls |awk '{print \$1}' |grep "^stg-$PROJECT_NAME\$" |wc -l)
+                    if [ \${DEPLOYS}  -eq 0 ]; then helm install --name="stg-$PROJECT_NAME" -f values-staging.yaml . --namespace=kube-staging; else helm upgrade -f values-staging.yaml stg-$PROJECT_NAME . --namespace=kube-staging; fi
+                
+                    while true
+                    do
+                       kubectl rollout status deployment/stg-$PROJECT_NAME -n kube-staging
+                       if [ \$? != 0 ] ;then
+                          sleep 3
+                          continue
+                       else
+                          echo "deployment successfully"
+                          break
+                       fi
+                    done
+                """
+            }
+        }
+
+        stage('Deploy Production') {
+            when {
+                branch 'master'
+            }
+            agent { 
+                docker {
+                    image "reg.dadi01.cn/library/helm-kubectl:latest"
+                    args "-v /root/.kube/config-prod:/root/.kube/config"
+                } 
+            }
+            steps {
+                echo 'Deploying Production'
+                dir('helm'){
+                    git credentialsId: 'github-dd01bot', url: 'https://github.com/dadi01/dd01-nrt-devops-helm.git'
+                }
+                sh """
+                    helm init --client-only --skip-refresh
+                    cd helm/$PROJECT_NAME/chart
+                    sed -i "s/PARAM-WWWROOT/$PROJECT_NAME/" values-prod.yaml
+                    sed -i "s/PARAM-TAGS/${env.GIT_COMMIT.take(7)}/" values-prod.yaml
+                    helm dep update .
+                    export DEPLOYS=\$(helm ls |awk '{print \$1}' |grep "^prod-$PROJECT_NAME\$" |wc -l)
+                    if [ \${DEPLOYS}  -eq 0 ]; then helm install --name="prod-$PROJECT_NAME" -f values-prod.yaml . --namespace=kube-prod; else helm upgrade -f values-prod.yaml prod-$PROJECT_NAME . --namespace=kube-prod; fi
+
+                    while true
+                    do
+                       kubectl rollout status deployment/prod-$PROJECT_NAME -n kube-prod
+                       if [ \$? != 0 ] ;then
+                          sleep 3
+                          continue
+                       else
+                          echo "deployment successfully"
+                          break
+                       fi
+                    done
+                """
+            }
+        }
+    }
+
+    post {//企业微信curl
+        success {
+            script {
+                if ("${env.BRANCH_NAME}" ==~ "master|staging|^release.*|development") {
+                    sh """
+                        curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=5aa8e1a5-85db-4951-a0df-144c09688b42' \
+                            -H 'Content-Type: application/json' \
+                            -d '
+                            {
+                                "msgtype": "markdown",
+                                "markdown": {
+                                    "content": "# [构建成功](${env.BUILD_URL})  \n\n > 构建项目: $PROJECT_NAME  \n构建分支: ${env.BRANCH_NAME}  \n构建号: #${env.BUILD_NUMBER}"
+                                }
+                            }'
+                    """
+                }
+            }
+        }
+        failure {
+            script {
+                if ("${env.BRANCH_NAME}" ==~ "master|staging|^release.*|development") {
+                    sh """
+                        curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=5aa8e1a5-85db-4951-a0df-144c09688b42' \
+                            -H 'Content-Type: application/json' \
+                            -d '
+                            {
+                                "msgtype": "markdown",
+                                "markdown": {
+                                    "content": "# [构建失败](${env.BUILD_URL})  \n\n > 构建项目: $PROJECT_NAME  \n构建分支: ${env.BRANCH_NAME}  \n构建号: #${env.BUILD_NUMBER}"
+                                }
+                            }'
+                    """
+                }
+            }
+        }
+    }
+}

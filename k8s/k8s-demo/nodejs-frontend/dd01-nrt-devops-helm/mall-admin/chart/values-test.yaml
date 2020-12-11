@@ -1,0 +1,53 @@
+# Default values for phpcicd.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+deploy_env: "test"
+
+wwwroot:
+  repository: "reg.dadi01.cn/test/PARAM-WWWROOT"
+  tag: "PARAM-TAGS"
+  pullPolicy: Always
+
+nginx:
+  repository: "nginx"
+  tag: "1.16-alpine"
+  pullPolicy: Always
+
+  resources: {}
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: mall-admin.dadi01.net
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "64m"
+  limits:
+    memory: "512Mi"
+    cpu: "128m"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

@@ -1,0 +1,199 @@
+{{- if .Values.nginx -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-nginx-conf
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+data:
+  nginx.conf: |-
+    user  nginx;
+    worker_processes  auto;
+    
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+    
+    
+    events {
+        worker_connections  102400;
+    }
+    
+    
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+        # server_tokens off;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for" '
+                      '"$request_time" "$upstream_response_time"';
+
+        server_names_hash_bucket_size 128;
+        client_header_buffer_size 32k;
+        large_client_header_buffers 4 32k;
+        client_max_body_size 20m;
+        # server_name_in_redirect off;
+
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+        charset      utf-8;
+
+    
+        access_log  /var/log/nginx/access.log  main;
+    
+        gzip              on;
+        gzip_min_length   1k;
+        gzip_buffers      4 16k;
+        gzip_http_version 1.1;
+        gzip_comp_level   2;
+        gzip_types        text/plain application/x-javascript text/css application/xml application/javascript;
+        gzip_vary         on;
+    
+        include /etc/nginx/conf.d/*.conf;
+    }
+  nginx-vhosts-test.conf: |-
+    resolver 10.96.0.10;
+    server {
+        listen       80;
+        {{- range .Values.ingress.hosts }}
+        server_name  {{ .host }};
+        {{- end }}
+        index  index.html index.htm;
+        root   /var/www/html/dist;
+
+        location / {
+            try_files $uri /index.html;
+            proxy_set_header   X-Forwarded-For $remote_addr;
+            proxy_set_header   Host $http_host;
+        }
+        location ^~ /api/crm/
+        {
+            proxy_set_header   Host ydapi.dadi01.net;
+            proxy_pass http://qa-ydapi/;
+        }
+        location ^~ /api/erp/
+        {
+            proxy_set_header   Host serp.dadi01.net;
+            proxy_pass http://qa-serp/;
+        }
+        location ^~ /api/finance/
+        {
+            proxy_set_header   Host finance-api.dadi01.net;
+            proxy_pass http://qa-finance-api/;
+        }
+        location ^~ /api/admin/
+        {
+            proxy_set_header   Host authority-api.dadi01.net;
+            proxy_pass http://qa-authority-api/admin/;
+        }
+        location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$
+        {
+            expires      30d;
+            access_log off;
+        }
+        location ~ .*\.(js|css)?$
+        {
+            access_log off;
+            expires      12h;
+        }
+    }
+  nginx-vhosts-staging.conf: |-
+    resolver 10.96.0.10;
+    server {
+        listen       80;
+        {{- range .Values.ingress.hosts }}
+        server_name  {{ .host }};
+        {{- end }}
+        index  index.html index.htm;
+        root   /var/www/html/dist;
+
+        location / {
+            try_files $uri /index.html;
+            proxy_set_header   X-Forwarded-For $remote_addr;
+            proxy_set_header   Host $http_host;
+        }
+        location ^~ /api/crm/
+        {
+            proxy_set_header   Host ydapi.dadi01.cn;
+            proxy_pass http://stg-ydapi/;
+        }
+        location ^~ /api/erp/
+        {
+            proxy_set_header   Host serp.dadi01.cn;
+            proxy_pass http://stg-serp/;
+        }
+        location ^~ /api/finance/
+        {
+            proxy_set_header   Host finance-api.dadi01.cn;
+            proxy_pass http://stg-finance-api/;
+        }
+        location ^~ /api/admin/
+        {
+            proxy_set_header   Host authority-api.dadi01.cn;
+            proxy_pass http://stg-authority-api/admin/;
+        }
+        location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$
+        {
+            expires      30d;
+            access_log off;
+        }
+        location ~ .*\.(js|css)?$
+        {
+            access_log off;
+            expires      12h;
+        }
+    }
+  nginx-vhosts-production.conf: |-
+    resolver 10.8.0.10;
+    server {
+        listen       80;
+        {{- range .Values.ingress.hosts }}
+        server_name  {{ .host }};
+        {{- end }}
+        index  index.html index.htm;
+        root   /var/www/html/dist;
+
+        location / {
+            try_files $uri /index.html;
+            proxy_set_header   X-Forwarded-For $remote_addr;
+            proxy_set_header   Host $http_host;
+        }
+        location ^~ /api/crm/
+        {
+            proxy_set_header   Host ydapi.fncul.com;
+            proxy_pass http://prod-ydapi/;
+        }
+        location ^~ /api/erp/
+        {
+            proxy_set_header   Host serp.fncul.com;
+            proxy_pass http://prod-serp/;
+        }
+        location ^~ /api/finance/
+        {
+            proxy_set_header   Host finance-api.fncul.com;
+            proxy_pass http://prod-finance-api/;
+        }
+        location ^~ /api/admin/
+        {
+            proxy_set_header   Host authority-api.fncul.com;
+            proxy_pass http://prod-authority-api/admin/;
+        }
+        location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$
+        {
+            expires      30d;
+            access_log off;
+        }
+        location ~ .*\.(js|css)?$
+        {
+            access_log off;
+            expires      12h;
+        }
+    }
+{{- end }}

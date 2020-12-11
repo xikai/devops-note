@@ -1,0 +1,5 @@
+FROM reg.dadi01.cn/library/alpine:latest
+MAINTAINER xikai "81757195@qq.com"
+
+COPY . /www/code
+RUN chmod -R 777 /www/code

@@ -1,0 +1,30 @@
+```
+  
+pipeline {
+    agent none
+
+    environment {
+        HOST = "117.50.126.203"
+        WWWROOT = "/data/www/api-auto-platform"
+    }
+    
+    stages {
+        stage('deploy') {
+            agent { 
+                docker {
+                    image "reg.dadi01.cn/library/jenkins-php:7.2"
+                    args "-v /var/run/docker.sock:/var/run/docker.sock"
+                } 
+            }
+            steps {
+                withCredentials(bindings: [sshUserPrivateKey(credentialsId: 'jenkins-ssh-key-for-prod', \
+                                                     keyFileVariable: 'SSH_KEY_FOR_PROD')]) {
+                    sh """
+                        rsync -avzp --delete --partial --exclude='.git/' -e "ssh -i ${SSH_KEY_FOR_PROD} -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no" ./ root@$HOST:$WWWROOT |grep -v /\$
+                    """
+                }
+            }    
+        }
+    }
+}
+```

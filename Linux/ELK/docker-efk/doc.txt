@@ -1,0 +1,18 @@
+https://github.com/deviantony/docker-elk
+
+elasticsearch数据持久化
+volumes:
+    - /path/to/storage:/usr/share/elasticsearch/data
+
+chown -R 1000:1000 /path/to/storage
+
+
+compose模式启动
+docker-compose build
+docker-compose up -d
+
+
+swarm模式启动
+docker swarm init
+docker stack deploy -c docker-stack.yml elk
+docker stack services elk

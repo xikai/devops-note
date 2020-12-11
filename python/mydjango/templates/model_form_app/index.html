@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Index</title>
+</head>
+<body>
+	<form action="/model_form_app/index/" method="POST">
+		{% csrf_token %}
+		<input type="text" name="name">
+		<input type="submit" value="提交">
+	</form>
+</body>
+</html>

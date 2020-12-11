@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>模型表单关联</title>
+</head>
+<body>
+	<form action="/model_form_app/index3/" method="POST">
+		{% csrf_token %}
+		{% for form in forms %}
+			<p>{{ form.help_text }}</p>
+			{{ form.errors }}<p>{{ form.label}}: {{ form }}</p>
+		{% endfor %}
+		<input type="submit" value="提交">
+	</form>
+</body>
+</html>

@@ -1,0 +1,212 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}
+    helm.sh/chart: {{ .Release.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+        - name: myregistrykey
+      initContainers:
+        - name: "code"
+          image: "{{ .Values.wwwroot.repository }}:{{ .Values.wwwroot.tag }}"
+          imagePullPolicy: {{ .Values.wwwroot.pullPolicy }}
+          {{- if eq .Values.deploy_env "test" }}
+          command:
+            - sh
+            - -c
+            - |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              git config --global http.sslVerify false
+              git clone https://oauth2:v3MCoEej154oaciadzex@gitlab.dadi01.com/PHP/site-config.git
+              cp site-config/test-config/finance-dadi01-com.stg /www/code/.env
+              rm -rf site-config
+              cp -rp /www/code/. /data/www
+          {{- end }}
+          {{- if eq .Values.deploy_env "staging" }}
+          command:
+            - sh
+            - -c
+            - |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              git config --global http.sslVerify false
+              git clone https://oauth2:v3MCoEej154oaciadzex@gitlab.dadi01.com/PHP/site-config.git
+              cp site-config/staging-config/finance-dadi01-com.stg /www/code/.env
+              rm -rf site-config
+              cp -rp /www/code/. /data/www
+          {{- end }}
+          {{- if eq .Values.deploy_env "prod" }}
+          command:
+            - sh
+            - -c
+            - |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              git config --global http.sslVerify false
+              git clone https://oauth2:v3MCoEej154oaciadzex@gitlab.dadi01.com/yejunyi/prod-config.git
+              cp prod-config/prod-site-config/finance-dadi01-com.stg /www/code/.env
+              rm -rf prod-config
+              cp -rp /www/code/. /data/www
+          {{- end }}
+          volumeMounts:
+            - name: wwwroot-volume
+              mountPath: /data/www
+              subPath: wwwroot
+      containers:
+        - name: nginx
+          image: "{{ .Values.nginx.repository }}:{{ .Values.nginx.tag }}"
+          imagePullPolicy: {{ .Values.nginx.pullPolicy }}
+          ports:
+            - name: tcp
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: wwwroot-volume
+              mountPath: /var/www/html
+              subPath: wwwroot
+            {{- if .Values.nginx }}
+            - name: nginx-conf-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: nginx-vhosts-volume
+              mountPath: /etc/nginx/conf.d/nginx-vhosts.conf
+              subPath: nginx-vhosts.conf
+            {{- end }}
+            {{- if .Values.php.sockets }}
+            - name: phpsock
+              mountPath: /var/run/php
+              subPath: php
+            {{- end }}            
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+          {{- if .Values.nginx.resources }}
+{{ toYaml .Values.nginx.resources | indent 12 }}
+          {{- else }}
+{{ toYaml .Values.resources | indent 12 }}
+          {{- end }}
+        - name: php
+          image: "{{ .Values.php.repository }}:{{ .Values.php.tag }}"
+          imagePullPolicy: {{ .Values.php.pullPolicy }}
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh","-c","sudo -u www-data php /var/www/html/artisan migrate --path=/database/migrations >migrate.log"]
+          securityContext:
+            capabilities:
+              add:
+              - SYS_PTRACE
+          {{- if not .Values.php.sockets }}
+          ports:
+            - name: tcp
+              containerPort: 9000
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          {{- end }}
+          volumeMounts:
+            - name: wwwroot-volume
+              mountPath: /var/www/html
+              subPath: wwwroot
+            {{- if .Values.php.sockets }}
+            - name: phpsock
+              mountPath: /var/run/php
+              subPath: php
+            {{- end }}
+            {{- if .Values.php.fpmEnabled }}
+            - name: php-fpm-volume
+              mountPath: /usr/local/etc/php-fpm.d/zz-docker.conf
+              subPath: zz-docker.conf
+            - name: php-ini-volume
+              mountPath: /usr/local/etc/php/conf.d/additional.ini
+              subPath: additional.ini
+            {{- end }}
+          resources:
+          {{- if .Values.php.resources }}
+{{ toYaml .Values.php.resources | indent 12 }}
+          {{- else }}
+{{ toYaml .Values.resources | indent 12 }}
+          {{- end }}
+      volumes:
+        - name: wwwroot-volume
+          emptyDir: {}
+        {{- if .Values.nginx }}
+        - name: nginx-conf-volume
+          configMap: 
+            name: {{ .Release.Name }}-nginx-conf
+            items:
+            - key: nginx.conf
+              path: nginx.conf
+        - name: nginx-vhosts-volume
+          configMap: 
+            name: {{ .Release.Name }}-nginx-conf
+            items:
+            - key: nginx-vhosts.conf
+              path: nginx-vhosts.conf
+        {{- end }}
+        {{- if .Values.php.fpmEnabled }}
+        - name: php-fpm-volume
+          configMap: 
+            name: {{ .Release.Name }}-php-conf
+            items:
+            - key: zz-docker.conf
+              path: zz-docker.conf
+        - name: php-ini-volume
+          configMap: 
+            name: {{ .Release.Name }}-php-conf
+            items:
+            - key: additional.ini
+              path: additional.ini
+        {{- end }}
+        {{- if .Values.php.sockets }}
+        - name: phpsock
+          emptyDir: {}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

@@ -1,0 +1,79 @@
+# 01,添加一块IDE硬盘
+
+# 02,fdisk -l 查看是否添加成功
+
+# 03,为新添加的IDE硬盘分区
+fdisk /dev/xvdf
+ n 新建分区
+ t 改变分区类型(L列出分区类型ID)
+ p 打印分区表
+ W 保存分区信息
+
+# 04,分区格式化为ext3文件类型
+mkfs.ext4 /dev/xvdf1
+mkfs.xfs /dev/xvdf2
+
+# 05,挂载使用新的分区
+mount /dev/xvdf2 /home
+mount /dev/xvdf3 /opt
+mount /dev/xvdf4 /data
+
+
+
+#创建swap分区
+fdisk /dev/xvdf
+  n新建swap分区-->t改变分区类型(选择分区5，类型82)
+
+#格式化分区 
+mkfs.ext4 /dev/xvdf5
+
+#设置激活swap分区
+mkswap /dev/xvdf5
+swapon /dev/xvdf5
+
+
+#自动挂载分区
+vim /etc/fstab
+*****************************************************************
+LABEL=centos_root               /        ext4      defaults         0 0
+devpts     /dev/pts  devpts  gid=5,mode=620   0 0
+tmpfs      /dev/shm  tmpfs   defaults         0 0
+proc       /proc     proc    defaults         0 0
+sysfs      /sys      sysfs   defaults         0 0
+/dev/xvdf1 /tmp      ext4    defaults         0 0
+/dev/xvdf2 /home     ext4    defaults         0 0
+/dev/xvdf3 /opt      ext4    defaults         0 0
+/dev/xvdf4 /data     ext4    defaults         0 0
+/dev/xvdf5  swap     swap    defaults         0 0
+*****************************************************************
+
+
+
+
+
+--------------------------------------------------------------------------------
+
+#安装cenots 转GPT分区
+--按ctrl+alt+f2的组合键，然后进入命令行
+parted /dev/sda
+mklabel gpt /dev/sda
+
+使用print /dev/sda 进行确认
+按ctrl+alt+f6回到安装界面
+2、再次选择自定义分区 ，对硬盘进行重新分区，顺利通过
+(parted) mkpart primary 0 100g   #划分一个起始位置为0大小为100g的主分区
+(parted) mkpart primary 100 200 #划分一个起始位置为100g大小为200g的主分区
+(parted) mkpart primary 0 -1    #划分所有空间到一个分区
+(parted) quit
+3、格式化挂载
+mkfs.xfs /dev/sdb1
+mount /dev/sdb1 /data
+
+
+--------------------------------------------------------------------------------
+#查看raid类型
+dmesg |grep -i raid
+
+#查看硬盘信息
+hdparm -i /dev/sda
+

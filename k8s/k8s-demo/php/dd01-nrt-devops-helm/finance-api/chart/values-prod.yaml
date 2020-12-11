@@ -1,0 +1,71 @@
+# Default values for phpcicd.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+
+deploy_env: "prod"
+
+wwwroot:
+  repository: "reg.dadi01.cn/prod/PARAM-WWWROOT"
+  tag: "PARAM-TAGS"
+  pullPolicy: Always
+
+nginx:
+  repository: "nginx"
+  tag: "1.16-alpine"
+  pullPolicy: Always
+
+  resources: {}
+
+php:
+  repository: "reg.dadi01.cn/library/php"
+  tag: "7.2-fpm-alpine-ext"
+  pullPolicy: Always
+
+  fpmEnabled: true
+  # fpm: |
+  #   pm.max_children = 120
+
+  ini: |
+    error_log = /var/log/php-error.log
+    upload_max_filesize = 20M
+    post_max_size = 20M
+
+  sockets: true
+
+  resources: {}
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: finance-api.fncul.com
+
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "64m"
+  limits:
+    memory: "512Mi"
+    cpu: "128m"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

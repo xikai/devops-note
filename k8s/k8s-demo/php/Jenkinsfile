@@ -1,0 +1,20 @@
+import groovy.transform.Field
+
+@Field def job_name=""
+@Field def jenkinsFile=""
+node()
+{
+    job_name="${env.JOB_NAME}".split('/')
+    job_name=job_name[0].toLowerCase()
+    workspace="${env.WORKSPACE}"
+
+    ws("$workspace")
+    {
+        dir("pipeline")
+        {   
+            git credentialsId: 'github-dd01bot', url: 'https://github.com/dadi01/dd01-nrt-devops-pipeline.git'
+            def check_groovy_file="${job_name}/Jenkinsfile"
+            jenkinsFile=load "${check_groovy_file}"
+        }
+    }
+}

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>form</title>
+</head>
+<body>
+	{{ errors }}
+	<form action="/form_app/forms/" method="POST">
+		{% csrf_token %}
+		{% for form_field in form %}
+			<p>{{ form_field.label }}: {{ form_field }} {{form_field.errors}}</p>
+		{% endfor %}
+		<input type="submit" value="提交">
+	</form>
+</html>

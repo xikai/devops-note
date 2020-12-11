@@ -1,0 +1,6 @@
+https://mp.weixin.qq.com/s/VYtyTU9_Dw9M5oHtvRfseA 《搭建一个完整的K8s集群，二进制》上
+
+https://mp.weixin.qq.com/s/F9BC6GALHiWBK5dmUnqepA 《搭建一个完整的K8s集群，二进制》下
+
+https://mp.weixin.qq.com/s/PD1CCkKZgtZD7pAZEqF-rw 《kubeadm快速部署一个K8s集群》
+https://github.com/lizhenliang/ansible-install-k8s 《一键部署K8s集群，二进制》Ansible版

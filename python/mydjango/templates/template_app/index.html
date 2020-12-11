@@ -1,0 +1,80 @@
+{% for k,v in mydict.items %}
+	{{ k }} - {{ v }}
+{% endfor %}
+
+<HR style="border:1 dashed #987cb9" width="100%" color=#987cb9 SIZE=1>
+{% for var in mylist %}
+	{{ forloop.revcounter }}: {{ var }}
+{% endfor %}
+
+<HR style="border:1 dashed #987cb9" width="100%" color=#987cb9 SIZE=1>
+<p>DATE_FORMAT: {% now "DATE_FORMAT" %}</p>
+<p>DATETIME_FORMAT: {% now "DATETIME_FORMAT" %}</p>
+<p>SHORT_DATE_FORMAT: {% now "SHORT_DATE_FORMAT" %}</p>
+<p>SHORT_DATETIME_FORMAT: {% now "SHORT_DATETIME_FORMAT" %}</p>
+
+<HR style="border:1 dashed #987cb9" width="100%" color=#987cb9 SIZE=1>
+<p>{% now "Y-m-d H:i:s" as time_now %}</p>
+<p>{{ time_now }}</p>
+
+<HR style="border:1 dashed #987cb9" width="100%" color=#987cb9 SIZE=1>
+{% regroup cities|dictsort:"country" by country as country_list %}
+	{% for country in country_list %}
+		<li>
+			{{ country.grouper }}:
+			<ul>
+				{% for city in country.list %}
+					<li>{{ city.name }}:{{ city.population }}</li>
+				{% endfor %}
+			</ul>
+		</li>
+	{% endfor %}
+
+<HR style="border:1 dashed #987cb9" width="100%" color=#987cb9 SIZE=1>
+<p>add: {{ myint |add:123}}</p>
+<p>add: {{ myint |add:myint2}}</p>
+<p>capfirst: {{ mystr |capfirst }}</p>
+<p>title: {{ mystr |title }}</p>
+<p>first: {{ mystr |first }}</p>
+<p>last: {{ mystr |last }}</p>
+<p>upper: {{ mystr |upper }}</p>
+<p>lower: {{ mystr |lower }}</p>
+<p>length: {{ mystr |length }}</p>
+<p>random: {{ mylist |random }}</p>
+<p>center: {{ mystr2 |center:10 }}</p>
+<p>cut: {{ mystr2 |cut:"*"}}</p>
+<p>default: {{ '' |default:"abcc"}}</p>
+<p>default: {{ Null |default:"abcc"}}</p>
+<p>default_if_none: {{ None |default_if_none:"ifnone"}}</p>
+<p>dictsort: {{ cities |dictsort:"population"}}</p>
+<p>dictsortreversed: {{ cities |dictsortreversed:"population"}}</p>
+<p>linebreaksbr: {{ msg |linebreaksbr }}</p>
+
+<HR style="border:1 dashed #987cb9" width="100%" color=#987cb9 SIZE=1>
+<!--template默认开启自动转义-->
+{% autoescape off %} 
+<p>escape打开转义: {{ flag |escape }}</p>
+{% endautoescape %}
+
+<p>safe关闭转义: {{ flag |safe }}</p>
+
+<HR style="border:1 dashed #987cb9" width="100%" color=#987cb9 SIZE=1>
+{% load my_filter %}
+<p>my_add_str: {{ mystr |my_add_str:mystr2 }}</p>
+<p>my_add_str: {{ "abc" |myadd:123 }}</p>
+<p>newcenter: {{ "abc" |newcenter:20 }}</p>
+
+
+<HR style="border:1 dashed #987cb9" width="100%" color=#987cb9 SIZE=1>
+{% load my_tag %}
+{% comment %}
+<p>str_to_upper: {% str_to_upper "abc" %}</p>
+{% endcomment %}
+<p>str_to_upper: {% strtoupper "aaa" %}</p>
+
+<HR style="border:1 dashed #987cb9" width="100%" color=#987cb9 SIZE=1>
+{% context_all %}
+
+<HR style="border:1 dashed #987cb9" width="100%" color=#987cb9 SIZE=1>
+{% current_time as nowTime %}
+{{ nowTime }}

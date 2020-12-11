@@ -1,0 +1,131 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}
+    helm.sh/chart: {{ .Release.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      imagePullSecrets:
+        - name: myregistrykey
+      initContainers:
+        - name: "code"
+          image: "{{ .Values.wwwroot.repository }}:{{ .Values.wwwroot.tag }}"
+          imagePullPolicy: {{ .Values.wwwroot.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - cp -rp /www/code/. /data/www
+          volumeMounts:
+            - name: wwwroot-volume
+              mountPath: /data/www
+              subPath: wwwroot
+      containers:
+        - name: nginx
+          image: "{{ .Values.nginx.repository }}:{{ .Values.nginx.tag }}"
+          imagePullPolicy: {{ .Values.nginx.pullPolicy }}
+          ports:
+            - name: tcp
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: wwwroot-volume
+              mountPath: /var/www/html
+              subPath: wwwroot
+            {{- if .Values.nginx }}
+            - name: nginx-conf-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            {{- if eq .Values.deploy_env "test" }}
+            - name: nginx-vhosts-volume
+              mountPath: /etc/nginx/conf.d/nginx-vhosts-test.conf
+              subPath: nginx-vhosts-test.conf
+            {{- end }}
+            {{- if eq .Values.deploy_env "staging" }}
+            - name: nginx-vhosts-volume
+              mountPath: /etc/nginx/conf.d/nginx-vhosts-staging.conf
+              subPath: nginx-vhosts-staging.conf
+            {{- end }}
+            {{- if eq .Values.deploy_env "prod" }}
+            - name: nginx-vhosts-volume
+              mountPath: /etc/nginx/conf.d/nginx-vhosts-production.conf
+              subPath: nginx-vhosts-production.conf
+            {{- end }}
+            {{- end }}          
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+          {{- if .Values.nginx.resources }}
+{{ toYaml .Values.nginx.resources | indent 12 }}
+          {{- else }}
+{{ toYaml .Values.resources | indent 12 }}
+          {{- end }}
+      volumes:
+        - name: wwwroot-volume
+          emptyDir: {}
+        {{- if .Values.nginx }}
+        - name: nginx-conf-volume
+          configMap: 
+            name: {{ .Release.Name }}-nginx-conf
+            items:
+            - key: nginx.conf
+              path: nginx.conf
+        {{- if or (eq .Values.deploy_env "test") (eq .Values.deploy_env "crm" ) (eq .Values.deploy_env "erp") }}
+        - name: nginx-vhosts-volume
+          configMap: 
+            name: {{ .Release.Name }}-nginx-conf
+            items:
+            - key: nginx-vhosts-test.conf
+              path: nginx-vhosts-test.conf
+        {{- end }}
+        {{- if eq .Values.deploy_env "staging" }}
+        - name: nginx-vhosts-volume
+          configMap: 
+            name: {{ .Release.Name }}-nginx-conf
+            items:
+            - key: nginx-vhosts-staging.conf
+              path: nginx-vhosts-staging.conf
+        {{- end }}
+        {{- if eq .Values.deploy_env "prod" }}
+        - name: nginx-vhosts-volume
+          configMap: 
+            name: {{ .Release.Name }}-nginx-conf
+            items:
+            - key: nginx-vhosts-production.conf
+              path: nginx-vhosts-production.conf
+        {{- end }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

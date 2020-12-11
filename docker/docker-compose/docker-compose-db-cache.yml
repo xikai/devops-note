@@ -1,0 +1,66 @@
+version: '3'
+services:
+  postgresql:
+    container_name: pgsql
+    image: postgres:10.14
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: dd01fncul
+    volumes:
+      - ./data/pgsql/data:/var/lib/postgresql/data:rw
+
+  mysql-server:
+    container_name: mysql
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    command: [mysqld, --character-set-server=utf8, --collation-server=utf8_bin, --default-authentication-plugin=mysql_native_password]
+    volumes:
+      - ./data/mysql:/var/lib/mysql:rw
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: dd01fncul
+    user: root
+    stop_grace_period: 1m
+
+  redis-server:
+    container_name: redis
+    image: redis:5.0.9
+    ports:
+      - "6379:6379"
+    restart: always
+    environment:
+      ALLOW_EMPTY_PASSWORD: "true"
+
+  mongo:
+    container_name: mongodb
+    image: mongo:3.6.18-xenial
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: dd01fncul
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - "5672:5762"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbitdd01
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:5.6.4
+    restart: always
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - ./data/elasticsearch/data:/usr/share/elasticsearch/data:rw

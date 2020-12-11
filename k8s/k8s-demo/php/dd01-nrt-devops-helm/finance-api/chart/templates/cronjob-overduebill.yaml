@@ -1,0 +1,103 @@
+{{- if eq .Values.deploy_env "prod" -}}
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-cronjob-overduebill
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}
+    helm.sh/chart: {{ .Release.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  schedule: "30 1 1 * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: myregistrykey
+          initContainers:
+            - name: "code"
+              image: "{{ .Values.wwwroot.repository }}:{{ .Values.wwwroot.tag }}"
+              imagePullPolicy: {{ .Values.wwwroot.pullPolicy }}
+              {{- if eq .Values.deploy_env "test" }}
+              command:
+                - sh
+                - -c
+                - |
+                  #!/usr/bin/env bash
+                  set -euo pipefail
+    
+                  git config --global http.sslVerify false
+                  git clone https://oauth2:v3MCoEej154oaciadzex@gitlab.dadi01.com/PHP/site-config.git
+                  cp site-config/test-config/finance-dadi01-com.stg /www/code/.env
+                  rm -rf site-config
+                  cp -rp /www/code/. /data/www
+              {{- end }}
+              {{- if eq .Values.deploy_env "staging" }}
+              command:
+                - sh
+                - -c
+                - |
+                  #!/usr/bin/env bash
+                  set -euo pipefail
+    
+                  git config --global http.sslVerify false
+                  git clone https://oauth2:v3MCoEej154oaciadzex@gitlab.dadi01.com/PHP/site-config.git
+                  cp site-config/staging-config/finance-dadi01-com.stg /www/code/.env
+                  rm -rf prod-config
+                  cp -rp /www/code/. /data/www
+              {{- end }}
+              {{- if eq .Values.deploy_env "prod" }}
+              command:
+                - sh
+                - -c
+                - |
+                  #!/usr/bin/env bash
+                  set -euo pipefail
+    
+                  git config --global http.sslVerify false
+                  git clone https://oauth2:v3MCoEej154oaciadzex@gitlab.dadi01.com/yejunyi/prod-config.git
+                  cp prod-config/prod-site-config/finance-dadi01-com.stg /www/code/.env
+                  rm -rf prod-config
+                  cp -rp /www/code/. /data/www
+              {{- end }}
+              volumeMounts:
+                - name: wwwroot-volume
+                  mountPath: /data/www
+                  subPath: wwwroot
+          containers:
+            - name: php
+              image: "{{ .Values.php.repository }}:{{ .Values.php.tag }}"
+              imagePullPolicy: {{ .Values.php.pullPolicy }}
+              command: [ "php","/var/www/html/think","overdueBill" ]
+              volumeMounts:
+                - name: wwwroot-volume
+                  mountPath: /var/www/html
+                  subPath: wwwroot
+              resources:
+              {{- if .Values.php.resources }}
+{{ toYaml .Values.php.resources | indent 16 }}
+              {{- else }}
+{{ toYaml .Values.resources | indent 16 }}
+              {{- end }}
+          volumes:
+            - name: wwwroot-volume
+              emptyDir: {}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+        {{- end }}
+{{- end }}

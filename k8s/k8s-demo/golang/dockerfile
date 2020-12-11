@@ -1,0 +1,8 @@
+FROM reg.dadi01.cn/library/alpine:latest
+MAINTAINER xikai "81757195@qq.com"
+
+COPY . /var/www/html
+RUN chmod -R 777 /var/www/html \
+  && sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \ 
+  && apk add --update --no-cache tzdata \
+  && cp /usr/share/zoneinfo/Asia/Chongqing /etc/localtime

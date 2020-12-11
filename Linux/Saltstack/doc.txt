@@ -1,0 +1,19 @@
+官方手册：
+https://docs.saltstack.com/en/latest/
+http://docs.saltstack.cn/contents.html
+
+参考文档：
+http://blog.coocla.org/categories/SaltStack/
+
+
+
+#查看系统己安装的模块组件
+salt 'minion' sys.list_modules
+
+#查看指定模块组件的所有方法
+salt 'minion' sys.list_functions grains
+salt 'minion' sys.list_functions pillar
+salt 'minion' sys.list_functions cmd
+
+#查看指定模块的详细使用文档
+salt 'minion' sys.doc cmd

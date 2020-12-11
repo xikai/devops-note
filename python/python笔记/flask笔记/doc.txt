@@ -1,0 +1,5 @@
+https://palletsprojects.com/
+https://flask.palletsprojects.com/en/1.1.x/
+
+https://dormousehole.readthedocs.io/en/latest/
+http://www.pythondoc.com/flask/index.html
