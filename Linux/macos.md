@@ -17,7 +17,7 @@ colorscheme peachpuff
 ```
 
 
-* mac terminal提示符修改
+* mac bash terminal提示符修改
 >vim ~/.bash_profile
 ```
 parse_git_branch() {
@@ -28,13 +28,14 @@ export CLICOLOR=1
 export LSCOLORS=Exfxcxdxbxegedabagacad
 ```
 
-* homebrew包管理器
+* 安装homebrew包管理器
 >https://brew.sh/index_zh-cn
 
 
-* mac zsh oh-my-zsh (https://ohmyz.sh)
->修改推存主题simple
-* vim .oh-my-zsh/themes/simple.zsh-theme
+
+### mac zsh terminal提示符修改,安装oh-my-zsh (https://ohmyz.sh)
+* 修改simple主题
+> vim .oh-my-zsh/themes/simple.zsh-theme
 ```
 # PROMPT='%(!.%{$fg[red]%}.%{$fg[green]%})%~%{$fg_bold[blue]%}$(git_prompt_info)%{$reset_color%} '
 PROMPT='%(!.%{$fg[red]%}.%{$fg[green]%})%~ ${FG[133]}$(git_prompt_info)
@@ -44,4 +45,9 @@ ZSH_THEME_GIT_PROMPT_PREFIX="("
 ZSH_THEME_GIT_PROMPT_SUFFIX=")"
 ZSH_THEME_GIT_PROMPT_DIRTY=" ✗"
 ZSH_THEME_GIT_PROMPT_CLEAN=" ✔"
+```
+* zsh启用simple主题
+>vim ~/.zshrc
+```
+ZSH_THEME="simple"
 ```
