@@ -1,0 +1,79 @@
+pipeline {
+    agent any
+
+    environment {
+        PROJECT_NAME  = "01hotel-admin-android"
+    }
+
+    stages {
+        stage('build') {
+            when {
+                expression { BRANCH_NAME ==~ /(master|pre|staging|development)/ }
+            }
+            agent { 
+                docker {
+                    image "reg.fncul.cn/library/gradle:6.5-jdk8-androidsdk"
+                    args "-v /root/.android/build-cache:/root/.android/build-cache -v /root/.gradle:/root/.gradle -v /var/run/docker.sock:/var/run/docker.sock"
+                } 
+            }
+            steps {
+                echo "==============build start================="
+                sh """
+                    rm -f /root/.gradle/caches/modules-2/modules-2.lock
+                    rm -fr /root/.gradle/caches/*/plugin-resolution/ 
+                """
+                script {
+                    if ("${env.BRANCH_NAME}" == "development") {
+                        sh "./build-send.sh hotel_admin_dev ${env.BUILD_NUMBER}" 
+                    }
+                    if ("${env.BRANCH_NAME}" == "staging") {
+                        sh "./build-send.sh hotel_admin_stg ${env.BUILD_NUMBER}"
+                    }
+                    if ("${env.BRANCH_NAME}" == "pre") {
+                        sh "./build-send.sh hotel_admin_pre ${env.BUILD_NUMBER}"
+                    }
+                    if ("${env.BRANCH_NAME}" == "master") {
+                        sh "./build-send.sh hotel_admin_prod ${env.BUILD_NUMBER}" 
+                    }
+                }
+            }
+        } 
+    }
+
+    post {
+        success {
+            script {
+                if ("${env.BRANCH_NAME}" ==~ "master|pre|staging|development") {
+                    sh """
+                        curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=5aa8e1a5-85db-4951-a0df-144c09688b42' \
+                            -H 'Content-Type: application/json' \
+                            -d '
+                            {
+                                "msgtype": "markdown",
+                                "markdown": {
+                                    "content": "# [构建成功](${env.BUILD_URL})  \n\n > 构建项目: $PROJECT_NAME  \n构建分支: ${env.BRANCH_NAME}  \n构建号: #${env.BUILD_NUMBER}"
+                                }
+                            }'
+                    """
+                }
+            }
+        }
+        failure {
+            script {
+                if ("${env.BRANCH_NAME}" ==~ "master|pre|staging|development") {
+                    sh """
+                        curl 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=5aa8e1a5-85db-4951-a0df-144c09688b42' \
+                            -H 'Content-Type: application/json' \
+                            -d '
+                            {
+                                "msgtype": "markdown",
+                                "markdown": {
+                                    "content": "# [构建失败](${env.BUILD_URL})  \n\n > 构建项目: $PROJECT_NAME  \n构建分支: ${env.BRANCH_NAME}  \n构建号: #${env.BUILD_NUMBER}"
+                                }
+                            }'
+                    """
+                }
+            }
+        }
+    }
+}

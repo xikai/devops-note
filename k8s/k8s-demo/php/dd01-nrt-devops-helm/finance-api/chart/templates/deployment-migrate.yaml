@@ -1,0 +1,150 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-migrate
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}-migrate
+    helm.sh/chart: {{ .Release.Name }}-migrate
+    app.kubernetes.io/instance: {{ .Release.Name }}-migrate
+    app.kubernetes.io/managed-by: {{ .Release.Service }}-migrate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}-migrate
+      app.kubernetes.io/instance: {{ .Release.Name }}-migrate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}-migrate
+        app.kubernetes.io/instance: {{ .Release.Name }}-migrate
+    spec:
+      imagePullSecrets:
+        - name: myregistrykey
+      initContainers:
+        - name: "code"
+          image: "{{ .Values.wwwroot.repository }}:{{ .Values.wwwroot.tag }}"
+          imagePullPolicy: {{ .Values.wwwroot.pullPolicy }}
+          {{- if eq .Values.deploy_env "dev" }}
+          command:
+            - sh
+            - -c
+            - |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              git config --global http.sslVerify false
+              git clone https://oauth2:beab7df85476b58e1d6948da950d24f7d33d06e1@github.com/dadi01/dd01-nrt-site-config.git
+              cp dd01-nrt-site-config/dev-config/finance-dadi01-com.stg /www/code/.env
+              rm -rf dd01-nrt-site-config
+              cp -rp /www/code/. /data/www
+          {{- end }}
+          {{- if eq .Values.deploy_env "test" }}
+          command:
+            - sh
+            - -c
+            - |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              git config --global http.sslVerify false
+              git clone https://oauth2:beab7df85476b58e1d6948da950d24f7d33d06e1@github.com/dadi01/dd01-nrt-site-config.git
+              cp dd01-nrt-site-config/test-config/finance-dadi01-com.stg /www/code/.env
+              rm -rf dd01-nrt-site-config
+              cp -rp /www/code/. /data/www
+          {{- end }}
+          {{- if eq .Values.deploy_env "test2" }}
+          command:
+            - sh
+            - -c
+            - |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              git config --global http.sslVerify false
+              git clone https://oauth2:beab7df85476b58e1d6948da950d24f7d33d06e1@github.com/dadi01/dd01-nrt-site-config.git
+              cp dd01-nrt-site-config/test2-config/finance-dadi01-com.stg /www/code/.env
+              rm -rf dd01-nrt-site-config
+              cp -rp /www/code/. /data/www
+          {{- end }}
+          {{- if eq .Values.deploy_env "staging" }}
+          command:
+            - sh
+            - -c
+            - |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              git config --global http.sslVerify false
+              git clone https://oauth2:beab7df85476b58e1d6948da950d24f7d33d06e1@github.com/dadi01/dd01-nrt-site-config.git
+              cp dd01-nrt-site-config/staging-config/finance-dadi01-com.stg /www/code/.env
+              rm -rf dd01-nrt-site-config
+              cp -rp /www/code/. /data/www
+          {{- end }}
+          {{- if eq .Values.deploy_env "prod" }}
+          command:
+            - sh
+            - -c
+            - |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              git config --global http.sslVerify false
+              git clone https://oauth2:beab7df85476b58e1d6948da950d24f7d33d06e1@github.com/dadi01/dd01-nrt-prod-config.git
+              cp dd01-nrt-prod-config/prod-site-config/finance-dadi01-com.stg /www/code/.env
+              rm -rf dd01-nrt-prod-config
+              cp -rp /www/code/. /data/www
+          {{- end }}
+          volumeMounts:
+            - name: wwwroot-volume
+              mountPath: /data/www
+              subPath: wwwroot
+      containers:
+        - name: php
+          image: "{{ .Values.php.repository }}:{{ .Values.php.tag }}"
+          imagePullPolicy: {{ .Values.php.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              sudo -u www-data php /var/www/html/artisan migrate --path=/database/migrations
+              top -b
+          volumeMounts:
+            - name: wwwroot-volume
+              mountPath: /var/www/html
+              subPath: wwwroot
+            {{- if .Values.php.fpmEnabled }}
+            - name: php-ini-volume
+              mountPath: /usr/local/etc/php/conf.d/additional.ini
+              subPath: additional.ini
+            {{- end }}
+          resources:
+          {{- if .Values.php.resources }}
+{{ toYaml .Values.php.resources | indent 12 }}
+          {{- else }}
+{{ toYaml .Values.resources | indent 12 }}
+          {{- end }}
+      volumes:
+        - name: wwwroot-volume
+          emptyDir: {}
+        {{- if .Values.php.fpmEnabled }}
+        - name: php-ini-volume
+          configMap: 
+            name: {{ .Release.Name }}-php-conf
+            items:
+            - key: additional.ini
+              path: additional.ini
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
