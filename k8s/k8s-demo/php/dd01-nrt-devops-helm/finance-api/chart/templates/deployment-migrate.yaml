@@ -108,6 +108,8 @@ spec:
             - sh
             - -c
             - |
+              #!/usr/bin/env bash
+              set -euo pipefail
               sudo -u www-data php /var/www/html/artisan migrate --path=/database/migrations
               top -b
           volumeMounts:

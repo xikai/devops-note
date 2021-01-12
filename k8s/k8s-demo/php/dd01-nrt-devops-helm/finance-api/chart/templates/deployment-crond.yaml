@@ -80,6 +80,8 @@ spec:
             - sh
             - -c
             - |
+              #!/usr/bin/env bash
+              set -euo pipefail
               echo "*/30 * * * * php /var/www/html/think MakeAgreementBill" >> /var/spool/cron/crontabs/root
               echo "*/4 * * * * php /var/www/html/think shuyanSaleData" >> /var/spool/cron/crontabs/root
               crond
