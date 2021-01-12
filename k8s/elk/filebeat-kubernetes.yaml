@@ -13,11 +13,7 @@ data:
         - type: kubernetes
           node: ${NODE_NAME}
           hints.enabled: true
-          #hints.default_config:
-          #  type: container
-          #  paths:
-          #    - /var/log/containers/*-${data.container.id}.log
-          ## Templates define a condition to match on autodiscover events, together with the list of configurations to launch when this condition happens.
+          # Templates define a condition to match on autodiscover events, together with the list of configurations to launch when this condition happens.
           templates:
           - condition:
               equals:
@@ -42,18 +38,24 @@ data:
     cloud.id: ${ELASTIC_CLOUD_ID}
     cloud.auth: ${ELASTIC_CLOUD_AUTH}
 
-    setup.ilm.enabled: false
-    setup.template.enabled: false
-    output.elasticsearch:
-      hosts: ['${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
-      index: "k8s-%{[kubernetes][labels][app_kubernetes_io/name]}-%{[kubernetes][container][name]}"
-      #indices:
-      #  - index: "k8s-%{[kubernetes][labels][app_kubernetes_io/name]}-%{[kubernetes][container][name]}"
-      #    when.not:
-      #      equals:
-      #        kubernetes.container.name: "nginx"
-      #username: ${ELASTICSEARCH_USERNAME}
-      #password: ${ELASTICSEARCH_PASSWORD}
+    output.kafka:
+      hosts: ["10.12.0.116:9092"]
+      topic: "k8s-%{[kubernetes][labels][app_kubernetes_io/name]}-%{[kubernetes][container][name]}"
+
+    #setup.ilm.enabled: false
+    #setup.template.name: "k8s"
+    #setup.template.pattern: "k8s-*"
+    #setup.template.overwrite: true
+    ##setup.dashboards.index: "k8s-*"
+    ##setup.kibana.host: "10.12.0.116:5601"
+    #
+    #output.elasticsearch:
+    #  hosts: ['${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
+    #  index: "k8s-%{[kubernetes][labels][app_kubernetes_io/name]}-%{[kubernetes][container][name]}"
+    #  #username: ${ELASTICSEARCH_USERNAME}
+    #  #password: ${ELASTICSEARCH_PASSWORD}
+
+    #logging.level: debug
 ---
 apiVersion: apps/v1
 kind: DaemonSet

@@ -64,7 +64,7 @@ services:
     image: docker.elastic.co/kibana/kibana:7.10.0
     container_name: kibana
     volumes:
-      - ./config/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
       - "5601:5601"
     networks:
@@ -73,6 +73,45 @@ services:
       - es01
       - es02
       - es03
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.10.0
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    ports:
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx2g -Xms2g"
+    networks:
+      - elastic
+    depends_on:
+      - es01
+      - es02
+      - es03
+
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - elastic
+
+  kafka:
+    image: wurstmeister/kafka
+    depends_on: [ zookeeper ]
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 10.12.0.116
+      KAFKA_CREATE_TOPICS: "test:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - ./kafka-logs:/kafka
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - elastic
 
 networks:
   elastic:
