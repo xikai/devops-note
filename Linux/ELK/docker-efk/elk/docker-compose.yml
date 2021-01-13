@@ -74,8 +74,23 @@ services:
       - es02
       - es03
 
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d/:ro
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro
+    networks:
+      - elastic
+    depends_on:
+      - kibana
+
+
   logstash:
     image: docker.elastic.co/logstash/logstash:7.10.0
+    container_name: logstash
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
@@ -90,9 +105,9 @@ services:
       - es02
       - es03
 
-
   zookeeper:
     image: wurstmeister/zookeeper
+    container_name: zookeeper
     ports:
       - "2181:2181"
     networks:
@@ -100,6 +115,7 @@ services:
 
   kafka:
     image: wurstmeister/kafka
+    container_name: kafka
     depends_on: [ zookeeper ]
     ports:
       - "9092:9092"

@@ -1,7 +1,7 @@
 * https://www.elastic.co/guide/en/beats/filebeat/current/running-on-kubernetes.html
+* https://arch-long.cn/articles/elasticsearch/FileBeat.html
 * https://www.cnblogs.com/cjsblog/p/9495024.html
 * https://blog.csdn.net/yanggd1987/article/details/108414587
-* https://www.cnblogs.com/passzhang/p/13475057.html
   
 * 下载filebeat-kubernetes.yaml
 ```

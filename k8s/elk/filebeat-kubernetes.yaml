@@ -22,6 +22,9 @@ data:
               - type: container
                 paths:
                   - /var/log/containers/*-${data.kubernetes.container.id}.log
+                exclude_files:
+                  - .*crond-.*
+                  - .*migrate-.*
 
     processors:
       # - add_cloud_metadata:
