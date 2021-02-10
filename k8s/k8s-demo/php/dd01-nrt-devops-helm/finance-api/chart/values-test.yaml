@@ -49,7 +49,7 @@ ingress:
     kubernetes.io/ingress.class: "traefik"
     # traefik.ingress.kubernetes.io/request-modifier: "ReplacePathRegex: ^/release.*/(.*) /$1"
   hosts:
-    - host: finance-api.dadi01.net
+    - finance-api.dadi01.net
 
   tls: []
   #  - secretName: chart-example-tls

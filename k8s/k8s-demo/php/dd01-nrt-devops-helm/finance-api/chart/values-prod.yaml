@@ -49,7 +49,7 @@ ingress:
     kubernetes.io/ingress.class: "traefik"
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: finance-api.fncul.com
+    - finance-api.fncul.com
 
   tls: []
   #  - secretName: chart-example-tls

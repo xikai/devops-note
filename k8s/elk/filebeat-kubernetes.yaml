@@ -18,6 +18,11 @@ data:
           - condition:
               equals:
                 kubernetes.namespace: kube-dev
+          #- condition.or:
+          #    - equals:
+          #        kubernetes.namespace: kube-test
+          #    - equals:
+          #        kubernetes.namespace: kube-staging
             config:
               - type: container
                 paths:
@@ -51,12 +56,14 @@ data:
     #setup.template.overwrite: true
     ##setup.dashboards.index: "k8s-*"
     ##setup.kibana.host: "10.12.0.116:5601"
-    #
     #output.elasticsearch:
     #  hosts: ['${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
     #  index: "k8s-%{[kubernetes][labels][app_kubernetes_io/name]}-%{[kubernetes][container][name]}"
     #  #username: ${ELASTICSEARCH_USERNAME}
     #  #password: ${ELASTICSEARCH_PASSWORD}
+
+    #output.console:
+    #  pretty: true
 
     #logging.level: debug
 ---

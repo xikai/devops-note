@@ -1,0 +1,2 @@
+# 忽略匹配的docker上下文文件目录，不发送给docker服务端deamon进程，以提升构建性能
+node_modules/

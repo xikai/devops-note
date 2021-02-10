@@ -16,7 +16,8 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./data/es01:/usr/share/elasticsearch/data
+      - ./es/data/es01:/usr/share/elasticsearch/data
+      - ./es/logs/es01:/usr/share/elasticsearch/logs
     ports:
       - 9200:9200
     networks:
@@ -37,7 +38,8 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./data/es02:/usr/share/elasticsearch/data
+      - ./es/data/es02:/usr/share/elasticsearch/data
+      - ./es/logs/es02:/usr/share/elasticsearch/logs
     networks:
       - elastic
   es03:
@@ -56,7 +58,8 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./data/es03:/usr/share/elasticsearch/data
+      - ./es/data/es03:/usr/share/elasticsearch/data
+      - ./es/logs/es03:/usr/share/elasticsearch/logs
     networks:
       - elastic
 

@@ -1,3 +1,4 @@
+* https://zhuanlan.zhihu.com/p/114510384
 * https://www.elastic.co/guide/en/beats/filebeat/current/running-on-kubernetes.html
 * https://arch-long.cn/articles/elasticsearch/FileBeat.html
 * https://www.cnblogs.com/cjsblog/p/9495024.html
