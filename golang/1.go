@@ -57,6 +57,39 @@
 	}
 
 
+指针
+	//一个指针变量可以指向任何一个值的内存地址。
+	//当一个指针被定义后没有分配到任何变量时，它的默认值为 nil。指针变量通常缩写为 ptr。
+	//ptr := &v    // v 的类型为 T,其中 v 代表被取地址的变量，变量 v 的地址使用变量 ptr 进行接收，ptr 的类型为*T，称做 T 的指针类型，*代表指针。
+	// & 取出地址，* 根据地址取出地址指向的值
+	package main
+	import (
+		"fmt"
+	)
+	func main() {
+		// 准备一个字符串类型
+		var house = "Malibu Point 10880, 90265"
+		// 对字符串取地址, ptr类型为*string
+		ptr := &house
+		// 打印ptr的类型
+		fmt.Printf("ptr type: %T\n", ptr)
+		// 打印ptr的指针地址
+		fmt.Printf("address: %p\n", ptr)
+		// 对指针进行取值操作
+		value := *ptr
+		// 取值后的类型
+		fmt.Printf("value type: %T\n", value)
+		// 指针取值后就是指向变量的值
+		fmt.Printf("value: %s\n", value)
+	}
+
+	运行结果：
+	ptr type: *string
+	address: 0xc0420401b0
+	value type: string
+	value: Malibu Point 10880, 90265
+
+
 数据类型
 	//布尔类型 bool
 	var b bool = true
@@ -239,25 +272,45 @@
 	}
 	//输出：The sum of 1 and 2 is: 3
 
-	//匿名函数，匿名函数同样被称之为闭包，不能够独立存在，但可以被赋值于某个变量，即保存函数的地址到变量中
+	//函数变量
+	//函数也是一种类型，可以和其他类型一样保存在变量中，下面的代码定义了一个函数变量 f，并将一个函数名为 fire()的函数赋给函数变量 f
+	package main
+	import "fmt"
+
+	func fire() {
+	    fmt.Println("fire")
+	}
+	func main() {
+	    var f func()
+	    f = fire
+	    f()
+	}
+
+	//匿名函数，即在需要使用函数时再定义函数，匿名函数没有函数名只有函数体
+	//第3行}后的(100)，表示对匿名函数进行调用，传递参数为 100,  输出：hello 100
+	func(data int) {
+		fmt.Println("hello", data)
+	}(100)
+	
+	//匿名函数可以被赋值于某个变量，即保存函数的地址到变量中
 	fplus := func(x, y int) int { return x + y }
 	调用匿名函数：fplus(3,4)
 	或者直接使用匿名函数：func(x, y int) int { return x + y } (3, 4)
 
-	//闭包：将函数作为返回值
+	//匿名函数-闭包
 	package main
-
-	func main() {
-		a := f()
-		print(a(5))
-	}
 
 	func f() func(b int) int {
 		return func(b int) int {
 			return b
 		}
 	}
-	
+
+	func main() {
+		a := f()
+		print(a(5))
+	}
+
 	//通过 return 关键字返回一组值，在函数块里面，return 之后的语句都不会执行
 
 	// defer 允许我们推迟到函数返回之前（或任意位置执行 return 语句之后）一刻才执行某个语句或函数
@@ -278,3 +331,91 @@
 	//数组是 可变的
 	var arr1 [5]int
 	var arrAge = [5]int{18, 20, 15, 22, 16}
+
+	//在编译期间通过源代码推导数组的大小
+	arr1 := [...]int{1, 2, 3} 
+
+	//切片（slice）是对数组一个连续片段的引用（该数组我们称之为相关数组，通常是匿名的），所以切片是一个引用类型
+	切片的初始化:
+	arr[0:3] or slice[0:3]
+	slice := []int{1, 2, 3}
+	slice := make([]int, 10)
+
+
+map
+	map 是一种元素对（key values pair）的无序集合,也称为关联数组或字典
+	var mapLit map[string]int
+	mapLit = map[string]int{"one": 1, "two": 2}
+
+	mapCreated := make(map[string]float32)
+
+
+结构体（struct）
+	//Go语言可以通过自定义的方式形成新的类型，结构体就是这些类型中的一种复合类型，结构体是由零个或多个任意类型的值聚合成的实体，每个值都可以称为结构体的成员。
+
+	/*结构体成员也可以称为“字段”，这些字段有以下特性：
+		字段拥有自己的类型和值；
+		字段名必须唯一；
+		字段的类型也可以是结构体，甚至是字段所在结构体的类型。
+	*/
+	//定义结构体：
+	type T struct {
+		a int
+		b int
+	}
+
+	//必须在定义结构体并实例化后才能使用结构体的字段
+	var ms T
+	ms.a = 10
+	ms.b = 20
+
+	//eg.
+	package main
+	import "fmt"
+
+	type struct1 struct {
+	    i1  int
+	    f1  float32
+	    str string
+	}
+
+	func main() {
+	    ms := new(struct1)
+	    ms.i1 = 10
+	    ms.f1 = 15.5
+	    ms.str= "Chris"
+
+	    fmt.Printf("The int is: %d\n", ms.i1)
+	    fmt.Printf("The float is: %f\n", ms.f1)
+	    fmt.Printf("The string is: %s\n", ms.str)
+	    fmt.Println(ms)
+	}
+
+	//匿名字段和内嵌结构体 “继承”
+	package main
+
+	import "fmt"
+
+	type A struct {
+		ax, ay int
+	}
+
+	type B struct {
+		A
+		bx, by float32
+	}
+
+	func main() {
+		b := B{A{1, 2}, 3.0, 4.0}
+		fmt.Println(b.ax, b.ay, b.bx, b.by)
+		fmt.Println(b.A)
+	}
+
+
+interface
+	//接口可以实现很多面向对象的特性，接口定义了一组方法（方法集），但是这些方法不包含（实现）代码：它们没有被实现（它们是抽象的）。接口里也不能包含变量。
+	type Namer interface {
+		Method1(param_list) return_type
+		Method2(param_list) return_type
+		...
+	}

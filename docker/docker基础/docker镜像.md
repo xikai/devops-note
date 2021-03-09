@@ -30,6 +30,11 @@ docker rmi a2669a9f1192
 docker rmi $(docker images -q)     
 docker rmi `docker images|egrep -v "library|jenkinsci" |awk '{print $3}'`
 ```
+* docker清理指定日期之前的镜像
+```
+docker image prune -a --filter "until=$(date +'%Y-%m-%dT%H:%M:%S' --date='-7 days')"
+```
+
 
 * 存储镜像文件为本地文件
 ```
