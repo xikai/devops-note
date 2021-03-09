@@ -25,7 +25,20 @@ echo "export GOPROXY=https://goproxy.io,direct" >> ~/.bash_profile && source ~/.
 echo "export GOPROXY=https://goproxy.io,direct" >> ~/.zshrc && source ~/.zshrc
 ```
 
-### 运行golang
+### 解决go包管理代理网址无法访问：proxy.golang.org
+```sh
+## 临时生效(Go 1.13之后，无需再通过设置系统环境变量的方式来修改，可以通过go env -w 命令来设置Go的环境变量)
+go env -w GOPROXY=https://goproxy.io,direct
+
+## 永久生效
+# 设置你的 bash 环境变量
+echo "export GOPROXY=https://goproxy.io,direct" >> ~/.bash_profile && source ~/.bash_profile
+
+# 如果你的终端是 zsh，使用以下命令
+echo "export GOPROXY=https://goproxy.io,direct" >> ~/.zshrc && source ~/.zshrc
+```
+
+### 命令行运行golang
 * 创建项目目录
 ```
 cd
@@ -33,6 +46,7 @@ mkdir hello
 cd hello
 ```
 * 编写go 示例代码
+>vim hello.go
 ```go
 package main
 
