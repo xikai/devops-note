@@ -11,6 +11,7 @@ Windows	%USERPROFILE%/go	C:\Users\用户名\go
 Unix	$HOME/go	        /home/用户名/go
 ```
 
+### GOPROXY
 * 解决go包管理代理网址无法访问：proxy.golang.org
 >Go1.14版本之后，都推荐使用go mod模式来管理依赖环境了，也不再强制我们把代码必须写在GOPATH下面的src目录了，你可以在你电脑的任意位置编写go代码。默认GoPROXY配置是：GOPROXY=https://proxy.golang.org,direct，由于国内访问不到https://proxy.golang.org，所以我们需要换一个PROXY，这里推荐使用https://goproxy.io或https://goproxy.cn。
 ```sh
@@ -25,18 +26,21 @@ echo "export GOPROXY=https://goproxy.io,direct" >> ~/.bash_profile && source ~/.
 echo "export GOPROXY=https://goproxy.io,direct" >> ~/.zshrc && source ~/.zshrc
 ```
 
-### 解决go包管理代理网址无法访问：proxy.golang.org
-```sh
-## 临时生效(Go 1.13之后，无需再通过设置系统环境变量的方式来修改，可以通过go env -w 命令来设置Go的环境变量)
-go env -w GOPROXY=https://goproxy.io,direct
-
-## 永久生效
-# 设置你的 bash 环境变量
-echo "export GOPROXY=https://goproxy.io,direct" >> ~/.bash_profile && source ~/.bash_profile
-
-# 如果你的终端是 zsh，使用以下命令
-echo "export GOPROXY=https://goproxy.io,direct" >> ~/.zshrc && source ~/.zshrc
+### go module
+>go module是Go1.11版本之后官方推出的版本管理工具，并且从Go1.13版本开始，go module将是Go语言默认的依赖管理工具。
 ```
+要启用go module支持首先要设置环境变量GO111MODULE，通过它可以开启或关闭模块支持，它有三个可选值：off、on、auto，默认值是auto。
+
+GO111MODULE=off禁用模块支持，编译时会从GOPATH和vendor文件夹中查找包。
+GO111MODULE=on启用模块支持，编译时会忽略GOPATH和vendor文件夹，只根据 go.mod下载依赖。
+GO111MODULE=auto，当项目在$GOPATH/src外且项目根目录有go.mod文件时，开启模块支持。
+简单来说，设置GO111MODULE=on之后就可以使用go module了，以后就没有必要在GOPATH中创建项目了，并且还能够很好的管理项目依赖的第三方包信息。
+
+使用 go module 管理依赖后会在项目根目录下生成两个文件go.mod和go.sum。
+
+
+```
+
 
 ### 命令行运行golang
 * 创建项目目录
