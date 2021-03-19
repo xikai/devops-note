@@ -37,10 +37,34 @@ GO111MODULE=auto，当项目在$GOPATH/src外且项目根目录有go.mod文件�
 简单来说，设置GO111MODULE=on之后就可以使用go module了，以后就没有必要在GOPATH中创建项目了，并且还能够很好的管理项目依赖的第三方包信息。
 
 使用 go module 管理依赖后会在项目根目录下生成两个文件go.mod和go.sum。
-
-
+```
+* go mod命令
+```
+go mod download    下载依赖的module到本地cache（默认为$GOPATH/pkg/mod目录）
+go mod edit        编辑go.mod文件
+go mod graph       打印模块依赖图
+go mod init        初始化当前文件夹, 创建go.mod文件
+go mod tidy        增加缺少的module，删除无用的module
+go mod vendor      将依赖复制到vendor下
+go mod verify      校验依赖
+go mod why         解释为什么需要依赖
 ```
 
+* go.mod文件记录了项目所有的依赖信息，其结构大致如下：
+```
+module github.com/Q1mi/studygo/blogger
+
+go 1.12
+
+require (
+	github.com/DeanThompson/ginpprof v0.0.0-20190408063150-3be636683586
+	github.com/gin-gonic/gin v1.4.0
+	github.com/go-sql-driver/mysql v1.4.1
+	github.com/jmoiron/sqlx v1.2.0
+	github.com/satori/go.uuid v1.2.0
+	google.golang.org/appengine v1.6.1 // indirect
+)
+```
 
 ### 命令行运行golang
 * 创建项目目录
