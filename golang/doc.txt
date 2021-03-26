@@ -1,5 +1,6 @@
-go入门: https://github.com/unknwon/the-way-to-go_ZH_CN/blob/master/eBook/directory.md
+http://doc.yonyoucloud.com/doc/wiki/project/the-way-to-go/index.html
+https://www.liwenzhou.com/posts/Go/go_menu/
+
 Golang标准库: https://studygolang.com/pkgdoc
              https://golang.org/pkg/
 
-https://www.liwenzhou.com/posts/Go/go_menu/

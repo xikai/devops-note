@@ -45,10 +45,11 @@
 
 
 常量
+	//有时，你需要在代码中加入静态值，这称为 常量
 	/*
 	const identifier [type] = value
 	显式类型定义： const b string = "abc"
-	隐式类型定义： const b = "abc"
+	隐式类型定义(根据值推断常量类型)： const b = "abc"
 	*/
 	const Pi = 3.14159
 	const beef, two, c = "eat", 2, "veg"
@@ -76,12 +77,18 @@
 	)
 
 
-数据类型
-	//布尔类型 bool
-	var b bool = true
+基本数据类型
+	/*
+	Go 有四类数据类型：
+		基本类型：数字、字符串和布尔值
+		聚合类型：数组和结构
+		引用类型：指针、切片、映射、函数和通道
+		接口类型：接口
+	*/
 
-	//整型 int 和浮点型 float
+	//数值（整型 int 和浮点型 float）
 	//int 和 uint 在 32 位操作系统上，它们均使用 32 位（4 个字节），在 64 位操作系统上，它们均使用 64 位（8 个字节)
+	//在不同类型之间不能执行数学运算，需要强制转换（int 与 int32 不同）
 	//整数：
 	int8（-128 -> 127）
 	int16（-32768 -> 32767）
@@ -99,6 +106,8 @@
 	float32（+- 1e-45 -> +- 3.4 * 1e38）
 	float64（+- 5 * 1e-324 -> 107 * 1e308）
 
+	//布尔类型 bool
+	var b bool = true
 
 	//复数
 	complex64 (32 位实数和虚数)
@@ -108,8 +117,24 @@
 	fmt.Printf("The value is: %v", c1)
 	// 输出： 5 + 10i
 
+	//默认值
+	func main() {
+		var defaultInt int			//0
+		var defaultFloat32 float32	//+0.000000e+000
+		var defaultFloat64 float64	//+0.000000e+000
+		var defaultBool bool		//false
+		var defaultString string	//空值
+		println(defaultInt, defaultFloat32, defaultFloat64, defaultBool, defaultString)
+	}
 
-格式化说明符
+	//类型转换
+	var integer16 int16 = 127
+	var integer32 int32 = 32767
+	println(int32(integer16) + integer32)
+
+
+	//格式化说明符，参考fmt包
+	%s 用于格式化字符串
 	%d 用于格式化整数（%x 和 %X 用于格式化 16 进制表示的数字)
 	%g 用于格式化浮点型（%f 输出浮点数，%e 输出科学计数表示法）
 	%0nd 用于规定输出长度为n的整数，其中开头的数字 0 是必须的。
@@ -165,6 +190,33 @@
 		fmt.Printf("This is the %d iteration\n", i)
 	}
 
+	//类似while,只要 num 变量保存的值与 5 不同，程序就会输出一个随机数
+	func main() {
+		var num int64
+		rand.Seed(time.Now().Unix())
+		for num != 5 {
+			num = rand.Int63n(15)
+			fmt.Println(num)
+		}
+	}
+
+	//无限循环
+	func main() {
+		var num int32
+		sec := time.Now().Unix()
+		rand.Seed(sec)
+	
+		for {
+			fmt.Print("Writting inside the loop...")
+			if num = rand.Int31n(10); num == 5 {
+				fmt.Println("finish!")
+				break
+			}
+			fmt.Println(num)
+		}
+	}
+
+
 	//break 语句退出循环
 	package main
 
@@ -181,7 +233,7 @@
 	}
 	//输出：012345 012345 012345,
 
-	//continue跳过本次循环，继续执行
+	//continue跳过本次循环，继续执行（跳过循环的当前迭代）
 	package main
 
 	func main() {
@@ -313,7 +365,7 @@
 
 切片
 	//切片（slice）是对数组一个连续片段的引用（该数组我们称之为相关数组，通常是匿名的），所以切片是一个引用类型
-	切片的初始化:
+	//切片的初始化:
 	arr[0:3] or slice[0:3]
 	slice := []int{1, 2, 3}
 
@@ -373,7 +425,7 @@ map
 	//声明变量b为map类型：var b map[string]int，需要用make函数进行初始化操作之后，才能对其进行键值对赋值
 	//定义map： make(map[KeyType]ValueType, [cap])
 	func main() {
-		scoreMap := make(map[string]int, 8)
+		scoreMap := make(map[string]int, 8)  //创建空map
 		scoreMap["张三"] = 90
 		scoreMap["小明"] = 100
 		fmt.Println(scoreMap)  				//map[小明:100 张三:90]
@@ -520,17 +572,21 @@ map
 		print(f()(3))	  //3,不通过变量引用，直接调用函数f()
 	}
 
-	// defer 允许我们推迟到函数返回之前（或任意位置执行 return 语句之后）一刻才执行某个语句或函数
-	func function1() {
-		fmt.Println("In function1 at the top")
-		defer fmt.Println("dddd")
-		fmt.Println("In function1 at the bottom")
-	}
-	function1() 
+	// defer 语句会推迟函数（包括任何参数）的运行，直到包含 defer 语句的函数完成
+	// defer 语句按逆序运行，先运行最后一个，最后运行第一个
+	func main() {
+		for i := 1; i <= 3; i++ {
+			defer fmt.Println("deferred", -i)
+			fmt.Println("regular", i)
+		}
+	} 
 	//输出：
-	In function1 at the top
-	In function1 at the bottom
-	dddd
+	regular 1
+	regular 2
+	regular 3
+	deferred -3
+	deferred -2
+	deferred -1
 	
 
 	//内置函数
@@ -543,33 +599,30 @@ map
 
 
 指针
-	//任何程序数据载入内存后，在内存都有他们的地址，这就是指针。而为了保存一个数据在内存中的地址，我们就需要指针变量（指针变量保存内存地址，内存地址指向数据值）
+	//程序在内存中存储它的值，每个内存块（或字）有一个地址，通常用十六进制数表示，如：0x6b0820 或 0xf84001d7f0。
 	//把内存地址赋值给变量B,B就是指针变量
-	// & 取地址（指针操作）， * 根据地址取地址指向的值，取地址操作符&和取值操作符*是一对互补操作符
+	// & 取内存地址（不能得到一个文字或常量的地址）， * 根据地址取地址指向的值，取地址操作符&和取值操作符*是一对互补操作符
 	// Go语言中的值类型（int、float、bool、string、array、struct）都有对应的指针类型，如：*int、*int64、*string等
 	
-	//取变量v的指针（内存地址）
-	ptr := &v  
+	//取变量v的内存地址,内存地址可以存储在一个叫做指针的特殊数据类型中
+	ptr := &v   //ptr为指针类型
 	//v:代表被取地址的变量，类型为T
 	//ptr:用于接收地址的变量，ptr的类型就为*T，称做T的指针类型。*代表指针
-	a := 10 //值：10，内存地址：0x123456
-	b := &a  //b是一个指针变量，值：0x123456  内存地址：0x654321
-	c := &b  //c是一个指针变量值：0x654321  内存地址：0x123123
-
-	//在对普通变量使用&操作符取地址后会获得这个变量的指针
-	a := 10
-	b := &a 	// 取变量a的地址，将指针保存到b中
-	c := *b		//10，获得指针变量b,指向的原变量a的值
+	a := 10  //值：10，内存地址：0xc000014090
+	b := &a  //b是一个指针变量，值：0xc000014090  内存地址：0xc00000e028
+	c := &b  //c是一个指针变量，值：0xc00000e028  内存地址：0xc00000e030
+	d := *b	 //10，在指针类型前面加上 *号（前缀）来获取指针所指向的内容
 
 	func main() {
 		// 准备一个字符串类型
 		var house = "Malibu Point 10880, 90265"
 		// 指针变量ptr对字符串变量house取内存地址
-		ptr := &house      //0xc0420401b0
+		//ptr := &house      //0xc0420401b0
+		var ptr *string = &house	//0xc0420401b0
 		fmt.Printf("ptr type: %T\n", ptr)  //ptr的类型: *string （字符串类型的指针）
 
 		// 对指针进行取值操作
-		value := *ptr   //指针取值后就是指向变量的值: Malibu Point 10880, 90265
+		value := *ptr   //获取指针所指向的内容: "Malibu Point 10880, 90265"
 		fmt.Printf("value type: %T\n", value) // 取值后的类型: string
 		// 指针取值后就是指向变量的值
 		fmt.Printf("value: %s\n", value)
@@ -578,7 +631,8 @@ map
 
 
 结构体（struct）
-	//Go语言中没有“类”的概念，也不支持“类”的继承等面向对象的概念。Go语言中通过结构体的内嵌再配合接口比面向对象具有更高的扩展性和灵活性
+	//有时，你需要在一个结构体中表示字段的集合。 例如，要编写工资核算程序时，需要使用员工数据结构。 在 Go 中，可使用结构将可能构成记录的不同字段组合在一起。
+	//Go 中的结构体也是一种数据结构，它可包含零个或多个任意类型的字段，并将它们表示为单个实体。类似面向对象class。
 
 	//type关键字来定义自定义类型:
 	type MyInt int   //通过type关键字的定义，MyInt就是一种新的类型，它具有int的特性
@@ -592,7 +646,7 @@ map
 	/*
 		类型名：标识自定义结构体的名称，在同一个包内不能重复。
 		字段名：表示结构体字段名。结构体中的字段名必须唯一。
-		字段类型：表示结构体字段的具体类型。
+		字段类型：结构体的字段可以是任何类型，甚至是结构体本身，也可以是函数或者接口
 	*/
 
 	type person struct {
@@ -601,9 +655,9 @@ map
 		age  int8
 	}
 
-	//必须在定义结构体并实例化后才能使用结构体的字段;没有初始化的结构体，其成员变量都是对应其类型的零值
+	//初始化结构体，没有初始化的结构体，其成员变量都是对应其类型的零值
 	func main() {
-		var p1 person
+		var p1 person	//初始化结构体
 		p1.name = "xikai"
 		p1.city = "shenzhen"
 		p1.age = 18
@@ -655,7 +709,7 @@ map
 	}
 	fmt.Printf("p5=%#v\n", p5) //p5=main.person{name:"小王子", city:"北京", age:18}
 
-	//对结构体指针进行键值对初始化
+	// & 运算符生成指向结构的指针
 	p6 := &person{
 		name: "小王子",
 		city: "北京",
@@ -709,6 +763,95 @@ map
 		}
 		fmt.Printf("user1=%#v\n", user1)//user1=main.User{Name:"小王子", Gender:"男", Address:main.Address{Province:"山东", City:"威海"}}
 	}
+
+	//构造函数
+	type File struct {
+		fd	int
+		name string
+	}
+	func NewFile(f int, na string) *File {
+		if f < 0 {
+			return nil
+		}
+		return &File{f, na}
+	}
+	func main() {
+		f := NewFile(10,"./test.txt")
+		fmt.Println(f)
+	}
+
+	//方法（在 Go 语言中，结构体就像是类的一种简化形式）
+	//Go方法是作用在接收者（receiver）上的一个函数，接收者是某种类型（不能是接口类型）的变量。因此方法是一种特殊类型的函数。
+
+	//定义方法（在方法名之前，func 关键字之后的括号中指定 receiver）
+	//recv 就像是面向对象语言中的 this 或 self，但是 Go 中并没有这两个关键字。随个人喜好，你可以使用 this 或 self 作为 receiver 的名字。
+	func (recv receiver_type) methodName(parameter_list) (return_value_list) { ... }
+
+	//结构体类型方法 method .go
+	package main
+	import "fmt"
+
+	type TwoInts struct {
+	    a int
+	    b int
+	}
+
+	func main() {
+	    two1 := new(TwoInts)
+	    two1.a = 12
+	    two1.b = 10
+
+	    fmt.Printf("The sum is: %d\n", two1.AddThem())						//The sum is: 22
+	    fmt.Printf("Add them to the param: %d\n", two1.AddToParam(20))		//Add them to the param: 42
+
+	    two2 := TwoInts{3, 4}
+	    fmt.Printf("The sum is: %d\n", two2.AddThem())						//The sum is: 7
+	}
+
+	func (tn *TwoInts) AddThem() int {
+	    return tn.a + tn.b
+	}
+
+	func (tn *TwoInts) AddToParam(param int) int {
+	    return tn.a + tn.b + param
+	}
+
+	//giveRaise.go
+	package main
+	import "fmt"
+
+	type employee struct {
+		name string
+		salary float32
+	}
+
+	func (em *employee) giveRaise(raise float32) *employee {
+		em.salary = float32(em.salary) + float32(em.salary) * raise
+		return &employee{em.name, em.salary}
+	}
+
+	func main() {
+		f := (&employee{"张三",10000.00}).giveRaise(0.2)
+		fmt.Println(f)	//&{张三 12000}
+	}
+
+	//非结构体类型上方法 method2.go
+	package main
+	import "fmt"
+
+	type IntVector []int
+
+	func (v IntVector) Sum() (s int) {   //v接收切片IntVector{1, 2, 3}
+		for _, x := range v {
+			s += x
+		}
+		return
+	}
+
+	func main() {
+		fmt.Println(IntVector{1, 2, 3}.Sum()) // 输出是6
+	}
+
 
 
 package
@@ -778,13 +921,42 @@ package
 	init执行顺序：c.init() -> B.init() -> A.init() -> main.init()
 	
 
-
-
-
 interface
-	//接口可以实现很多面向对象的特性，接口定义了一组方法（方法集），但是这些方法不包含（实现）代码：它们没有被实现（它们是抽象的）。接口里也不能包含变量。
-	type Namer interface {
-		Method1(param_list) return_type
-		Method2(param_list) return_type
-		...
+	//接口（interface）定义了一个对象的行为规范，只定义规范不实现，由具体的对象来实现规范的细节。在Go语言中接口（interface）是一种类型，一种抽象的类型。
+	//interface是一组method的集合，是duck-type programming的一种体现。
+	type 接口类型名 interface{
+		方法名1( 参数列表1 ) 返回值列表1
+		方法名2( 参数列表2 ) 返回值列表2
+		…
 	}
+	/*
+		接口名：使用type将接口定义为自定义的类型名。Go语言的接口在命名时，一般会在单词后面添加er，如有写操作的接口叫Writer，有字符串功能的接口叫Stringer等。接口名最好要能突出该接口的类型含义。
+		方法名：当方法名首字母是大写且这个接口类型名首字母也是大写时，这个方法可以被接口所在的包（package）之外的代码访问。
+		参数列表、返回值列表：参数列表和返回值列表中的参数变量名可以省略。
+	*/
+
+	//当你看到这个接口类型的值时，你不知道它是什么，唯一知道的就是可以通过它的Write方法来做一些事情。
+	type writer interface{
+		Write([]byte) error
+	}
+
+	//接口就是一个需要实现的方法列表。一个对象只要实现了接口中的全部方法，那么就实现了这个接口
+	// Sayer 接口
+	type Sayer interface {
+		say()
+	}
+
+	type dog struct {}
+	type cat struct {}
+
+	//因为Sayer接口里只有一个say方法，所以我们只需要给dog和cat 分别实现say方法就可以实现Sayer接口了
+	// dog实现了Sayer接口
+	func (d dog) say() {
+		fmt.Println("汪汪汪")
+	}
+	// cat实现了Sayer接口
+	func (c cat) say() {
+		fmt.Println("喵喵喵")
+	}
+
+
