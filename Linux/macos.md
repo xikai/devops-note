@@ -51,3 +51,8 @@ ZSH_THEME_GIT_PROMPT_CLEAN=" ✔"
 ```
 ZSH_THEME="simple"
 ```
+
+* 微信多开
+```
+open -n /Applications/WeChat.app/Contents/MacOS/WeChat
+```

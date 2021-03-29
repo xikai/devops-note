@@ -629,6 +629,72 @@ map
 	}
 
 
+package
+	//包（package）是多个Go源码的集合，是一种高级的代码复用方案，Go语言为我们提供了很多内置包，如fmt、os、io等。
+	//一个包可以简单理解为一个存放.go文件的文件夹。 该文件夹下面的所有go文件都要在代码的第一行添加如下代码，声明该文件归属的包。
+	package 包名
+	/*
+		一个文件夹下面直接包含的文件只能归属一个package，同样一个package的文件不能在多个文件夹下。
+		包名可以不和文件夹的名字一样，包名不能包含 - 符号。
+		包名为main的包为应用程序的入口包，这种包编译后会得到一个可执行文件，而编译不包含main包的源代码则不会得到可执行文件。
+	*/
+
+	//可见性,如果想在一个包中引用另外一个包里的标识符（如变量、常量、类型、函数等）时，该标识符必须是对外可见的（public）。在Go语言中只需要将标识符的首字母大写就可以让标识符对外可见了
+	package pkg2
+	import "fmt"
+
+	// 包变量可见性
+	var a = 100 // 首字母小写，外部包不可见，只能在当前包内使用
+
+	// 首字母大写外部包可见，可在其他包中使用
+	const Mode = 1
+
+	type person struct { // 首字母小写，外部包不可见，只能在当前包内使用
+		name string
+	}
+
+	// 首字母大写，外部包可见，可在其他包中使用
+	func Add(x, y int) int {
+		return x + y
+	}
+
+	func age() { // 首字母小写，外部包不可见，只能在当前包内使用
+		var Age = 18 // 函数局部变量，外部包不可见，只能在当前函数内使用
+		fmt.Println(Age)
+	}
+
+
+	//结构体中的字段名和接口中的方法名如果首字母都是大写，外部包可以访问这些字段和方法
+	type Student struct {
+		Name  string //可在包外访问的方法
+		class string //仅限包内访问的字段
+	}
+	type Payer interface {
+		init() //仅限包内访问的方法
+		Pay()  //可在包外访问的方法
+	}
+
+	//包的导入
+	import "包的路径"
+	import 别名 "包的路径"
+	//多行导入
+	import (
+		"fmt"
+		m "github.com/Q1mi/studygo/pkg_test"
+	 )
+	/*
+		import导入语句通常放在文件开头包声明语句的下面。
+		导入的包名需要使用双引号包裹起来。
+		包名是从$GOPATH/src/后开始计算的，使用/进行路径分隔。
+		Go语言中禁止循环导入包
+	*/
+
+	//在Go语言程序执行时导入包语句会自动触发包内部init()函数的调用
+	//init()函数没有参数也没有返回值。 init()函数在程序运行时自动被调用执行，不能在代码中主动调用它
+	//Go语言包会从main包开始检查其导入的所有包，每个包中又可能导入了其他的包.在运行时，被最后导入的包会最先初始化并调用其init()函数
+	包导入顺序：main -import-> A -import-> B -import-> C
+	init执行顺序：c.init() -> B.init() -> A.init() -> main.init()
+
 
 结构体（struct）
 	//有时，你需要在一个结构体中表示字段的集合。 例如，要编写工资核算程序时，需要使用员工数据结构。 在 Go 中，可使用结构将可能构成记录的不同字段组合在一起。
@@ -853,74 +919,6 @@ map
 	}
 
 
-
-package
-	//包（package）是多个Go源码的集合，是一种高级的代码复用方案，Go语言为我们提供了很多内置包，如fmt、os、io等。
-	//一个包可以简单理解为一个存放.go文件的文件夹。 该文件夹下面的所有go文件都要在代码的第一行添加如下代码，声明该文件归属的包。
-	package 包名
-	/*
-		一个文件夹下面直接包含的文件只能归属一个package，同样一个package的文件不能在多个文件夹下。
-		包名可以不和文件夹的名字一样，包名不能包含 - 符号。
-		包名为main的包为应用程序的入口包，这种包编译后会得到一个可执行文件，而编译不包含main包的源代码则不会得到可执行文件。
-	*/
-
-	//可见性,如果想在一个包中引用另外一个包里的标识符（如变量、常量、类型、函数等）时，该标识符必须是对外可见的（public）。在Go语言中只需要将标识符的首字母大写就可以让标识符对外可见了
-	package pkg2
-	import "fmt"
-
-	// 包变量可见性
-	var a = 100 // 首字母小写，外部包不可见，只能在当前包内使用
-
-	// 首字母大写外部包可见，可在其他包中使用
-	const Mode = 1
-
-	type person struct { // 首字母小写，外部包不可见，只能在当前包内使用
-		name string
-	}
-
-	// 首字母大写，外部包可见，可在其他包中使用
-	func Add(x, y int) int {
-		return x + y
-	}
-
-	func age() { // 首字母小写，外部包不可见，只能在当前包内使用
-		var Age = 18 // 函数局部变量，外部包不可见，只能在当前函数内使用
-		fmt.Println(Age)
-	}
-
-
-	//结构体中的字段名和接口中的方法名如果首字母都是大写，外部包可以访问这些字段和方法
-	type Student struct {
-		Name  string //可在包外访问的方法
-		class string //仅限包内访问的字段
-	}
-	type Payer interface {
-		init() //仅限包内访问的方法
-		Pay()  //可在包外访问的方法
-	}
-
-	//包的导入
-	import "包的路径"
-	import 别名 "包的路径"
-	//多行导入
-	import (
-		"fmt"
-		m "github.com/Q1mi/studygo/pkg_test"
-	 )
-	/*
-		import导入语句通常放在文件开头包声明语句的下面。
-		导入的包名需要使用双引号包裹起来。
-		包名是从$GOPATH/src/后开始计算的，使用/进行路径分隔。
-		Go语言中禁止循环导入包
-	*/
-
-	//在Go语言程序执行时导入包语句会自动触发包内部init()函数的调用
-	//init()函数没有参数也没有返回值。 init()函数在程序运行时自动被调用执行，不能在代码中主动调用它
-	//Go语言包会从main包开始检查其导入的所有包，每个包中又可能导入了其他的包.在运行时，被最后导入的包会最先初始化并调用其init()函数
-	包导入顺序：main -import-> A -import-> B -import-> C
-	init执行顺序：c.init() -> B.init() -> A.init() -> main.init()
-	
-
 interface
 	//接口（interface）定义了一个对象的行为规范，只定义规范不实现，由具体的对象来实现规范的细节。在Go语言中接口（interface）是一种类型，一种抽象的类型。
 	//interface是一组method的集合，是duck-type programming的一种体现。
@@ -935,20 +933,13 @@ interface
 		参数列表、返回值列表：参数列表和返回值列表中的参数变量名可以省略。
 	*/
 
-	//当你看到这个接口类型的值时，你不知道它是什么，唯一知道的就是可以通过它的Write方法来做一些事情。
-	type writer interface{
-		Write([]byte) error
-	}
-
 	//接口就是一个需要实现的方法列表。一个对象只要实现了接口中的全部方法，那么就实现了这个接口
 	// Sayer 接口
 	type Sayer interface {
 		say()
 	}
-
 	type dog struct {}
 	type cat struct {}
-
 	//因为Sayer接口里只有一个say方法，所以我们只需要给dog和cat 分别实现say方法就可以实现Sayer接口了
 	// dog实现了Sayer接口
 	func (d dog) say() {
@@ -959,4 +950,17 @@ interface
 		fmt.Println("喵喵喵")
 	}
 
-
+	//接口嵌套接口
+	type ReadWrite interface {
+		Read(b Buffer) bool
+		Write(b Buffer) bool
+	}
+	type Lock interface {
+		Lock()
+		Unlock()
+	}
+	type File interface {
+		ReadWrite
+		Lock
+		Close()
+	}
