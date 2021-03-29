@@ -921,7 +921,6 @@ package
 
 interface
 	//接口（interface）定义了一个对象的行为规范，只定义规范不实现，由具体的对象来实现规范的细节。在Go语言中接口（interface）是一种类型，一种抽象的类型。
-	//interface是一组method的集合，是duck-type programming的一种体现。
 	type 接口类型名 interface{
 		方法名1( 参数列表1 ) 返回值列表1
 		方法名2( 参数列表2 ) 返回值列表2
