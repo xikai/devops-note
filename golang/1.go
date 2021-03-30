@@ -920,7 +920,7 @@ package
 
 
 interface
-	//接口（interface）定义了一个对象的行为规范，只定义规范不实现，由具体的对象来实现规范的细节。在Go语言中接口（interface）是一种类型，一种抽象的类型。
+	//在Go语言中接口（interface）是一种类型，一种抽象的类型。接口（interface）定义了一个对象的行为规范，只定义规范不实现，由具体的对象来实现规范的细节。
 	type 接口类型名 interface{
 		方法名1( 参数列表1 ) 返回值列表1
 		方法名2( 参数列表2 ) 返回值列表2
@@ -931,23 +931,136 @@ interface
 		方法名：当方法名首字母是大写且这个接口类型名首字母也是大写时，这个方法可以被接口所在的包（package）之外的代码访问。
 		参数列表、返回值列表：参数列表和返回值列表中的参数变量名可以省略。
 	*/
-
-	//接口就是一个需要实现的方法列表。一个对象只要实现了接口中的全部方法，那么就实现了这个接口
-	// Sayer 接口
-	type Sayer interface {
-		say()
-	}
+	// 为什么要使用接口
 	type dog struct {}
-	type cat struct {}
-	//因为Sayer接口里只有一个say方法，所以我们只需要给dog和cat 分别实现say方法就可以实现Sayer接口了
-	// dog实现了Sayer接口
 	func (d dog) say() {
 		fmt.Println("汪汪汪")
 	}
-	// cat实现了Sayer接口
+	type cat struct {}
 	func (c cat) say() {
 		fmt.Println("喵喵喵")
 	}
+	func main() {
+		c := Cat{}
+		fmt.Println("猫:", c.Say())
+		d := Dog{}
+		fmt.Println("狗:", d.Say())
+	}
+	/*
+		上面的代码中定义了猫和狗,你会发现main函数中明显有重复的代码,如果我们后续再加上猪、青蛙等动物的话，我们的代码还会一直重复下去。那我们能不能把它们当成“能叫的动物”来处理呢？
+		比如一个网上商城可能使用支付宝、微信、银联等方式去在线支付，我们能不能把它们当成“支付方式”来处理呢？
+		比如三角形，四边形，圆形都能计算周长和面积，我们能不能把它们当成“图形”来处理呢？
+		比如销售、行政、程序员都能计算月薪，我们能不能把他们当成“员工”来处理呢？
+		Go语言中为了解决类似上面的问题，就设计了接口这个概念。接口区别于我们之前所有的具体类型，接口是一种抽象的类型。当你看到一个接口类型的值时，你不知道它是什么，唯一知道的是通过它的方法能做什么。
+	*/
+
+	//接口就是一个需要实现的方法列表。一个对象只要实现了接口中的全部方法，那么就实现了这个接口
+	//只要实现了say()这个方法的类型都可以称为sayer类型
+	type sayer interface {
+		say()
+	}
+
+	type dog struct {}
+	// dog实现sayer接口
+	func (d dog) say() {
+		fmt.Println("汪汪汪")
+	}
+
+	type cat struct {}
+	// cat实现sayer接口
+	func (c cat) say() {
+		fmt.Println("喵喵喵")
+	}
+
+	type persion struct {
+		name string
+	}
+	// persion实现say接口
+	func (p person) say() {
+		fmt.Println("啊啊啊")
+	}
+
+	func da(arg sayer)  {
+		arg.say()
+	}
+
+	func main()  {
+		c1 := cat{}
+		da(c1)		//喵喵喵
+		d1 := dog{}
+		da(d1)		//汪汪汪
+		p1 := person{}
+		da(p1)		//啊啊啊
+	}
+
+
+	//使用值接收者实现接口和使用指针接收者实现接口的区别
+		type mover interface {
+			move()
+		}
+		type person struct {
+			name string
+			age int
+		}
+
+		//使用值接收者实现接口
+		func (p person) move() {
+			fmt.Printf("%s在跑\n", p.name)
+		}	
+		func main()  { //使用值接收者实现接口：类型的值和类型的指针都能保存到接口变量中
+			var m mover
+			p1 := person{name: "小王了", age: 18}	//p1是person类型的值
+			p2 := &person{name: "盖伦", age: 18}		//p2是person类型的指针
+			m = p1
+			m.move()	//小王了在跑
+			m = p2
+			m.move()	//盖伦在跑
+		}
+
+		//使用值接收者实现接口
+		func (p *person) move() {
+			fmt.Printf("%s在跑\n", p.name)
+		}
+		func main()  {	//只有类型指针能保存到接口变量中
+			var m mover
+			//p1 := person{name: "小王了", age: 18}	//p1是person类型的值
+			p2 := &person{name: "盖伦", age: 18}		//p2是person类型的指针
+			//m = p1		//./test.go:21:4: person does not implement mover (move method has pointer receiver)
+			//m.move()
+			m = p2
+			m.move()		//盖伦在跑
+		
+		}
+
+	//一个类型实现多个接口
+		type mover interface {
+			move()
+		}
+		type sayer interface {
+			say()
+		}
+		//一个person类型
+		type person struct { 
+			name string
+			age int
+		}
+		//实现mover接口
+		func (p *person) move() {
+			fmt.Printf("%s在跑\n", p.name)
+		}
+		//实现sayer接口
+		func (p *person) say() {
+			fmt.Printf("%s在叫\n", p.name)
+		}
+		func main()  {
+			var m mover
+			var s sayer
+			p2 := &person{name: "盖伦", age: 18}
+			m = p2
+			m.move()
+			s = p2
+			s.say()
+		}
 
 	//接口嵌套接口
 	type ReadWrite interface {
@@ -962,4 +1075,38 @@ interface
 		ReadWrite
 		Lock
 		Close()
+	}
+
+	//空接口
+	//接口中没有定义任何需要实现的方法时，该接口就是一个空接口
+	//任意类型都实现了空接口 --> 空接口变量可以存储任意值
+	func main()  {
+		var x interface{}
+		x = "hello"
+		fmt.Println(x)
+		x = 100
+		fmt.Println(x)
+		x = false
+		fmt.Println(x)
+	}
+
+	//空接口的应用
+	//空接口作为函数参数
+	func show(a interface{}) {
+		fmt.Printf("type:%T value:%v\n", a, a)
+	}
+	// 空接口作为map值
+	var studentInfo = make(map[string]interface{})
+	studentInfo["name"] = "沙河娜扎"
+	studentInfo["age"] = 18
+	studentInfo["married"] = false
+	fmt.Println(studentInfo)
+
+	//接口类型断言（猜测）
+	func main()  {
+		var x interface{}
+		x = "hello"
+		fmt.Println(x.(string))   //猜对了打印接口值： hello
+		x = 100
+		fmt.Println(x.(bool))  	  //panic: interface conversion: interface {} is int, not bool
 	}
