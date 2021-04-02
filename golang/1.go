@@ -1110,3 +1110,119 @@ interface
 		x = 100
 		fmt.Println(x.(bool))  	  //panic: interface conversion: interface {} is int, not bool
 	}
+
+
+goroutine（用户态线程）
+	//并发：同一时间段内执行多个任务
+	//并行：同一时刻执行多个任务
+
+	//单线程
+	package main
+
+	import (
+		"fmt"
+		"sync"
+	)
+
+	var wg sync.WaitGroup
+
+	func hello()  {
+		fmt.Println("hello hello")
+		wg.Done()	//通知计数器-1
+	}
+
+	func main() { 	//开启一个主goroutine去执行main函数
+		wg.Add(1) //计数器+1 派出了一个线程
+		go hello()	//开启一个goroutine去执行hello函数
+		fmt.Println("hello main")
+		wg.Wait()	//阻塞，等所有线程干完活，计数器为0
+	}
+
+
+	//多线程并行
+	package main
+
+	import (
+		"fmt"
+		"sync"
+	)
+	
+	var wg sync.WaitGroup
+	
+	func hello(i int)  {
+		fmt.Println("hello", i)
+		wg.Done()	//通知计数器-1
+	}
+	
+	func main() { 	//开启一个主goroutine去执行main函数
+		wg.Add(10000) //计数器+1 派出了一个线程
+		for i := 0; i < 10000; i++ {
+			go hello(i)	//开启一个goroutine去执行hello函数
+		}
+		fmt.Println("hello main")
+		wg.Wait()	//阻塞，等所有线程干完活，计数器为0
+	}
+
+	//多线程匿名函数
+	package main
+
+	import (
+		"fmt"
+		"sync"
+	)
+
+	var wg sync.WaitGroup
+
+	func main() { 	//开启一个主goroutine去执行main函数
+		wg.Add(10000) //计数器+1 派出了一个线程
+		for i := 0; i < 10000; i++ {
+			go func (i int)  {		//开启一个goroutine去执行hello函数
+				fmt.Println("hello", i)
+				wg.Done()	//通知计数器-1
+			}(i)	
+		}
+		fmt.Println("hello main")
+		wg.Wait()	//阻塞，等所有线程干完活，计数器为0
+	}
+
+	//GOMAXPROCS
+	//Go语言中可以通过runtime.GOMAXPROCS()函数设置当前程序并发时占用的CPU逻辑核心数。Go1.5版本之后，默认使用全部的CPU逻辑核心数。
+	var wg sync.WaitGroup
+
+	func a() {
+		for i := 1; i < 10; i++ {
+			fmt.Println("A:", i)
+		}
+		wg.Done()
+	}
+
+	func b() {
+		for i := 1; i < 10; i++ {
+			fmt.Println("B:", i)
+		}
+		wg.Done()
+	}
+
+	func main() {
+		//runtime.GOMAXPROCS(1)	//只使用一个CPU核心,a() b()先执行其中一个再执行另一个（输出B：1-9 A：1-9）
+		runtime.GOMAXPROCS(2)	//使用2个或多个CPU核心,a() b()同时执行（AB：乱序输出 没有固定顺序）
+		wg.Add(2)
+		go a()
+		go b()
+		wg.Wait()
+	}
+
+
+channel
+	//channel是可以让一个goroutine发送特定值到另一个goroutine的通信机制。单纯地将函数并发执行是没有意义的。函数与函数间需要交换数据才能体现并发执行函数的意义。
+	//channel是一种引用类型
+	var cha1 chan int		//声明传递一个整型的通道
+	var cha2 chan bool		//声明传递一个布尔型的通道
+	var cha3 chan []int		//声明传递一个int切片的通道
+
+	//make初始化channel
+	ch := make(chan int)
+	ch <- 10	//发送数据10到通道ch中
+	x := <- ch	//从ch中接收值并赋值给变量x
+	<-ch		//从ch中接收值，忽略结果
+	close(ch)	//关闭通道
