@@ -1226,3 +1226,133 @@ channel
 	x := <- ch	//从ch中接收值并赋值给变量x
 	<-ch		//从ch中接收值，忽略结果
 	close(ch)	//关闭通道
+
+
+	// goroutine_channel.go
+		package main
+		import "fmt"
+
+		//生成0-100的数字发送到ch1
+		func f1(ch chan<- int) {  //chan<- 单向通道只能往通道里发送值，不能从通道取值
+			for i:=0;i<100;i++ {
+				ch <- i
+			}
+			close(ch)
+		}
+
+		//从ch1中取出数据计算它的平方， 把结果发送到ch2
+		func f2(ch1 <-chan int, ch2 chan<- int)  {  //<-chan 单向通道只能从通道取值，不能往通道里发送值
+			// 从通道中取值的方式1
+			for {
+				tmp, ok := <- ch1
+				if !ok {
+					break
+				}
+				ch2 <- tmp * tmp
+			}
+			close(ch2)
+		}
+
+		func main() {
+			ch1 := make(chan int, 100)
+			ch2 := make(chan int, 200)
+		
+			go f1(ch1)
+			go f2(ch1, ch2)
+		
+			for ret := range ch2 {
+				fmt.Println(ret)
+			}
+		}
+
+	
+	//work_pool.go
+	package main
+
+	import (
+		"fmt"
+		"time"
+	)
+
+	func worker(id int, jobs<-chan int, results chan<- int)  {
+		for job := range jobs {
+			fmt.Printf("worker:%d start job:%d\n", id, job)
+			results <- job*2
+			time.Sleep(time.Millisecond*500)
+			fmt.Printf("worker:%d stop job:%d\n", id, job)
+		}
+	}
+
+	func main() {
+		jobs := make(chan int, 100)
+		results := make(chan int, 100)
+
+		//开启3个goroutine
+		for j:=0;j<3;j++ {
+			go worker(j, jobs, results)
+		}
+		//发送5个任务
+		for i:=0;i<5;i++ {
+			jobs <- i
+		}
+		close(jobs)
+
+		//输出结果
+		for i:=0;i<5;i++ {
+			ret := <-results
+			fmt.Println(ret)
+		}
+	}
+
+
+	//select多路复用
+	//select的使用类似于switch语句，它有一系列case分支和一个默认的分支。每个case会对应一个通道的通信（接收或发送）过程。select会一直等待，直到某个case的通信操作完成时，就会执行case分支对应的语句。
+	/*
+		select{
+    		case <-ch1:
+    		    ...
+    		case data := <-ch2:
+    		    ...
+    		case ch3<-data:
+    		    ...
+    		default:
+    		    默认操作
+		}
+	*/
+	func main() {
+		ch := make(chan int, 1)
+		for i:=0;i<10;i++ {
+			select {
+				case x := <-ch:
+					fmt.Println(x)
+				case ch <-i:
+				default:
+					fmt.Println("啥也不干")
+			}
+		}
+	}
+
+
+并发安全和锁
+	//有时候在Go代码中可能会存在多个goroutine同时操作一个资源（临界区），这种情况会发生竞态问题（数据竞态）。
+	//互斥锁是一种常用的控制共享资源访问的方法，它能够保证同时只有一个goroutine可以访问共享资源。Go语言中使用sync包的Mutex类型来实现互斥锁。
+	var x int64
+	var wg sync.WaitGroup
+	var lock sync.Mutex		//互斥锁
+
+	func add() {
+		for i := 0; i < 5000; i++ {
+			lock.Lock() // 加锁
+			x = x + 1
+			lock.Unlock() // 解锁
+		}
+		wg.Done()
+	}
+	
+	func main() {
+		wg.Add(2)
+		go add()
+		go add()
+		wg.Wait()
+		fmt.Println(x)
+	}
