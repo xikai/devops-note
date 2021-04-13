@@ -1335,7 +1335,8 @@ channel
 
 并发安全和锁
 	//有时候在Go代码中可能会存在多个goroutine同时操作一个资源（临界区），这种情况会发生竞态问题（数据竞态）。
-	//互斥锁是一种常用的控制共享资源访问的方法，它能够保证同时只有一个goroutine可以访问共享资源。Go语言中使用sync包的Mutex类型来实现互斥锁。
+
+	//互斥锁 是一种常用的控制共享资源访问的方法，它能够保证同时只有一个goroutine可以访问共享资源。Go语言中使用sync包的Mutex类型来实现互斥锁。
 	var x int64
 	var wg sync.WaitGroup
 	var lock sync.Mutex		//互斥锁
@@ -1348,11 +1349,125 @@ channel
 		}
 		wg.Done()
 	}
-	
+
 	func main() {
 		wg.Add(2)
 		go add()
 		go add()
 		wg.Wait()
 		fmt.Println(x)
+	}
+
+	//读写锁分为两种：读锁和写锁。当一个goroutine获取读锁之后，其他的goroutine如果是获取读锁会继续获得锁，如果是获取写锁就会等待；当一个goroutine获取写锁之后，其他的goroutine无论是获取读锁还是写锁都会等待。
+	//读写锁适合读多写少的场景。如果读和写的次数差不多，读写锁的优势就发挥不出来。
+	var (
+		x      int64
+		wg     sync.WaitGroup
+		lock   sync.Mutex
+		rwlock sync.RWMutex
+	)
+	
+	func read() {
+		// lock.Lock()                  // 加互斥锁
+		rwlock.RLock()               // 加读锁
+		time.Sleep(time.Millisecond) // 假设读操作耗时1毫秒
+		rwlock.RUnlock()             // 解读锁
+		// lock.Unlock()                // 解互斥锁
+		wg.Done()
+	}
+	
+	func write() {
+		// lock.Lock()   // 加互斥锁
+		rwlock.Lock() // 加写锁
+		x = x + 1
+		time.Sleep(10 * time.Millisecond) // 假设写操作耗时10毫秒
+		rwlock.Unlock()                   // 解写锁
+		// lock.Unlock()                     // 解互斥锁
+		wg.Done()
+	}
+	
+	func main() {
+		start := time.Now()
+		for i := 0; i < 10; i++ {
+			wg.Add(1)
+			go write()
+		}
+	
+		for i := 0; i < 1000; i++ {
+			wg.Add(1)
+			go read()
+		}
+	
+		wg.Wait()
+		end := time.Now()
+		fmt.Println(end.Sub(start))
+	}
+
+
+sync
+	//sync.WaitGroup来实现并发任务的同步
+	var wg sync.WaitGroup
+	wg.Add(delta int)	//计数器+delta
+	wg.Done()			//计数器-1
+	wg.Wait()			//阻塞直到计数器变为0
+
+	//sync.Once提供了一个针对只执行一次场景的解决方案
+	var loadIconsOnce sync.Once
+	func loadIcons() {
+		icons = map[string]image.Image{
+			"left":  loadIcon("left.png"),
+			"up":    loadIcon("up.png"),
+			"right": loadIcon("right.png"),
+			"down":  loadIcon("down.png"),
+		}
+	}
+	// Icon 是并发安全的
+	func Icon(name string) image.Image {
+		loadIconsOnce.Do(loadIcons)
+		return icons[name]
+	}
+
+	//sync.Map Go语言中内置的map不是并发安全的,当并发多了之后执行上面的代码就会报fatal error: concurrent map writes错误。
+	var m = make(map[string]int)
+
+	func get(key string) int {
+		return m[key]
+	}
+
+	func set(key string, value int) {
+		m[key] = value
+	}
+
+	func main() {
+		wg := sync.WaitGroup{}
+		for i := 0; i < 20; i++ {
+			wg.Add(1)
+			go func(n int) {
+				key := strconv.Itoa(n)
+				set(key, n)
+				fmt.Printf("k=:%v,v:=%v\n", key, get(key))
+				wg.Done()
+			}(i)
+		}
+		wg.Wait()
+	}
+	
+	
+	//为map加锁来保证并发的安全性了
+	//sync包中提供了一个开箱即用的并发安全版map–sync.Map。开箱即用表示不用像内置的map一样使用make函数初始化就能直接使用。同时sync.Map内置了诸如Store、Load、LoadOrStore、Delete、Range等操作方法。
+	var m = sync.Map{}
+
+	func main() {
+		wg := sync.WaitGroup{}
+		for i := 0; i < 20; i++ {
+			wg.Add(1)
+			go func(n int) {
+				key := strconv.Itoa(n)
+				m.Store(key, n)
+				value, _ := m.Load(key)
+				fmt.Printf("k=:%v,v:=%v\n", key, value)
+				wg.Done()
+			}(i)
+		}
+		wg.Wait()
 	}
