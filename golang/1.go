@@ -175,14 +175,32 @@
 	}
 
 	//switch
-	switch var1 {
-		case val1:
-			...
-		case val2:
-			...
-		default:
-			...
-	}
+	switch i {
+    case 1:
+        fmt.Println("one")
+    case 2:
+        fmt.Println("two")
+    case 3:
+        fmt.Println("three")
+	default:
+        fmt.Println("zero")
+    }
+
+	//使用逗号来分隔多个表达式(满足其一即可)
+	switch time.Now().Weekday() {
+    case time.Saturday, time.Sunday:	
+        fmt.Println("it's the weekend")
+    default:
+        fmt.Println("it's a weekday")
+    }
+
+	//不带表达式的 switch 是实现 if/else 逻辑的另一种方式。
+	switch {
+    case t.Hour() < 12:
+        fmt.Println("it's before noon")
+    default:
+        fmt.Println("it's after noon")
+    }
 
 
 	//for
@@ -282,8 +300,8 @@
 
 
 数组
-	//数组是同一种数据类型元素的集合。 在Go语言中，数组从声明时就确定，使用时可以修改数组成员，但是数组大小不可变化
-	//var 数组变量名 [元素数量]T
+	//数组是一种数据类型相同，且长度固定的集合。
+	//var 数组变量名 [元素数量]无素类型
 	var arr1 [5]int
 	var arrAge = [5]int{18, 20, 15, 22, 16}
 
@@ -373,8 +391,9 @@
 	a[:3]  // 等同于 a[0:3]
 	a[:]   // 等同于 a[0:len(a)]
 
-	//使用make()函数构造切片 make([]T, size, cap)
-	slice := make([]int, 3)  //[0 0 0]
+	//创建一个长度非零的空slice，需要使用内建的方法make([]T, size, cap)
+	slice := make([]int, 3)  	//[0 0 0]
+	slice := make([]string, 3)	//[  ]
 
 	//append()添加元素
 	func main(){
@@ -423,7 +442,6 @@
 map
 	//map 是一种元素对（key values pair）的无序集合,也称为关联数组或字典
 	//声明变量b为map类型：var b map[string]int，需要用make函数进行初始化操作之后，才能对其进行键值对赋值
-	//定义map： make(map[KeyType]ValueType, [cap])
 	func main() {
 		scoreMap := make(map[string]int, 8)  //创建空map
 		scoreMap["张三"] = 90
@@ -450,7 +468,10 @@ map
 		}
 
 		//将小明:100从map中删除
-		delete(scoreMap, "小明")	
+		delete(scoreMap, "小明")
+		
+		//从map中取值时，第二返回值指示这个key是否在这个map中
+		_, prs := scoreMap["小明"]  // false
 
 		//map也支持在声明的时候填充元素
 		userInfo := map[string]string{
@@ -471,8 +492,8 @@ map
 		fmt.Println("Hello world")
 	}
 
-	//带参数的函数，指定参数类型，和返回值类型(函数的参数中如果相邻变量的类型相同，则可以省略类型)
-	func intSum(x, y int) int {
+	//带参数的函数，指定参数类型，和返回值类型(函数的参数中如果相邻变量的类型相同，则可以省略类型 intSum(x, y int))
+	func intSum(x int, y int) int {
 		return x + y
 	}
 
