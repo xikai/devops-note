@@ -90,9 +90,9 @@
 	//int 和 uint 在 32 位操作系统上，它们均使用 32 位（4 个字节），在 64 位操作系统上，它们均使用 64 位（8 个字节)
 	//在不同类型之间不能执行数学运算，需要强制转换（int 与 int32 不同）
 	//整数：
-	int8（-128 -> 127）
+	int8（-128 -> 127）  //别名byte
 	int16（-32768 -> 32767）
-	int32（-2147483648 -> 2147483647）
+	int32（-2147483648 -> 2147483647） //别名rune
 	int64（-9223372036854775808 -> 9223372036854775807）
 	//无符号整数：
 	uint8（0 -> 255）
@@ -134,12 +134,17 @@
 
 
 	//格式化说明符，参考fmt包
+	%v 打印值
+	%+v 格式化输出内容将包括结构体的字段名
+	%#v 输出这个值的 Go 语法表示
 	%s 用于格式化字符串
-	%d 用于格式化整数（%x 和 %X 用于格式化 16 进制表示的数字)
+	%t 格式化布尔值, fmt.Printf("%t\n", true)
+	%d 用于格式化整数
 	%g 用于格式化浮点型（%f 输出浮点数，%e 输出科学计数表示法）
 	%0nd 用于规定输出长度为n的整数，其中开头的数字 0 是必须的。
 	%n.mg 用于表示数字 n 并精确到小数点后 m 位，除了使用 g 之外，还可以使用 e 或者 f，例如：使用格式化字符串 %5.2e 来输出 3.4 的结果为 3.40e+00。
-	%b 是用于表示位的格式化标识符
+	%b 输出二进制表示形式
+	%x 提供十六进制编码
 	%T 表示数据类型格式化
 	%p 指针（内存地址）	
 
@@ -207,6 +212,10 @@
 	for i := 0; i < 5; i++ {
 		fmt.Printf("This is the %d iteration\n", i)
 	}
+
+	//for ... range
+	for index, value := range arr1 {  
+    }
 
 	//类似while,只要 num 变量保存的值与 5 不同，程序就会输出一个随机数
 	func main() {
@@ -500,10 +509,24 @@ map
 	//可变参数
 	func myFunc(a, b, z ...int) {
 	}
-
+	
 	func Greeting(prefix string, who ...string) {
 	}
 	Greeting("hello:", "Joe", "Anna", "Eileen")   //变量 who 的值为 []string{"Joe", "Anna", "Eileen"}
+
+	func sum(nums ...int) {
+		fmt.Print(nums, " ")
+		total := 0
+		for _, num := range nums {
+			total += num
+		}
+		fmt.Println(total)
+	}
+	func main()  {
+		sum(1, 2, 3)     			//[1 2 3] 6
+		nums := []int{1, 2, 3, 4}
+		sum(nums...)			//[1 2 3 4] 10,  切片作为函数变参调用func(slice...)  
+	}
 
 	//函数变量
 	//函数也是一种类型，可以和其他类型一样保存在变量中，下面的代码定义了一个函数变量 f，并将一个函数名为 fire()的函数赋给函数变量 f
@@ -720,6 +743,7 @@ package
 结构体（struct）
 	//有时，你需要在一个结构体中表示字段的集合。 例如，要编写工资核算程序时，需要使用员工数据结构。 在 Go 中，可使用结构将可能构成记录的不同字段组合在一起。
 	//Go 中的结构体也是一种数据结构，它可包含零个或多个任意类型的字段，并将它们表示为单个实体。类似面向对象class。
+	//结构体中字段大写开头表示可公开访问，小写表示私有（仅在定义当前结构体的包中可访问）
 
 	//type关键字来定义自定义类型:
 	type MyInt int   //通过type关键字的定义，MyInt就是一种新的类型，它具有int的特性
@@ -804,6 +828,9 @@ package
 	}
 	fmt.Printf("p6=%#v\n", p6) //p6=&main.person{name:"小王子", city:"北京", age:18}
 
+	//对结构体指针使用 . 指针会被自动解引用
+	fmt.Println(p6.age)   //18
+
 	//初始化结构体的时候可以简写，也就是初始化的时候不写键，直接写值
 	p8 := &person{
 		"沙河娜扎",
@@ -867,7 +894,33 @@ package
 		fmt.Println(f)
 	}
 
-	//方法（在 Go 语言中，结构体就像是类的一种简化形式）
+	//结构体标签（Tag）
+	//Tag在结构体字段的后方定义，由一对反引号包裹起来,结构体tag由一个或多个键值对组成。
+	`key1:"value1" key2:"value2"`
+
+	//Student 学生
+	type Student struct {
+		ID     int    `json:"id"` //通过指定tag实现json序列化该字段时的key
+		Gender string //json序列化是默认使用字段名作为key
+		name   string //私有不能被json包访问
+	}
+
+	func main() {
+		s1 := Student{
+			ID:     1,
+			Gender: "男",
+			name:   "沙河娜扎",
+		}
+		data, err := json.Marshal(s1)
+		if err != nil {
+			fmt.Println("json marshal failed!")
+			return
+		}
+		fmt.Printf("json str:%s\n", data) //json str:{"id":1,"Gender":"男"}
+	}
+
+
+方法
 	//Go方法是作用在接收者（receiver）上的一个函数，接收者是某种类型（不能是接口类型）的变量。因此方法是一种特殊类型的函数。
 
 	//定义方法（在方法名之前，func 关键字之后的括号中指定 receiver）
@@ -883,6 +936,14 @@ package
 	    b int
 	}
 
+	func (tn *TwoInts) AddThem() int {
+	    return tn.a + tn.b
+	}
+
+	func (tn *TwoInts) AddToParam(param int) int {
+	    return tn.a + tn.b + param
+	}
+
 	func main() {
 	    two1 := new(TwoInts)
 	    two1.a = 12
@@ -893,14 +954,6 @@ package
 
 	    two2 := TwoInts{3, 4}
 	    fmt.Printf("The sum is: %d\n", two2.AddThem())						//The sum is: 7
-	}
-
-	func (tn *TwoInts) AddThem() int {
-	    return tn.a + tn.b
-	}
-
-	func (tn *TwoInts) AddToParam(param int) int {
-	    return tn.a + tn.b + param
 	}
 
 	//giveRaise.go
@@ -953,14 +1006,12 @@ interface
 		参数列表、返回值列表：参数列表和返回值列表中的参数变量名可以省略。
 	*/
 	// 为什么要使用接口
-	type dog struct {}
-	func (d dog) say() {
-		fmt.Println("汪汪汪")
-	}
-	type cat struct {}
-	func (c cat) say() {
-		fmt.Println("喵喵喵")
-	}
+	type Dog struct {}
+	func (d Dog) Say() string { return "汪汪汪" }
+
+	type Cat struct {}
+	func (c Cat) Say() string { return "喵喵喵" }
+
 	func main() {
 		c := Cat{}
 		fmt.Println("猫:", c.Say())
@@ -983,29 +1034,23 @@ interface
 
 	type dog struct {}
 	// dog实现sayer接口
-	func (d dog) say() {
-		fmt.Println("汪汪汪")
-	}
+	func (d dog) say() { fmt.Println("汪汪汪") }
 
 	type cat struct {}
 	// cat实现sayer接口
-	func (c cat) say() {
-		fmt.Println("喵喵喵")
-	}
+	func (c cat) say() { fmt.Println("喵喵喵") }
 
 	type persion struct {
 		name string
 	}
 	// persion实现say接口
-	func (p person) say() {
-		fmt.Println("啊啊啊")
-	}
+	func (p person) say() { fmt.Println("啊啊啊") }
 
 	func da(arg sayer)  {
 		arg.say()
 	}
 
-	func main()  {
+	func main() {
 		c1 := cat{}
 		da(c1)		//喵喵喵
 		d1 := dog{}
@@ -1028,7 +1073,7 @@ interface
 		func (p person) move() {
 			fmt.Printf("%s在跑\n", p.name)
 		}	
-		func main()  { //使用值接收者实现接口：类型的值和类型的指针都能保存到接口变量中
+		func main() { //使用值接收者实现接口：类型的值和类型的指针都能保存到接口变量中
 			var m mover
 			p1 := person{name: "小王了", age: 18}	//p1是person类型的值
 			p2 := &person{name: "盖伦", age: 18}		//p2是person类型的指针
@@ -1042,7 +1087,7 @@ interface
 		func (p *person) move() {
 			fmt.Printf("%s在跑\n", p.name)
 		}
-		func main()  {	//只有类型指针能保存到接口变量中
+		func main() {	//只有类型指针能保存到接口变量中
 			var m mover
 			//p1 := person{name: "小王了", age: 18}	//p1是person类型的值
 			p2 := &person{name: "盖伦", age: 18}		//p2是person类型的指针
