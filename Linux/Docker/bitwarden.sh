@@ -4,7 +4,7 @@
 docker pull bitwardenrs/server:latest
 
 docker run -d --name bitwarden \
-  -e ADMIN_TOKEN=l8FOfRwtcxPEpRYSUjwblerUt8dU6b/DfR4Z71pNnkoF4xPeZEzCstgV3uN/UMDS \
+  -e ADMIN_TOKEN=l8FOfRwtcxPEpRYSUjwblerUt8dU6b/DfR4Z71pNnkoF4xPeZEzCstgV3uN/UMDS \   #openssl rand -base64 48
   -e SMTP_HOST=smtp.300.cn \
   -e SMTP_FROM=ddyw-devops@300.cn \
   -e SMTP_PORT=25 \
