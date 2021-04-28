@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -39,6 +40,13 @@ func main() {
 		fmt.Println(pair[0])	//打印所有key
 	}
 	
+	//exec执行系统命令
+	dateCmd := exec.Command("bash", "-c", "ps aux |grep blue") 	//exec.Command创建命令对象
+	dateOut, err := dateCmd.Output()		//.Output等待命令运行完成，并收集命令的输出
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(dateOut))
 }
 
 

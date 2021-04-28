@@ -90,12 +90,12 @@
 	//int 和 uint 在 32 位操作系统上，它们均使用 32 位（4 个字节），在 64 位操作系统上，它们均使用 64 位（8 个字节)
 	//在不同类型之间不能执行数学运算，需要强制转换（int 与 int32 不同）
 	//整数：
-	int8（-128 -> 127）  //别名byte
+	int8（-128 -> 127）  
 	int16（-32768 -> 32767）
 	int32（-2147483648 -> 2147483647） //别名rune
 	int64（-9223372036854775808 -> 9223372036854775807）
 	//无符号整数：
-	uint8（0 -> 255）
+	uint8（0 -> 255）				   //别名byte
 	uint16（0 -> 65535）
 	uint32（0 -> 4294967295）
 	uint64（0 -> 18446744073709551615）
@@ -131,6 +131,10 @@
 	var integer16 int16 = 127
 	var integer32 int32 = 32767
 	println(int32(integer16) + integer32)
+
+	//类型别名定义
+	type boolean = bool // boolean和bool表示同一个类型
+	type Text = string  // Text和string表示同一个类型
 
 
 	//格式化说明符，参考fmt包
@@ -670,6 +674,28 @@ map
 		fmt.Printf("value type: %T\n", value) // 取值后的类型: string
 		// 指针取值后就是指向变量的值
 		fmt.Printf("value: %s\n", value)
+	}
+
+
+	//为什么需要指针
+	func double(x int) {
+		x += x
+	}
+	func main() {
+		var a = 3
+		double(a)	
+		fmt.Println(a) // 3 
+	}
+
+	//我们本期望上例中的double函数将变量a的值放大为原来的两倍, 然而在Go中，所有的赋值（包括函数调用传参）过程都是一个值复制过程。 所以在上面的double函数体内修改的是变量a的一个副本，而没有修改变量a本身
+	//通过将输入参数的类型改为一个指针类型来实现将变量a的值放大为原来的两倍
+	func double(x *int) {
+		*x += *x
+	}
+	func main() {
+		var a = 3
+		double(&a)
+		fmt.Println(a) // 6
 	}
 
 
