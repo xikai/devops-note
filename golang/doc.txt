@@ -1,10 +1,4 @@
 http://doc.yonyoucloud.com/doc/wiki/project/the-way-to-go/index.html
 https://www.liwenzhou.com/posts/Go/go_menu/
-https://edu.51cto.com/center/course/lesson/index?id=423676
-https://gfw.go101.org/article/101.html
 http://books.studygolang.com/gobyexample/
-
-
-Golang标准库: https://studygolang.com/pkgdoc
-             https://golang.org/pkg/
 

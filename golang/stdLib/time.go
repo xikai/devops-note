@@ -6,41 +6,54 @@ import (
 )
 
 func main() {
-	p := fmt.Println
-
 	now := time.Now()
-	p(now)				//2021-04-21 16:17:34.201752 +0800 CST m=+0.000115160
 
-	secs ：= now.Unix()			//时间戳，秒
-	nanos := now.UnixNano()		//时间戳，纳秒
-	millis := nanos / 100000	//时间戳，毫秒
-	p(secs)		//1619001201
-	p(nanos)	//1619001235698711000
-	p(millis)  //16190014169536
+	//时间类型
+	year := now.Year()     //年
+	month := now.Month()   //月
+	day := now.Day()       //日
+	hour := now.Hour()     //小时
+	minute := now.Minute() //分钟
+	second := now.Second() //秒
+	week := now.Weekday() //星期
+	timezone := now.Location() //时区
 
-	then := time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
-	p(then)					//2009-11-17 20:34:58.651387237 +0000 UTC
-	p(then.Year())			//2009
-	p(then.Month())			//November
-	p(then.Day())			//17
-	p(then.Hour())			//20
-	p(then.Minute())		//34
-	p(then.Second())		//58
-	p(then.Nanosecond())	//651387237 纳秒
-	p(then.Location())		//UTC
+	fmt.Println(now)	//2021-04-21 16:17:34.201752 +0800 CST m=+0.000115160
+	fmt.Printf("%d-%02d-%02d %02d:%02d:%02d %s %s\n", year, month, day, hour, minute, second, week, timezone)
 
-	p(then.Weekday())		//Tuesday
-	p(then.Before(now))		//true, 比较then是否在now时间之前
-	p(then.After(now))		//false,比较then是否在now时间之后
-	p(then.Equal(now))		//false,比较then是否和now时间相同
+	//时间戳
+	timestamp := now.Unix()	 //时间戳
+	nanos := now.UnixNano()		 //纳秒时间戳
 
-	diff := now.Sub(then)	//返回两个时间点的间隔时间
-	p(diff)					//100139h51m44.528945763s
-	p(diff.Hours())			//返回两个时间点的小时间隔，100140.6388557066
-	p(diff.Minutes())		//返回两个时间点的分钟间隔，6.008438331342396e+06
-	p(diff.Seconds())		//返回两个时间点的秒间隔，3.6050629988054377e+08
-	p(diff.Nanoseconds())	//返回两个时间点的微秒间隔，360506299880543763
+	fmt.Printf("current timestamp:%v\n", timestamp)
+	fmt.Printf("current nanos timestamp:%v\n", nanos)
 
-	p(then.Add(diff))		//将时间后移一个时间间隔
-	p(then.Add(-diff))		//将时间前移一个时间间隔
+	//时间操作
+	later := now.Add(time.Hour) // time.Add当前时间加1小时后的时间
+	diff := later.Sub(now)	//time.Sub求两个时间的差值
+	eqtime := now.Equal(later)	//time.Equal判断两个时间是否相同
+	beforetime := now.Before(later)	//time.Beforce判读是否在某时间之前
+	aftertime := now.After(later)  //time.After判断是否在某时间之后
+
+	fmt.Println(later)	//2021-04-21 16:18:34.201752 +0800 CST m=+0.000115160
+	fmt.Printf("%s %t %t %t\n", diff, eqtime, beforetime, aftertime)	//1h0m0s false true false
+
+	//时间格式化(格式化的模板为Go的出生时间2006年1月2号15点04分 Mon Jan)
+	fmt.Println(now.Format("2006-01-02 15:04:05.000 Mon Jan"))	//2021-05-14 18:50:49.740 Fri May
+	fmt.Println(now.Format("2006-01-02 03:04:05.000 PM Mon Jan")) //2021-05-14 06:50:49.740 PM Fri May (PM表示12小时制)
+	fmt.Println(now.Format("2006/01/02 15:04"))	//2021/05/14 18:50
+	fmt.Println(now.Format("15:04 2006/01/02"))	//18:50 2021/05/14
+	fmt.Println(now.Format("2006/01/02"))	//2021/05/14
+
+	//定时器
+	//tickDemo() //每秒打印一次当前时间
+
+}
+
+//time.Tick(时间间隔)来设置定时器
+func tickDemo() {
+	ticker := time.Tick(time.Second) //定义一个1秒间隔的定时器
+	for i := range ticker {
+		fmt.Println(i)//每秒都会执行的任务
+	}
 }

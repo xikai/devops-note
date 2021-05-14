@@ -141,16 +141,24 @@
 	%v 打印值
 	%+v 格式化输出内容将包括结构体的字段名
 	%#v 输出这个值的 Go 语法表示
-	%s 用于格式化字符串
+	%s 用于格式化字符串或者[]byte
 	%t 格式化布尔值, fmt.Printf("%t\n", true)
-	%d 用于格式化整数
-	%g 用于格式化浮点型（%f 输出浮点数，%e 输出科学计数表示法）
-	%0nd 用于规定输出长度为n的整数，其中开头的数字 0 是必须的。
-	%n.mg 用于表示数字 n 并精确到小数点后 m 位，除了使用 g 之外，还可以使用 e 或者 f，例如：使用格式化字符串 %5.2e 来输出 3.4 的结果为 3.40e+00。
+	%d 用于格式化十进制整数
+	%f 用于格式化浮点型
+	%e 输出科学计数表示法
 	%b 输出二进制表示形式
 	%x 提供十六进制编码
 	%T 表示数据类型格式化
 	%p 指针（内存地址）	
+	//宽度标识符
+	%0nd 用于规定输出长度为n的整数，其中开头的数字 0 是必须的。
+	%9.2f 用于表示宽度9，精度2
+	n := 12.34
+	fmt.Printf("%f\n", n)		//12.340000
+	fmt.Printf("%9f\n", n)		//12.340000
+	fmt.Printf("%.2f\n", n)		//12.34
+	fmt.Printf("%9.2f\n", n)	//    12.34
+	fmt.Printf("%9.f\n", n)		//       12
 
 
 运算符
@@ -792,6 +800,14 @@ package
 		age  int8
 	}
 
+	//结构体标签tag （`...`）
+	//字段标签可以是任意字符串，它们是可选的，默认为空字符串。
+	type person struct {
+		name string	`json:"name" myfmt:"s1"`
+		city string	`json:"city,omitempty" myfmt:"s2"`
+		age  int8	`json:"age,omitempty" myfmt:"n1"`
+	}
+
 	//初始化结构体，没有初始化的结构体，其成员变量都是对应其类型的零值
 	func main() {
 		var p1 person	//初始化结构体
@@ -1313,9 +1329,9 @@ channel
 	var cha3 chan []int		//声明传递一个int切片的通道
 
 	//make初始化channel
-	ch := make(chan int)
-	ch <- 10	//发送数据10到通道ch中
-	x := <- ch	//从ch中接收值并赋值给变量x
+	ch := make(chan int)	//一个非零通道值必须通过内置的make函数来创建
+	ch<- 10	//发送数据10到通道ch中
+	x := <-ch	//从ch中接收值并赋值给变量x
 	<-ch		//从ch中接收值，忽略结果
 	close(ch)	//关闭通道
 
