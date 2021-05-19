@@ -9,7 +9,7 @@ import (
 func main() {
 	r, _ := regexp.Compile("p([a-z]+)ch")
 
-	//配置字符串
+	//匹配字符串
 	fmt.Println(r.MatchString("peach"))   		//true
 	fmt.Println(r.Match([]byte("peach")))			//true
 	//返回首次匹配正则的字符串

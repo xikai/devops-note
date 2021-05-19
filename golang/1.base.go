@@ -502,6 +502,79 @@ map
 	}
 
 
+builtin内建函数
+func main() {
+	//内建函数new分配内存。其第一个实参为类型，而非值。其返回值为指向该类型的新分配的零值的指针。
+	val := new(int)		//分配内存，初始化一个新分配的零值数据
+	fmt.Printf("内存地址：%#x, 值：%d\n", &val, *val)	//内存地址：0xc00000e028, 值：0
+
+	//内建函数make分配并初始化一个类型为切片、映射、或通道的对象
+	s := make([]int, 3)	//分配内存，初始化一个新分配的长度为3的零值切片
+	fmt.Println(s)		//[0 0 0]
+
+	//返回长度
+	l := len(s)
+	fmt.Println(l)
+
+	//append向切片添加元素
+	s2 := append(s, 1,2,3)	//增加元素
+	fmt.Println(s2)		//[0 0 0 1 2 3]
+	s3 := append([]byte("hello "),"world"...)
+	fmt.Println(string(s3))		//hello world
+
+	//异常（defer, panic, recover）
+		//内建函数panic停止当前Go程序的正常执行,当函数F调用panic时，函数F的正常执行就会立刻停止。
+		panic("this is test")
+		fmt.Println("panic之后的代码")
+
+		//内建函数recover获取通过panic传递的error,必须搭配defer使用，必须于触发panic的协程是同一个协程
+		recover()	//获取panic抛出的异常信息
+
+		func main() {
+			defer func() {
+				if err := recover(); err != nil {	//2,捕获下面的panic异常信息
+					log.Printf("recover: %v", err)
+				}
+			}()
+		
+			panic("EDDYCJY.")	//1,抛出异常信息，停止程序运行
+		}
+		//输出：2019/05/11 23:39:47 recover: EDDYCJY.
+
+
+		//exception.go
+		func f1() {
+			fmt.Println("run f1")
+		}
+
+		func f2() {
+			fmt.Println("打开数据库连接...")
+			defer func(){
+				err := recover()	//捕获下面的panic
+				fmt.Println(err)
+				fmt.Println("释放数据库连接...")
+			}()
+			panic("出现严重错误！")
+			fmt.Println("run after")
+		}
+		func f3() {
+			fmt.Println("run f3")
+		}
+		func main() {
+			f1()
+			f2()
+			f3()
+		}
+
+		/*
+		run f1
+		打开数据库连接...
+		出现严重错误！
+		释放数据库连接...
+		run f3
+		 */
+
+
 函数
 	//函数定义
 	func 函数名(参数)(返回值){
@@ -643,15 +716,6 @@ map
 	deferred -3
 	deferred -2
 	deferred -1
-	
-
-	//内置函数
-	close	主要用来关闭channel
-	len	用来求长度，比如string、array、slice、map、channel
-	new	用来分配内存，主要用来分配值类型，比如int、struct。返回的是指针
-	make	用来分配内存，主要用来分配引用类型，比如chan、map、slice
-	append	用来追加元素到数组、slice中
-	panic和recover	用来做错误处理
 
 
 指针
