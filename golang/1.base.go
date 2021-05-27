@@ -891,7 +891,7 @@ package
 	}
 
 	func main() {
-	    ms := new(struct1)
+	    ms := new(struct1)	//分配内存，初始化结构体为零值
 	    ms.i1 = 10
 	    ms.f1 = 15.5
 	    ms.str= "Chris"
@@ -911,39 +911,22 @@ package
 	}
 
 	//new关键字对结构体进行实例化,创建指针类型结构体
-	var p2 = new(person)
-	p2.name = "小王子"
-	p2.age = 28
-	p2.city = "上海"
-	fmt.Printf("%T\n", p2)     //*main.person
-	fmt.Printf("p2=%#v\n", p2) //p2=&main.person{name:"", city:"", age:0}
+	var p = new(person)
+	p.name = "小王子"
+	p.age = 28
+	p.city = "上海"
+	fmt.Printf("%T\n", p)     //*main.person
+	fmt.Printf("p=%#v\n", p) //p=&main.person{name:"", city:"", age:0}
+
+	//初始化一个结构体实例的更简短和惯用的方式:
+	p := &person{"小王子", "北京", 18}	//p的类型是结构体指针*person，值必须按顺序给出
+	fmt.Printf("p=%#v\n", p) //p=&main.person{name:"小王子", city:"北京", age:18}
+	fmt.Println(p.age)   //18, 对结构体指针使用 . 指针会被自动解引用
 
 	//使用键值对对结构体进行初始化时，键对应结构体的字段，值对应该字段的初始值
-	p5 := person{
-		name: "小王子",
-		city: "北京",
-		age:  18,
-	}
-	fmt.Printf("p5=%#v\n", p5) //p5=main.person{name:"小王子", city:"北京", age:18}
-
-	// & 运算符生成指向结构的指针
-	p6 := &person{
-		name: "小王子",
-		city: "北京",
-		age:  18,
-	}
-	fmt.Printf("p6=%#v\n", p6) //p6=&main.person{name:"小王子", city:"北京", age:18}
-
-	//对结构体指针使用 . 指针会被自动解引用
-	fmt.Println(p6.age)   //18
-
-	//初始化结构体的时候可以简写，也就是初始化的时候不写键，直接写值
-	p8 := &person{
-		"沙河娜扎",
-		"北京",
-		28,
-	}
-	fmt.Printf("p8=%#v\n", p8) //p8=&main.person{name:"沙河娜扎", city:"北京", age:28}
+	p := person{city:"北京", name:"小王子", age:18}	//p的类型为结构体person，写字段名时顺序不必一致
+	p := person{name:"小王子"}	//某些字段可以被忽略掉
+	fmt.Printf("p=%#v\n", p) //p=main.person{name:"小王子", city:"北京", age:18}
 
 	//结构体匿名字段,结构体允许其成员字段在声明时没有字段名而只有类型，这种没有名字的字段就称为匿名字段。
 	//这里匿名字段的说法并不代表没有字段名，而是默认会采用类型名作为字段名，结构体要求字段名称必须唯一，因此一个结构体中同种类型的匿名字段只能有一个
@@ -952,10 +935,7 @@ package
 		int
 	}
 	func main() {
-		p1 := Person{
-			"小王子",
-			18,
-		}
+		p1 := Person{"北京",18}
 		fmt.Printf("%#v\n", p1)        //main.Person{string:"北京", int:18}
 		fmt.Println(p1.string, p1.int) //北京 18
 	}
@@ -970,7 +950,7 @@ package
 	type User struct {
 		Name    string
 		Gender  string
-		Address Address
+		Address 	//匿名字段本身可以是一个结构体类型，即 结构体可以包含内嵌结构体
 	}
 	func main() {
 		user1 := User{
@@ -982,6 +962,33 @@ package
 			},
 		}
 		fmt.Printf("user1=%#v\n", user1)//user1=main.User{Name:"小王子", Gender:"男", Address:main.Address{Province:"山东", City:"威海"}}
+
+		user2 := User{"盖伦", "男", Address{"山东","烟台"}}
+		fmt.Printf("user2=%#v\n", user2)	//user2=main.User{Name:"盖伦", Gender:"男", Address:main.Address{Province:"山东", City:"烟台"}}
+	}
+
+	//多重继承
+	type Camera struct{}
+
+	func (c *Camera) TakeAPicture() string {
+	    return "Click"
+	}
+
+	type Phone struct{}
+
+	func (p *Phone) Call() string {
+	    return "Ring Ring"
+	}
+
+	type CameraPhone struct {
+	    Camera
+	    Phone
+	}
+
+	func main() {
+	    cp := new(CameraPhone)
+	    fmt.Println("It exhibits behavior of a Camera: ", cp.TakeAPicture())	//It exhibits behavior of a Camera: Click
+	    fmt.Println("It works like a Phone too: ", cp.Call())		//It works like a Phone too: Ring Ring
 	}
 
 	//构造函数

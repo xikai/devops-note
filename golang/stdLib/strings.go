@@ -31,4 +31,13 @@ func main() {
 	s := []string{"foo", "bar", "baz"}
 	fmt.Println(strings.Join(s, ", "))	 //foo, bar, baz  通过sep分隔符连接字符串切片s中元素
 
+	r := strings.NewReader("some io.Reader stream to be read\n")	//NewReader创建一个从字符串s读取数据的Reader
+	r.Len()		//Len 返回字符串未读部分的字节数
+	r.Read(b []byte)
+	r.ReadByte()
+
+	io.Copy(os.Stdout, r)	//some io.Reader stream to be read, 将字符串输出拷贝到标准输出
+
+
+
 }
