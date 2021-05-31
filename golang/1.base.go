@@ -20,7 +20,11 @@
 */
 
 变量
-	//var identifier [type] = value
+	package main
+
+	import "fmt"
+
+	//全局变量
 	var a int
 	var b bool = false
 	var str string = "Go says hello to the world!"
@@ -29,18 +33,15 @@
 	var i = 5
 
 	func foo() (int, string) {
-		return 10,"golang"
+		a = 15	//为全局变量赋值
+		return a,"golang"
 	}
 
 	func main()  {
-		a = 15
-		//函数内短变量声明
-		c := 10
-
-		//匿名变量_
-		_,e := foo()
-		fmt.Println("c等于：", c)
-		fmt.Println("e等于：", e)
+		c := 10	//局部变量,函数内短变量声明
+		e,_ := foo()	//_ 匿名变量
+		fmt.Println("c等于：", c)	//c等于：10
+		fmt.Println("e等于：", e)	//	e等于：15	
 	}
 
 
@@ -124,7 +125,8 @@
 		var defaultFloat64 float64	//+0.000000e+000
 		var defaultBool bool		//false
 		var defaultString string	//空值
-		println(defaultInt, defaultFloat32, defaultFloat64, defaultBool, defaultString)
+		var defaultPtr *int			//0x0
+		println(defaultInt, defaultFloat32, defaultFloat64, defaultBool, defaultString, defaultPtr)
 	}
 
 	//类型转换
@@ -322,7 +324,7 @@
 
 数组
 	//数组是一种数据类型相同，且长度固定的集合。
-	//var 数组变量名 [元素数量]无素类型
+	//var 数组变量名 [元素数量]元素类型
 	var arr1 [5]int
 	var arrAge = [5]int{18, 20, 15, 22, 16}
 
@@ -354,13 +356,13 @@
 
 	//多维数组
 	func main() {
-		a := [3][2]string{
+		a := [3][2]string{	//3行2列
 			{"北京", "上海"},
 			{"广州", "深圳"},
 			{"成都", "重庆"},
 		}
 		fmt.Println(a) //[[北京 上海] [广州 深圳] [成都 重庆]]
-		fmt.Println(a[2][1]) //支持索引取值:重庆
+		fmt.Println(a[2][1]) //重庆 ，索引从0开始
 	}
 
 	//支持的写法，多维数组只有第一层可以使用...来让编译器推导数组长度
@@ -376,15 +378,10 @@
 		{"成都", "重庆"},
 	}
 
-	//数组是值类型
-	package main
-
-	import "fmt"
-
+	//数组作为参数时有副本机制
 	func modifyArray(x [3]int) {
 		x[0] = 100
 	}
-
 	func modifyArray2(x [3][2]int) {
 		x[2][0] = 100
 	}
@@ -392,6 +389,7 @@
 		a := [3]int{10, 20, 30}
 		modifyArray(a) //在modify中修改的是a的副本x
 		fmt.Println(a) //[10 20 30]
+
 		b := [3][2]int{
 			{1, 1},
 			{1, 1},
@@ -613,18 +611,32 @@ func main() {
 		sum(nums...)			//[1 2 3 4] 10,  切片作为函数变参调用func(slice...)  
 	}
 
-	//函数变量
-	//函数也是一种类型，可以和其他类型一样保存在变量中，下面的代码定义了一个函数变量 f，并将一个函数名为 fire()的函数赋给函数变量 f
-	package main
-	import "fmt"
-
+	//函数变量（函数也是一种类型，可以和其他类型一样保存在变量中）
 	func fire() {
-	    fmt.Println("fire")
+	    fmt.Println("fire func")
 	}
 	func main() {
 	    var f func()
 	    f = fire
-	    f()
+	    f()		//fire func
+	}
+
+	func main() {
+		var myfunc = func() int {
+			return 100
+		}
+		fmt.Println(myfunc())	//100
+	}
+
+	//多层函数嵌套返回
+	func main() {
+		var myfunc = func()   func() int {	//返回一个函数func() int
+			return func() int {
+				return 10
+			}
+		}
+		fmt.Println(myfunc())		//0x10a6fc0
+		fmt.Println(myfunc()())		//10
 	}
 
 	//函数返回值，通过 return 关键字返回一组值，在函数块里面，return 之后的语句都不会执行
@@ -734,18 +746,23 @@ func main() {
 	d := *b	 //10，在指针类型前面加上 *号（前缀）来获取指针所指向的内容
 
 	func main() {
-		// 准备一个字符串类型
-		var house = "Malibu Point 10880, 90265"
-		// 指针变量ptr对字符串变量house取内存地址
-		//ptr := &house      //0xc0420401b0
-		var ptr *string = &house	//0xc0420401b0
-		fmt.Printf("ptr type: %T\n", ptr)  //ptr的类型: *string （字符串类型的指针）
+		var num = 10
+		fmt.Println(num, &num)	//10 0xc000016070，num是值，&num是内存地址
+	
+		var pnum *int = &num	//pnum是指针，存储内存地址
+		fmt.Println(num, &num, pnum)	//10 0xc000016070 0xc000016070
+	
+		*pnum = 1	//*pnum取出地址对应的内容, 通过指针间接修改
+		fmt.Println(num, *pnum)	//1 1
 
-		// 对指针进行取值操作
-		value := *ptr   //获取指针所指向的内容: "Malibu Point 10880, 90265"
-		fmt.Printf("value type: %T\n", value) // 取值后的类型: string
-		// 指针取值后就是指向变量的值
-		fmt.Printf("value: %s\n", value)
+		num = 3		//直接修改
+		fmt.Println(num, *pnum)	//3 3
+	}
+
+	//空指针
+	func main() {
+		var pnum *int		//空指针
+		fmt.Println(pnum)	//<nil>
 	}
 
 
@@ -760,13 +777,13 @@ func main() {
 	}
 
 	//我们本期望上例中的double函数将变量a的值放大为原来的两倍, 然而在Go中，所有的赋值（包括函数调用传参）过程都是一个值复制过程。 所以在上面的double函数体内修改的是变量a的一个副本，而没有修改变量a本身
-	//通过将输入参数的类型改为一个指针类型来实现将变量a的值放大为原来的两倍
-	func double(x *int) {
-		*x += *x
+	//通过将输入参数的类型改为一个指针类型来传入参数的内存地址，实现将变量a的值放大为原来的两倍
+	func double(x *int) {	//*int指针类型，接收内存地址
+		*x += *x			//*x取内存地址的内容
 	}
 	func main() {
-		var a = 3
-		double(&a)
+		var a = 3 
+		double(&a)			//&a传递内存地址
 		fmt.Println(a) // 6
 	}
 
