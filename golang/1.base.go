@@ -403,6 +403,7 @@
 切片
 	//切片（slice）是对数组一个连续片段的引用（该数组我们称之为相关数组，通常是匿名的），所以切片是一个引用类型
 	//切片的初始化:
+	arr := []int{1,2,3,4,5}
 	arr[0:3] or slice[0:3]
 	slice := []int{1, 2, 3}
 
@@ -713,6 +714,25 @@ func main() {
 		print(f()(3))	  //3,不通过变量引用，直接调用函数f()
 	}
 
+	//递归
+	func gotoswim() {
+		fmt.Println("Hello World!")	//死循环
+		gotoswim()
+	}
+
+	//eg
+	func fac(n uint64) uint64 {
+		if n > 0 {
+			return n * fac(n-1)  //6 * fac(5), fac(5) = 5 * fac(4) 依此类推等于 6 * 5 * 4 * 3 * 2 * 1
+		} else {
+			return 1
+		}
+	}
+	
+	func main() {
+		fmt.Println(fac(6))	//720
+	}
+
 	// defer 语句会推迟函数（包括任何参数）的运行，直到包含 defer 语句的函数完成
 	// defer 语句按逆序运行，先运行最后一个，最后运行第一个
 	func main() {
@@ -785,6 +805,31 @@ func main() {
 		var a = 3 
 		double(&a)			//&a传递内存地址
 		fmt.Println(a) // 6
+	}
+
+	//指针数组
+	func main() {
+		var myarr = []int{1,2,3}
+		var myparr [3]*int	//指针数组
+		for i:=0;i<3;i++ {
+			myparr[i] = &myarr[i]
+		}
+		for i:=0;i<3;i++ {
+			fmt.Println(*myparr[i],myparr[i])
+		}
+	}
+
+	//指针的指针
+	func main() {
+		var x int = 100
+		var pint *int = &x
+		var ppint **int = &pint		//指针的指针
+		fmt.Println(*ppint,pint,&x)	//0xc000136008 0xc000136008 0xc000136008
+		fmt.Println(**ppint,*pint,x)	//100 100 100
+		var y int = 200
+		*ppint = &y
+		fmt.Println(*ppint,pint,&y)			//0xc0000be020 0xc0000be020 0xc0000be020
+		fmt.Println(**ppint,*pint,y)	//200 200 200
 	}
 
 
@@ -881,14 +926,6 @@ package
 		age  int8
 	}
 
-	//结构体标签tag （`...`）
-	//字段标签可以是任意字符串，它们是可选的，默认为空字符串。
-	type person struct {
-		name string	`json:"name" myfmt:"s1"`
-		city string	`json:"city,omitempty" myfmt:"s2"`
-		age  int8	`json:"age,omitempty" myfmt:"n1"`
-	}
-
 	//初始化结构体，没有初始化的结构体，其成员变量都是对应其类型的零值
 	func main() {
 		var p1 person	//初始化结构体
@@ -917,6 +954,15 @@ package
 	    fmt.Printf("The float is: %f\n", ms.f1)
 	    fmt.Printf("The string is: %s\n", ms.str)
 	    fmt.Println(ms)
+	}
+
+	//结构体数组
+	func main() {
+		var p [3]person
+		p[0].name = "xikai1"
+		p[1].name = "xikai2"
+		p[2].name = "xikai3"
+		fmt.Println(p)	//[{xikai1  0} {xikai2  0} {xikai3  0}]
 	}
 
 	//匿名结构体
@@ -1308,9 +1354,29 @@ interface
 	}
 
 
-goroutine（用户态线程）
+goroutine（协程）
 	//并发：同一时间段内执行多个任务
 	//并行：同一时刻执行多个任务
+
+	func printdata(data string)  {
+		for i:=0;i<10;i++ {
+			fmt.Println(data,":",i)
+			time.Sleep(time.Millisecond*300)
+		}
+	}
+	func main() {
+		printdata("main")	//执行完后 主进程main可能会先结束后，下面的go子线程也随之结束
+		go printdata("aaa")	//与main主进程及其它go子线程 并发执行
+		go printdata("bbb")
+		time.Sleep(time.Second*3)	//main主进程sleep，等待go子线程执行
+	}
+
+	//sync.WaitGroup来实现并发任务的同步
+	//WaitGroup用于等待一组线程的结束。父线程调用Add方法来设定应等待的线程的数量。每个被等待的线程在结束时应调用Done方法。同时，主线程里可以调用Wait方法阻塞至所有线程结束。
+	var wg sync.WaitGroup
+	wg.Add(delta int)	//Add方法向内部计数加上delta,如果内部计数器变为0，Wait方法阻塞等待的所有线程都会释放，如果计数器小于0，方法panic。
+	wg.Done()			//Done方法减少WaitGroup内部计数器的值
+	wg.Wait()			//Wait方法阻塞直到WaitGroup计数器减为0
 
 	//单线程
 	package main
@@ -1320,7 +1386,7 @@ goroutine（用户态线程）
 		"sync"
 	)
 
-	var wg sync.WaitGroup
+	var wg sync.WaitGroup //WaitGroup用于等待一组线程的结束
 
 	func hello()  {
 		fmt.Println("hello hello")
@@ -1331,80 +1397,52 @@ goroutine（用户态线程）
 		wg.Add(1) //计数器+1 派出了一个线程
 		go hello()	//开启一个goroutine去执行hello函数
 		fmt.Println("hello main")
-		wg.Wait()	//阻塞，等所有线程干完活，计数器为0
+		wg.Wait()	//Wait方法阻塞直到WaitGroup计数器减为0
 	}
 
 
 	//多线程并行
-	package main
-
 	import (
 		"fmt"
 		"sync"
 	)
 	
-	var wg sync.WaitGroup
-	
-	func hello(i int)  {
-		fmt.Println("hello", i)
+	var wg sync.WaitGroup	//WaitGroup用于等待一组线程的结束
+
+	func printdata(data string)  {
+		for i:=0;i<10;i++ {
+			fmt.Println(data,":",i)
+		}
 		wg.Done()	//通知计数器-1
 	}
-	
-	func main() { 	//开启一个主goroutine去执行main函数
-		wg.Add(10000) //计数器+1 派出了一个线程
-		for i := 0; i < 10000; i++ {
-			go hello(i)	//开启一个goroutine去执行hello函数
-		}
-		fmt.Println("hello main")
-		wg.Wait()	//阻塞，等所有线程干完活，计数器为0
-	}
+	func main() {
+		wg.Add(2) //计数器+2 派出了两个线程
+		printdata("main")	 //main主进程调用函数，计数器-1
 
-	//多线程匿名函数
-	package main
+		//并发执行（谁先执行完使计算器为0，另一个线程可能没有执行完main主进程就结束退出）
+		go printdata("aaa")	//go子线程调用函数，计数器-1
+		go printdata("bbb")	//go子线程调用函数，计数器-1
 
-	import (
-		"fmt"
-		"sync"
-	)
-
-	var wg sync.WaitGroup
-
-	func main() { 	//开启一个主goroutine去执行main函数
-		wg.Add(10000) //计数器+1 派出了一个线程
-		for i := 0; i < 10000; i++ {
-			go func (i int)  {		//开启一个goroutine去执行hello函数
-				fmt.Println("hello", i)
-				wg.Done()	//通知计数器-1
-			}(i)	
-		}
-		fmt.Println("hello main")
-		wg.Wait()	//阻塞，等所有线程干完活，计数器为0
+		wg.Wait()	//Wait方法阻塞直到WaitGroup计数器减为0
 	}
 
 	//GOMAXPROCS
 	//Go语言中可以通过runtime.GOMAXPROCS()函数设置当前程序并发时占用的CPU逻辑核心数。Go1.5版本之后，默认使用全部的CPU逻辑核心数。
 	var wg sync.WaitGroup
 
-	func a() {
-		for i := 1; i < 10; i++ {
-			fmt.Println("A:", i)
-		}
-		wg.Done()
-	}
-
-	func b() {
-		for i := 1; i < 10; i++ {
-			fmt.Println("B:", i)
+	func printdata(data string)  {
+		for i:=0;i<10;i++ {
+			fmt.Println(data,":",i)
 		}
 		wg.Done()
 	}
 
 	func main() {
-		//runtime.GOMAXPROCS(1)	//只使用一个CPU核心,a() b()先执行其中一个再执行另一个（输出B：1-9 A：1-9）
-		runtime.GOMAXPROCS(2)	//使用2个或多个CPU核心,a() b()同时执行（AB：乱序输出 没有固定顺序）
+		//runtime.GOMAXPROCS(1)	//只使用一个CPU核心时,先执行其中一个go线程再执行另一个（输出bbb：0-9 aaa：0-9）
+		runtime.GOMAXPROCS(2)	//使用2个或多个CPU核心,两个go线程同时执行（乱序输出 没有固定顺序）
 		wg.Add(2)
-		go a()
-		go b()
+		go printdata("aaa")
+		go printdata("bbb")
 		wg.Wait()
 	}
 
@@ -1416,20 +1454,36 @@ channel
 	var cha2 chan bool		//声明传递一个布尔型的通道
 	var cha3 chan []int		//声明传递一个int切片的通道
 
-	//make初始化channel
-	ch := make(chan int)	//一个非零通道值必须通过内置的make函数来创建
+	ch := make(chan int)	//make初始化channel
 	ch<- 10	//发送数据10到通道ch中
 	x := <-ch	//从ch中接收值并赋值给变量x
 	<-ch		//从ch中接收值，忽略结果
 	close(ch)	//关闭通道
 
+	//eg:
+	func main() {
+		messages := make(chan string)		//创建一个通道
+		go func() {messages<-"hello"}()		//发送数据给通道
+		fmt.Println(messages)		//0xc00008c060,channel是一种引用类型 打印消息内存地址
+		msg := <-messages			//从通道中接收值 赋给变量
+		fmt.Println(msg)			//hello	
+	}
 
-	// goroutine_channel.go
-		package main
-		import "fmt"
+	//通道接收多个消息，通道返回结果
+	func main() {
+		messages := make(chan string, 2)	
+		messages<- "hello golang"
+		messages<- "hello python"
+		fmt.Println(<-messages)	//hello golang
+		fmt.Println(<-messages)	//hello python
+	}
 
-		//生成0-100的数字发送到ch1
-		func f1(ch chan<- int) {  //chan<- 单向通道只能往通道里发送值，不能从通道取值
+
+	//通道通信（一个发送一个接收）
+	//chan<- 单向写通道 只发送值，不能从通道取值
+	//<-chan 单向读通道 只取值，不能往通道里发送值
+		//发送0-100的数值到ch通道中
+		func f1(ch chan<- int) {  
 			for i:=0;i<100;i++ {
 				ch <- i
 			}
@@ -1437,7 +1491,7 @@ channel
 		}
 
 		//从ch1中取出数据计算它的平方， 把结果发送到ch2
-		func f2(ch1 <-chan int, ch2 chan<- int)  {  //<-chan 单向通道只能从通道取值，不能往通道里发送值
+		func f2(ch1 <-chan int, ch2 chan<- int)  {  
 			// 从通道中取值的方式1
 			for {
 				tmp, ok := <- ch1
@@ -1600,70 +1654,3 @@ channel
 	}
 
 
-sync
-	//sync.WaitGroup来实现并发任务的同步
-	var wg sync.WaitGroup
-	wg.Add(delta int)	//计数器+delta
-	wg.Done()			//计数器-1
-	wg.Wait()			//阻塞直到计数器变为0
-
-	//sync.Once提供了一个针对只执行一次场景的解决方案
-	var loadIconsOnce sync.Once
-	func loadIcons() {
-		icons = map[string]image.Image{
-			"left":  loadIcon("left.png"),
-			"up":    loadIcon("up.png"),
-			"right": loadIcon("right.png"),
-			"down":  loadIcon("down.png"),
-		}
-	}
-	// Icon 是并发安全的
-	func Icon(name string) image.Image {
-		loadIconsOnce.Do(loadIcons)
-		return icons[name]
-	}
-
-	//sync.Map Go语言中内置的map不是并发安全的,当并发多了之后执行上面的代码就会报fatal error: concurrent map writes错误。
-	var m = make(map[string]int)
-
-	func get(key string) int {
-		return m[key]
-	}
-
-	func set(key string, value int) {
-		m[key] = value
-	}
-
-	func main() {
-		wg := sync.WaitGroup{}
-		for i := 0; i < 20; i++ {
-			wg.Add(1)
-			go func(n int) {
-				key := strconv.Itoa(n)
-				set(key, n)
-				fmt.Printf("k=:%v,v:=%v\n", key, get(key))
-				wg.Done()
-			}(i)
-		}
-		wg.Wait()
-	}
-	
-	
-	//为map加锁来保证并发的安全性了
-	//sync包中提供了一个开箱即用的并发安全版map–sync.Map。开箱即用表示不用像内置的map一样使用make函数初始化就能直接使用。同时sync.Map内置了诸如Store、Load、LoadOrStore、Delete、Range等操作方法。
-	var m = sync.Map{}
-
-	func main() {
-		wg := sync.WaitGroup{}
-		for i := 0; i < 20; i++ {
-			wg.Add(1)
-			go func(n int) {
-				key := strconv.Itoa(n)
-				m.Store(key, n)
-				value, _ := m.Load(key)
-				fmt.Printf("k=:%v,v:=%v\n", key, value)
-				wg.Done()
-			}(i)
-		}
-		wg.Wait()
-	}

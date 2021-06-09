@@ -9,6 +9,8 @@ func main() {
 	fmt.Println(strings.Compare("a", "b"))	//按字典顺序比较两个字符串,返回一个整数
 	fmt.Println(strings.Contains("seafood", "foo"))	//判断s是否包含substr
 	fmt.Println(strings.ContainsAny("failure", "ux"))	//判断字符串s是否包含字符串chars中的任一字符
+	fmt.Println(strings.HasPrefix("dadiyunwu","dadi"))		//判断是否以某字符串开头 
+	fmt.Println(strings.HasSuffix("dadiyunwu","yunwu"))		//判断是否以某字符串结尾
 	fmt.Println(strings.Count("cheese", "e"))	//返回字符串s中有几个不重复的sep子串。
 	fmt.Println(strings.Count("five", ""))	// before & after each rune
 	fmt.Println(strings.Index("chicken", "ken")) //索引返回 s 中第一个 substr 实例的索引，如果 substr 不存在于 s 中，则返回-1
