@@ -77,3 +77,63 @@ func main() {
 	}
 	wg.Wait()
 }
+
+
+
+// sync/atomic
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"sync"
+	"sync/atomic"
+	"time"
+)
+
+func main() {
+	 var state = make(map[int]int)
+	 var mutex = &sync.Mutex{} //互斥锁
+	 var readops uint64 = 0
+	 var writeops uint64 = 0
+
+	//重复读取
+	 for r:=0;r<100;r++ {
+	 	go func() {
+	 		total := 0
+	 		for {
+				//写入的时候锁住
+				key := rand.Intn(5)	//生成一个5以内的伪随机数
+				mutex.Lock() //加锁
+				total+=state[key] //数据累加
+				mutex.Unlock() //解锁
+				atomic.AddUint64(&readops,1) //记录读取次数
+				time.Sleep(time.Millisecond)
+			}
+		}()
+	 }
+
+	 //重复写入
+	 for w:=0;w<10;w++ {
+	 	go func() {
+			for {
+				key := rand.Intn(5)
+				val := rand.Intn(100)
+				mutex.Lock()
+				state[key] = val	//写入数据
+				mutex.Unlock()
+				atomic.AddUint64(&writeops,1) //写入次数
+				time.Sleep(time.Millisecond)
+			}
+		}()
+	 }
+
+	 time.Sleep(time.Second)
+	 readopsfinal := atomic.LoadUint64(&readops)
+	 writeopsfinal := atomic.LoadUint64(&writeops)
+	 fmt.Println("read",readopsfinal)
+	 fmt.Println("write",writeopsfinal)
+	 mutex.Lock()
+	 fmt.Println(state)
+	 mutex.Unlock()
+}

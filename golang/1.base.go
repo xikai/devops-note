@@ -511,7 +511,7 @@ func main() {
 	s := make([]int, 3)	//分配内存，初始化一个新分配的长度为3的零值切片
 	fmt.Println(s)		//[0 0 0]
 
-	//返回长度
+	//len返回长度
 	l := len(s)
 	fmt.Println(l)
 
@@ -564,7 +564,6 @@ func main() {
 			f2()
 			f3()
 		}
-
 		/*
 		run f1
 		打开数据库连接...
@@ -1354,6 +1353,46 @@ interface
 	}
 
 
+错误处理
+	//处理错误 除数不能为0
+	package main
+
+	import (
+		"fmt"
+	)
+
+	//定义错误结构
+	type DivideError struct {
+		divdee int
+		divider int
+	}
+
+	//Error方法，处理任何类型错误，返回字符串结果
+	func (de *DivideError) Error() string {
+		return fmt.Sprintf("divdee %d divider 不能为0",de.divdee)
+	}
+
+	//定义除法函数
+	func Divide(vardivdee int, vardivider int) (result int, errorMsg string) {
+		if vardivider == 0 {
+			errordata := DivideError{vardivdee,vardivider}
+			errorMsg = errordata.Error()
+			return
+		} else {
+			return vardivdee/vardivider,"ok"
+		}
+	}
+
+	func main() {
+		if result,errormsg := Divide(100,10); errormsg == "ok" {
+			fmt.Println("100/10=", result)
+		}
+		if _,errormsg := Divide(100,0); errormsg != "ok" {
+			fmt.Println(errormsg)
+		}
+	}
+
+
 goroutine（协程）
 	//并发：同一时间段内执行多个任务
 	//并行：同一时刻执行多个任务
@@ -1388,13 +1427,13 @@ goroutine（协程）
 
 	var wg sync.WaitGroup //WaitGroup用于等待一组线程的结束
 
-	func hello()  {
+	func hello() {
 		fmt.Println("hello hello")
 		wg.Done()	//通知计数器-1
 	}
 
 	func main() { 	//开启一个主goroutine去执行main函数
-		wg.Add(1) //计数器+1 派出了一个线程
+		wg.Add(1) 	//计数器+1 派出了一个线程
 		go hello()	//开启一个goroutine去执行hello函数
 		fmt.Println("hello main")
 		wg.Wait()	//Wait方法阻塞直到WaitGroup计数器减为0
@@ -1471,7 +1510,7 @@ channel
 
 	//通道接收多个消息，通道返回结果
 	func main() {
-		messages := make(chan string, 2)	
+		messages := make(chan string, 2) //创建一个messages通道， 传递2条数据
 		messages<- "hello golang"
 		messages<- "hello python"
 		fmt.Println(<-messages)	//hello golang
@@ -1515,46 +1554,6 @@ channel
 			}
 		}
 
-	
-	//work_pool.go
-	package main
-
-	import (
-		"fmt"
-		"time"
-	)
-
-	func worker(id int, jobs<-chan int, results chan<- int)  {
-		for job := range jobs {
-			fmt.Printf("worker:%d start job:%d\n", id, job)
-			results <- job*2
-			time.Sleep(time.Millisecond*500)
-			fmt.Printf("worker:%d stop job:%d\n", id, job)
-		}
-	}
-
-	func main() {
-		jobs := make(chan int, 100)
-		results := make(chan int, 100)
-
-		//开启3个goroutine
-		for j:=0;j<3;j++ {
-			go worker(j, jobs, results)
-		}
-		//发送5个任务
-		for i:=0;i<5;i++ {
-			jobs <- i
-		}
-		close(jobs)
-
-		//输出结果
-		for i:=0;i<5;i++ {
-			ret := <-results
-			fmt.Println(ret)
-		}
-	}
-
-
 	//select多路复用
 	//select的使用类似于switch语句，它有一系列case分支和一个默认的分支。每个case会对应一个通道的通信（接收或发送）过程。select会一直等待，直到某个case的通信操作完成时，就会执行case分支对应的语句。
 	/*
@@ -1570,21 +1569,114 @@ channel
 		}
 	*/
 	func main() {
-		ch := make(chan int, 1)
-		for i:=0;i<10;i++ {
+		c1 := make(chan string)
+		c2 := make(chan string)
+		go func() {
+			time.Sleep(time.Second*3)
+			c1<- "Doubi NO.1"
+		}()
+		go func() {
+			time.Sleep(time.Second*2)
+			c2<- "Doubi NO.2"
+		}()
+	
+		for i:=0;i<2;i++ {
 			select {
-				case x := <-ch:
-					fmt.Println(x)
-				case ch <-i:
-				default:
-					fmt.Println("啥也不干")
+				case msg1 := <-c1:
+					fmt.Println("received", msg1)
+				case msg2 := <-c2:
+					fmt.Println("received", msg2)
 			}
 		}
 	}
+	/*输出：
+	received Doubi NO.2
+	received Doubi NO.1
+	*/
 
+	//通道超时
+	func main() {
+		c1 := make(chan string)
+		go func() {
+			time.Sleep(time.Second*2)
+			c1<- "Doubi NO.1"
+		}()
+	
+		select {
+			case res := <-c1:
+				fmt.Println(res)
+			case <-time.After(time.Second*1):	//time.After为通道类型，大于线程时间则不超时
+				fmt.Println("timeout 1")
+		}
+	}
+
+	//工作池(3个人并发做5份工作)
+	package main
+
+	import (
+		"fmt"
+		"time"
+	)
+
+	//工作协程，id编号，jobs工作编号，results结果
+	func worker(id int, jobs<-chan int, results chan<- int)  {
+		for j := range jobs {
+			fmt.Printf("worker:%d start job:%d\n", id, j)
+			results <- j*2
+			time.Sleep(time.Second*1)
+			fmt.Printf("worker:%d stop job:%d\n", id, j)
+		}
+	}
+
+	func main() {
+		jobs := make(chan int, 100)
+		results := make(chan int, 100)
+
+		//开启3个工作线程
+		for w:=1;w<=3;w++ {
+			go worker(w, jobs, results)
+		}
+		//发送5个任务
+		for j:=1;j<=5;j++ {
+			jobs <- j
+		}
+		close(jobs)
+
+		//输出结果
+		for i:=1;i<=5;i++ {
+			<-results
+		}
+	}
 
 并发安全和锁
 	//有时候在Go代码中可能会存在多个goroutine同时操作一个资源（临界区），这种情况会发生竞态问题（数据竞态）。
+	func main() {
+		var ops uint64 = 0
+		for i:=0;i<20;i++ {
+			go func() {
+				for j:=0;j<10000;j++ {
+					ops+=1  //线程冲突，多个线程并发争抢同一个资源变量ops
+				}
+			}()
+		}
+		time.Sleep(time.Second*10) //主进程等待go子线程10秒
+		fmt.Println(ops)	//135935，数据不精确，结果不等于20*10000
+	}
+
+	// sync/atomic包提供了底层的原子级内存操作，避免线程冲突
+	func main() {
+		var ops uint64 = 0
+		for i:=0;i<20;i++ {
+			go func() {
+				for j:=0;j<10000;j++ {
+					atomic.AddUint64(&ops, 1) //AddUint64原子性的将val的值添加到*addr并返回新值
+				}
+			}()
+		}
+		time.Sleep(time.Second*10) //主进程等待go子线程10秒
+		fmt.Println(ops)	//200000
+	}
+
 
 	//互斥锁 是一种常用的控制共享资源访问的方法，它能够保证同时只有一个goroutine可以访问共享资源。Go语言中使用sync包的Mutex类型来实现互斥锁。
 	var x int64
@@ -1592,7 +1684,7 @@ channel
 	var lock sync.Mutex		//互斥锁
 
 	func add() {
-		for i := 0; i < 5000; i++ {
+		for i:=0;i<5000;i++ {
 			lock.Lock() // 加锁
 			x = x + 1
 			lock.Unlock() // 解锁
