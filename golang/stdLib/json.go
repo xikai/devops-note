@@ -5,19 +5,14 @@ import (
 	"fmt"
 )
 
-type selang struct {
-	ID    int
-	Name  string
-	grils []string
-}
-
-type qinshou struct {
-	Name string
-	Love string
-}
-
 //data to json
 func main1() {
+	type selang struct {
+		ID    int
+		Name  string
+		grils []string
+	}
+
 	xikai := selang{
 		ID:    0,
 		Name:  "selangxikai",
@@ -32,6 +27,11 @@ func main1() {
 
 //json解码
 func main() {
+	type qinshou struct {
+		Name string
+		Love string
+	}
+	
 	var jsonbytes = []byte(`[
 		{"Name":"xikai","Love":"fengjie"},
 		{"Name":"qqd","Love":"furongjiejie"}
