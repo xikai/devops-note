@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"net"
+	"os"
 )
 
 func checkError(err error) {
 	if err != nil {
 		fmt.Println("网络错误:", err.Error())
+		os.Exit(1)
 	}
 }
 
@@ -15,12 +17,13 @@ func processMsg(conn net.Conn) {
 	buf := make([]byte, 1024) //开创缓冲区
 	defer conn.Close()
 	for {
-		numOfBytes, err := conn.Read(buf) //读取数据
+		numOfBytes, err := conn.Read(buf) //读取缓冲区数据
 		if err != nil {
 			break
 		}
 		if numOfBytes != 0 {
-			fmt.Println("收到消息：", string(buf))
+			remoteAddr := conn.RemoteAddr()
+			fmt.Printf("收到%v的消息：%s\n", remoteAddr, string(buf))
 		}
 	}
 }
@@ -30,6 +33,7 @@ func main() {
 	checkError(err)
 	defer listen_socket.Close() //关闭监听
 
+	fmt.Println("服务器正在等待连接...")
 	for {
 		conn, err := listen_socket.Accept() //新的客户端连接
 		checkError(err)
