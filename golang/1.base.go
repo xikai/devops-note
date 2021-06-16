@@ -1029,7 +1029,7 @@ package
 		fmt.Printf("user2=%#v\n", user2)	//user2=main.User{Name:"盖伦", Gender:"男", Address:main.Address{Province:"山东", City:"烟台"}}
 	}
 
-	//多重继承
+	//多重继承(多态)
 	type Camera struct{}
 
 	func (c *Camera) TakeAPicture() string {
