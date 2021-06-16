@@ -843,33 +843,17 @@ package
 	*/
 
 	//可见性,如果想在一个包中引用另外一个包里的标识符（如变量、常量、类型、函数等）时，该标识符必须是对外可见的（public）。在Go语言中只需要将标识符的首字母大写就可以让标识符对外可见了
-	package pkg2
-	import "fmt"
-
 	// 包变量可见性
-	var a = 100 // 首字母小写，外部包不可见，只能在当前包内使用
-
-	// 首字母大写外部包可见，可在其他包中使用
+	//首字母小写，外部包不可见，只能在当前包内使用
+	//首字母大写外部包可见，可在其他包中使用
 	const Mode = 1
-
-	type person struct { // 首字母小写，外部包不可见，只能在当前包内使用
-		name string
-	}
-
-	// 首字母大写，外部包可见，可在其他包中使用
 	func Add(x, y int) int {
 		return x + y
 	}
 
-	func age() { // 首字母小写，外部包不可见，只能在当前包内使用
-		var Age = 18 // 函数局部变量，外部包不可见，只能在当前函数内使用
-		fmt.Println(Age)
-	}
-
-
 	//结构体中的字段名和接口中的方法名如果首字母都是大写，外部包可以访问这些字段和方法
 	type Student struct {
-		Name  string //可在包外访问的方法
+		Name  string //可在包外访问的字段
 		class string //仅限包内访问的字段
 	}
 	type Payer interface {
@@ -883,7 +867,7 @@ package
 	//多行导入
 	import (
 		"fmt"
-		m "github.com/Q1mi/studygo/pkg_test"
+		m "github.com/Q1mi/studygo/pkg_test"	//m为包的别名
 	 )
 	/*
 		import导入语句通常放在文件开头包声明语句的下面。
@@ -897,6 +881,12 @@ package
 	//Go语言包会从main包开始检查其导入的所有包，每个包中又可能导入了其他的包.在运行时，被最后导入的包会最先初始化并调用其init()函数
 	包导入顺序：main -import-> A -import-> B -import-> C
 	init执行顺序：c.init() -> B.init() -> A.init() -> main.init()
+
+	//调用外部包函数
+	import "./move"
+	func main()  {
+		move.Gom()
+	}
 
 
 结构体（struct）
