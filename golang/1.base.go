@@ -883,10 +883,25 @@ package
 	init执行顺序：c.init() -> B.init() -> A.init() -> main.init()
 
 	//调用外部包函数
-	import "./move"
-	func main()  {
-		move.Gom()
-	}
+	  //关闭gomod, GO111MODULE="off"
+	  //move/move.go
+	  package move
+	  import "fmt"
+  
+	  func Gom() {
+	  	fmt.Println("move gom")
+	  }
+  
+	  //main.go
+	  package main
+
+	  import "fmt"
+	  import "./move"
+	    
+	  func main() {
+	  	move.Gom()
+	  	fmt.Println("hello main")
+	  }
 
 
 结构体（struct）
