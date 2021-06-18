@@ -977,6 +977,14 @@ package
 		fmt.Printf("%#v\n", user)
 	}
 
+	func main() {
+		user := struct{
+			Name string
+			Age int
+		}{Name:"小王子", Age: 18}
+		fmt.Printf("%#v\n", user)
+	}
+
 	//new关键字对结构体进行实例化,创建指针类型结构体
 	var p = new(person)
 	p.name = "小王子"
