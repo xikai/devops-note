@@ -507,7 +507,7 @@ func main() {
 	val := new(int)		//分配内存，初始化一个新分配的零值数据
 	fmt.Printf("内存地址：%#x, 值：%d\n", &val, *val)	//内存地址：0xc00000e028, 值：0
 
-	//内建函数make分配并初始化一个类型为切片、映射、或通道的对象
+	//内建函数make分配并初始化一个类型为chan、map、slice的对象
 	s := make([]int, 3)	//分配内存，初始化一个新分配的长度为3的零值切片
 	fmt.Println(s)		//[0 0 0]
 
@@ -733,20 +733,77 @@ func main() {
 	}
 
 	// defer 语句会推迟函数（包括任何参数）的运行，直到包含 defer 语句的函数完成
-	// defer 语句按逆序运行，先运行最后一个，最后运行第一个
-	func main() {
-		for i := 1; i <= 3; i++ {
-			defer fmt.Println("deferred", -i)
-			fmt.Println("regular", i)
-		}
-	} 
-	//输出：
-	regular 1
-	regular 2
-	regular 3
-	deferred -3
-	deferred -2
-	deferred -1
+		//多个defer出现的时候，它是一个“栈”的关系，也就是先进后出。一个函数中，写在前面的defer会比写在后面的defer调用的晚。
+		func main() {
+			for i := 1; i <= 3; i++ {
+				defer fmt.Println("deferred", -i)
+				fmt.Println("regular", i)
+			}
+		} 
+		//输出：
+		regular 1
+		regular 2
+		regular 3
+		deferred -3
+		deferred -2
+		deferred -1
+
+
+		//defer遇见return
+			//return语句先执行，defer语句后执行
+			func deferFunc() int {
+				fmt.Println("defer func called")
+				return 0
+			}
+			func returnFunc() int {
+				fmt.Println("return func called")
+				return 0
+			}
+			func returnAndDefer() int {
+				defer deferFunc()
+				return returnFunc()
+			}
+			func main() {
+				returnAndDefer()
+			}
+			/*输出
+			return func called
+			defer func called
+			*/
+
+			//该returnButDefer()本应的返回值是1，但是在return之后，又被defer的匿名func函数执行，所以t=t*10被执行，最后returnButDefer()返回给上层main()的结果为10
+			func returnButDefer() (t int) {  //t初始化0， 并且作用域为该函数全域
+				defer func() {	//后执行defer
+					t = t * 10
+				}()
+				return 1	//先执行ruturn
+			}
+			func main() {
+				fmt.Println(returnButDefer())	//10
+			}
+		
+		//defer遇见panic， defer 最大的功能是 panic 后依然有效 
+			//defer遇见panic(不捕获异常)
+			func main() {
+				defer_call()
+				fmt.Println("main 正常结束")
+			}
+
+			func defer_call() {
+				defer func() { fmt.Println("defer: panic 之前1") }()
+				defer func() { fmt.Println("defer: panic 之前2") }()
+	
+				panic("异常内容")  //触发defer出栈
+				defer func() { fmt.Println("defer: panic 之后，永远执行不到") }()
+			}
+			/*
+			defer: panic 之前2
+			defer: panic 之前1
+			panic: 异常内容
+			//... 异常堆栈信息
+			*/
+
+
 
 
 指针
@@ -1182,7 +1239,11 @@ package
 
 
 interface
+	参考文档：https://github.com/aceld/golang/blob/main/6%E3%80%81%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BC%96%E7%A8%8B%E6%80%9D%E7%BB%B4%E7%90%86%E8%A7%A3interface.md
 	//在Go语言中接口（interface）是一种类型，一种抽象的类型。接口（interface）定义了一个对象的行为规范，只定义规范不实现，由具体的对象来实现规范的细节。
+		//interface 是方法声明的集合
+		//任何类型的对象实现了在interface 接口中声明的全部方法，则表明该类型实现了该接口。
+		//interface 可以作为一种数据类型，实现了该接口的任何对象都可以给对应的接口类型变量赋值。
 	type 接口类型名 interface{
 		方法名1( 参数列表1 ) 返回值列表1
 		方法名2( 参数列表2 ) 返回值列表2
@@ -1194,97 +1255,64 @@ interface
 		参数列表、返回值列表：参数列表和返回值列表中的参数变量名可以省略。
 	*/
 	// 为什么要使用接口
-	type Dog struct {}
-	func (d Dog) Say() string { return "汪汪汪" }
-
-	type Cat struct {}
-	func (c Cat) Say() string { return "喵喵喵" }
-
+	type NokiaPhone struct {
+	}
+	
+	func (nokiaPhone NokiaPhone) call() {
+		fmt.Println("I am Nokia, I can call you!")
+	}
+	
+	type ApplePhone struct {
+	}
+	
+	func (Iphone ApplePhone) call() {
+		fmt.Println("I am Apple Iphone, I can call you!")
+	}
+	
 	func main() {
-		c := Cat{}
-		fmt.Println("猫:", c.Say())
-		d := Dog{}
-		fmt.Println("狗:", d.Say())
+		nokia := NokiaPhone{}
+		nokia.call()
+		Iphone := ApplePhone{}
+		Iphone.call()
 	}
 	/*
-		上面的代码中定义了猫和狗,你会发现main函数中明显有重复的代码,如果我们后续再加上猪、青蛙等动物的话，我们的代码还会一直重复下去。那我们能不能把它们当成“能叫的动物”来处理呢？
+		上面的代码中定义了nokia和iphone手机,你会发现main函数中明显有重复的代码,如果我们后续再加上华为、小米等手机的话，我们的代码还会一直重复下去。那我们能不能把它们当成“电话”来处理呢？
 		比如一个网上商城可能使用支付宝、微信、银联等方式去在线支付，我们能不能把它们当成“支付方式”来处理呢？
 		比如三角形，四边形，圆形都能计算周长和面积，我们能不能把它们当成“图形”来处理呢？
 		比如销售、行政、程序员都能计算月薪，我们能不能把他们当成“员工”来处理呢？
 		Go语言中为了解决类似上面的问题，就设计了接口这个概念。接口区别于我们之前所有的具体类型，接口是一种抽象的类型。当你看到一个接口类型的值时，你不知道它是什么，唯一知道的是通过它的方法能做什么。
 	*/
 
-	//接口就是一个需要实现的方法列表。一个对象只要实现了接口中的全部方法，那么就实现了这个接口
-	//只要实现了say()这个方法的类型都可以称为sayer类型
-	type sayer interface {
-		say()
+	//只要实现了call()这个方法的类型都可以称为Phone接口类型
+	type Phone interface {
+		call()
 	}
-
-	type dog struct {}
-	// dog实现sayer接口
-	func (d dog) say() { fmt.Println("汪汪汪") }
-
-	type cat struct {}
-	// cat实现sayer接口
-	func (c cat) say() { fmt.Println("喵喵喵") }
-
-	type persion struct {
-		name string
+	
+	type NokiaPhone struct {
 	}
-	// persion实现say接口
-	func (p person) say() { fmt.Println("啊啊啊") }
-
-	func da(arg sayer)  {
-		arg.say()
+	
+	func (nokiaPhone NokiaPhone) call() {
+		fmt.Println("I am Nokia, I can call you!")
 	}
-
+	
+	type ApplePhone struct {
+	}
+	
+	func (iPhone ApplePhone) call() {
+		fmt.Println("I am Apple Phone, I can call you!")
+	}
+	
 	func main() {
-		c1 := cat{}
-		da(c1)		//喵喵喵
-		d1 := dog{}
-		da(d1)		//汪汪汪
-		p1 := person{}
-		da(p1)		//啊啊啊
+		var phone Phone
+		phone = new(NokiaPhone)
+		phone.call()
+	
+		phone = new(ApplePhone)
+		phone.call()
 	}
+	//上述中体现了interface接口的语法，在main函数中，也体现了多态的特性。 同样一个phone的抽象接口，分别指向不同的实体对象，调用的call()方法，打印的效果不同，那么就是体现出了多态的特性。
+	//实际上接口的最大的意义就是实现多态的思想，就是我们可以根据interface类型来设计API接口，那么这种API接口的适应能力不仅能适应当下所实现的全部模块，也适应未来实现的模块来进行调用。
 
-
-	//使用值接收者实现接口和使用指针接收者实现接口的区别
-		type mover interface {
-			move()
-		}
-		type person struct {
-			name string
-			age int
-		}
-
-		//使用值接收者实现接口
-		func (p person) move() {
-			fmt.Printf("%s在跑\n", p.name)
-		}	
-		func main() { //使用值接收者实现接口：类型的值和类型的指针都能保存到接口变量中
-			var m mover
-			p1 := person{name: "小王了", age: 18}	//p1是person类型的值
-			p2 := &person{name: "盖伦", age: 18}		//p2是person类型的指针
-			m = p1
-			m.move()	//小王了在跑
-			m = p2
-			m.move()	//盖伦在跑
-		}
-
-		//使用值接收者实现接口
-		func (p *person) move() {
-			fmt.Printf("%s在跑\n", p.name)
-		}
-		func main() {	//只有类型指针能保存到接口变量中
-			var m mover
-			//p1 := person{name: "小王了", age: 18}	//p1是person类型的值
-			p2 := &person{name: "盖伦", age: 18}		//p2是person类型的指针
-			//m = p1		//./test.go:21:4: person does not implement mover (move method has pointer receiver)
-			//m.move()
-			m = p2
-			m.move()		//盖伦在跑
-		
-		}
 
 	//一个类型实现多个接口
 		type mover interface {
@@ -1307,14 +1335,17 @@ interface
 			fmt.Printf("%s在叫\n", p.name)
 		}
 		func main()  {
+			p := &person{name: "盖伦", age: 18}	
+			//实现了接口方法
 			var m mover
-			var s sayer
-			p2 := &person{name: "盖伦", age: 18}
-			m = p2
+			m = p
 			m.move()
-			s = p2
+		
+			var s sayer
+			s = p
 			s.say()
 		}
+
 
 	//接口嵌套接口
 	type ReadWrite interface {
@@ -1332,38 +1363,36 @@ interface
 	}
 
 	//空接口
-	//接口中没有定义任何需要实现的方法时，该接口就是一个空接口
-	//任意类型都实现了空接口 --> 空接口变量可以存储任意值
-	func main()  {
-		var x interface{}
-		x = "hello"
-		fmt.Println(x)
-		x = 100
-		fmt.Println(x)
-		x = false
-		fmt.Println(x)
-	}
+		//空接口作为函数参数
+		func show(a interface{}) {
+			fmt.Printf("type:%T value:%v\n", a, a)
+		}
 
-	//空接口的应用
-	//空接口作为函数参数
-	func show(a interface{}) {
-		fmt.Printf("type:%T value:%v\n", a, a)
-	}
-	// 空接口作为map值
-	var studentInfo = make(map[string]interface{})
-	studentInfo["name"] = "沙河娜扎"
-	studentInfo["age"] = 18
-	studentInfo["married"] = false
-	fmt.Println(studentInfo)
-
-	//接口类型断言（猜测）
-	func main()  {
-		var x interface{}
-		x = "hello"
-		fmt.Println(x.(string))   //猜对了打印接口值： hello
-		x = 100
-		fmt.Println(x.(bool))  	  //panic: interface conversion: interface {} is int, not bool
-	}
+		func main()  {
+			//接口中没有定义任何需要实现的方法时，该接口就是一个空接口
+			//任意类型都实现了空接口 --> 空接口变量可以存储任意值
+			var x interface{}
+			x = "hello"
+			fmt.Println(x)
+			fmt.Println(x.(string))   //接口类型断言,猜对了打印接口值： hello
+		
+			x = 100
+			fmt.Println(x)
+			//fmt.Println(x.(bool))	//panic: interface conversion: interface {} is int, not bool
+		
+			x = false
+			fmt.Println(x)
+		
+			var a interface{}
+			show(a)		//type:<nil> value:<nil>
+		
+			// 空接口作为map值
+			var studentInfo = make(map[string]interface{})
+			studentInfo["name"] = "沙河娜扎"
+			studentInfo["age"] = 18
+			studentInfo["married"] = false
+			fmt.Println(studentInfo)	//map[age:18 married:false name:沙河娜扎]
+		}
 
 
 错误处理
@@ -1407,6 +1436,12 @@ interface
 
 
 goroutine（协程）
+	//对操作系统而言，线程是最小的执行单元(每个线程至少会占用4M的内存空间)，进程是最小的资源管理单元。
+	//协程（Coroutines）是一种比线程更加轻量级的存在，正如一个进程可以拥有多个线程一样，一个线程可以拥有多个协程。
+		//协程不是被操作系统内核所管理的，而是完全由程序所控制，也就是在用户态执行
+		//协程运行在线程之上,一个线程的多个协程的运行是串行的,只能在一个线程内运行，没法利用CPU多核能力
+		//协程的切换在用户态完成，切换的代价比线程从用户态到内核态的代价小很多
+
 	//并发：同一时间段内执行多个任务
 	//并行：同一时刻执行多个任务
 
@@ -1417,10 +1452,10 @@ goroutine（协程）
 		}
 	}
 	func main() {
-		printdata("main")	//执行完后 主进程main可能会先结束后，下面的go子线程也随之结束
-		go printdata("aaa")	//与main主进程及其它go子线程 并发执行
+		printdata("main")	//执行完后 主线程main可能会先结束，下面的go协程也随之结束
+		go printdata("aaa")	//与其它go协程 并发执行
 		go printdata("bbb")
-		time.Sleep(time.Second*3)	//main主进程sleep，等待go子线程执行
+		time.Sleep(time.Second*3)	//main主线程执行完后 sleep，等待go协程执行
 	}
 
 	//sync.WaitGroup来实现并发任务的同步
