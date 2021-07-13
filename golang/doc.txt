@@ -1,4 +1,5 @@
-http://doc.yonyoucloud.com/doc/wiki/project/the-way-to-go/index.html
+http://www.topgoer.com/
 https://www.liwenzhou.com/posts/Go/go_menu/
+http://doc.yonyoucloud.com/doc/wiki/project/the-way-to-go/index.html
 http://books.studygolang.com/gobyexample/
 

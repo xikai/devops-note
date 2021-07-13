@@ -937,7 +937,7 @@ package
 	//init()函数没有参数也没有返回值。 init()函数在程序运行时自动被调用执行，不能在代码中主动调用它
 	//Go语言包会从main包开始检查其导入的所有包，每个包中又可能导入了其他的包.在运行时，被最后导入的包会最先初始化并调用其init()函数
 	包导入顺序：main -import-> A -import-> B -import-> C
-	init执行顺序：c.init() -> B.init() -> A.init() -> main.init()
+	init函数执行顺序：c.init() -> B.init() -> A.init() -> main.init()
 
 	//调用外部包函数
 	  //关闭gomod, GO111MODULE="off"
