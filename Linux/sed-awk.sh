@@ -36,7 +36,7 @@ sed -n '/^abc/!p' a.txt 
 echo this is a test line | sed 's/\w\+/[&]/g' 
 [this] [is] [a] [test] [line]
 #如果test被匹配，则移动到匹配行的下一行，替换这一行的aa，变为bb
-sed '/test/{n;s/aa/bb/}' file
+sed '/test/n;s/aa/bb/' file
 
 
 

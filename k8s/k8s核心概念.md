@@ -7,9 +7,7 @@
 一个`Serivce`下面包含的`Pod`集合一般是由`Label Selector`来决定的。
 
 
-
 `Node IP`是`Kubernetes`集群中节点的物理网卡`IP`地址(一般为内网)
-
 
 
 `Pod IP`是每个`Pod`的`IP`地址，它是`Docker Engine`根据`docker0`网桥的`IP`地址段进行分配的
@@ -17,11 +15,9 @@
 `	flannel`这种网络插件保证所有节点的`Pod IP`不会冲突
 
 
-
 `Cluster IP`是一个虚拟的`IP`，仅仅作用于`Kubernetes Service`这个对象
 
 无法`ping`这个地址，他没有一个真正的实体对象来响应，他只能结合`Service Port`来组成一个可以通信的服务。
-
 
 
 在`Kubernetes`集群中，每个`Node`会运行一个`kube-proxy`进程, 负责为`Service`实现一种 VIP（clusterIP）的代理形式
@@ -29,17 +25,12 @@
 `kube-proxy`会监视`Kubernetes master`对 Service 对象和 Endpoints 对象的添加和移除
 
 
-
 ### Service 类型
 
 ClusterIP：通过集群的内部 IP 暴露服务，选择该值，服务只能够在集群内部可以访问，这也是默认的ServiceType。
 
-
-
 NodePort：通过每个 Node 节点上的 IP 和静态端口（NodePort）暴露服务
-
 通过请求 :，可以从集群的外部访问一个 NodePort 服务。
-
 （默认：30000-32767）分配端口，每个 Node 将从该端口（每个 Node 上的同一端口）代理到 Service。
 
 ```yaml
@@ -63,11 +54,7 @@ kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP        27d
 myservice    NodePort    10.104.57.198   <none>        80:32560/TCP   14h
 ```
 
-
-
 LoadBalancer：使用云提供商的负载局衡器，可以向外部暴露服务
-
-
 
 ExternalName：通过返回 CNAME 和它的值，可以将服务映射到 externalName 字段的内容（例如， foo.bar.example.com）。没有任何类型代理被创建，这只有 Kubernetes 1.7 或更高版本的 kube-dns 才支持。
 
@@ -82,6 +69,14 @@ spec:
   externalName: my.database.example.com
 ```
 
+### kube-proxy
+`Service 只是一个概念，而真正将 Service 的作用落实的是它背后的 kube-proxy 服务进程。核心功能是将到某个 Service 的访问请求转发到后端的多个 Pod 实例上，转发方式支持RoundRobin（默认模式）和SessionAffinity负载分发策略。`
+`kube-proxy通过查询和监听API Server中service和endpoint的变化，将需要新增的规则添加到iptables中。真正服务的是内核的netfilter，体现在用户态则是iptables。每次创建/删除 Service 或修改 Endpoints 时，kube-proxy 都会负责更新集群每个节点上的 iptables 规则。`
+`kube-proxy对iptables的链进行了扩充，自定义了KUBE-SERVICES，KUBE-NODEPORTS，KUBE-POSTROUTING，KUBE-MARK-MASQ和KUBE-MARK-DROP五个链，并主要通过为KUBE-SERVICES chain增加rule来配制traffic routing 规则`
+```
+clusterIP: Pod A --> service(dns/clusterIP), kube-proxy(iptables) --> pod B (podIP)
+NodePort: external client --> service(NodePort) , kube-proxy(iptables) --> pod B (podIP)
+```
 
 
 ## 2. configmap

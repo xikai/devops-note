@@ -25,14 +25,14 @@ func sayHello(w http.ResponseWriter, r *http.Request) {
 	*/
 
 	//2.解析模板
-	t, err := template.ParseFiles("./hello.tmpl")
+	t, err := template.ParseFiles("./hello.tmpl") // 解析指定文件生成模板对象
 	if err != nil {
 		fmt.Println("Parse template failed, err:%v", err)
 		return
 	}
 
 	//3.渲染模板
-	err = t.Execute(w, "小王子")
+	err = t.Execute(w, "小王子") // 利用给定数据渲染模板，并将结果写入w
 	if err != nil {
 		fmt.Println("render template failed, err:%v", err)
 		return
