@@ -53,6 +53,7 @@ users:
 - name: kubernetes-xinnet-admin
 ```
 * 将两个cluster配置文件合并
+>KUBECONFIG 环境变量不是必要的。 如果 KUBECONFIG 环境变量不存在，kubectl 使用默认的 kubeconfig 文件，$HOME/.kube/config。如果 KUBECONFIG 环境变量存在，kubectl 使用 KUBECONFIG 环境变量中列举的文件合并后的有效配置。
 ```
 echo -e "export KUBECONFIG=$HOME/.kube/config-alitest:$HOME/.kube/config-xinnet" >>~/.bash_profile
 
