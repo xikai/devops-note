@@ -1,27 +1,20 @@
 * flux 监视&同步git仓库的k8s yaml清单
+* https://fluxcd.io/legacy/flux/tutorials/get-started/
 
-### 安装flux
+### 安装fluxctl
 * https://fluxcd.io/legacy/flux/references/fluxctl/
 ```
 curl -s -L https://github.com/fluxcd/flux/releases/download/1.23.2/fluxctl_linux_amd64 -o /usr/local/bin/fluxctl
 chmod +x /usr/local/bin/fluxctl
 ```
 
-* helm install flux
+### #fork示例github repo
 ```
-helm repo add fluxcd https://charts.fluxcd.io
-
-helm upgrade -i flux fluxcd/flux \
-   --set git.url=git@github.com:xikai-dd01/flux-get-started \
-   --namespace flux
-```
-
-### 配置flux
-* https://fluxcd.io/legacy/flux/tutorials/get-started/
-```
-#fork示例github repo
 https://github.com/fluxcd/flux-get-started
+```
 
+### install flux
+```
 kubectl create ns flux
 
 # 替换YOURUSER为您的 GitHub 用户名
@@ -29,14 +22,14 @@ fluxctl install \
 --git-user=xikai-dd01 \
 --git-email=xikai-dd01@users.noreply.github.com \
 --git-url=git@github.com:xikai-dd01/flux-get-started \
---git-path=namespaces,workloads \
+--git-path=namespaces,workloads \   #指定k8s清单目录（相对路径）
 --namespace=flux | kubectl apply -f -
 
 # 等待flux启动
 kubectl rollout status deployment/flux -n flux 
 ```
  
-* 授予写访问权限
+### 授权读写github仓库
 ```
 # Flux 生成一个 SSH 密钥并记录公钥
 fluxctl identity --k8s-fwd-ns flux
@@ -49,13 +42,26 @@ fluxctl identity --k8s-fwd-ns flux
 ```
 fluxctl sync --k8s-fwd-ns flux
 ```
+
+### helm install flux(可选)
+```
+kubectl create ns flux
+helm repo add fluxcd https://charts.fluxcd.io
+
+helm upgrade -i flux fluxcd/flux \
+   --set git.url=git@github.com:xikai-dd01/flux-get-started \
+   --git-path=namespaces,workloads \
+   --set git.ssh.secretName=flux-git-deploy \
+   --namespace flux
+```
+
+### 验证安装
 ```
  05:28 $ kubectl get pod -n demo
 NAME                       READY   STATUS    RESTARTS   AGE
 podinfo-666f7547cc-7xbd5   1/1     Running   0          53s
 podinfo-666f7547cc-jqzrh   1/1     Running   0          68s
 ```
-
 * 查看 Flux 日志
 ```
 kubectl -n flux logs deployment/flux -f
@@ -64,7 +70,7 @@ kubectl -n flux logs deployment/flux -f
 ### 操作flux
 * 查看flux workloads
 ```
-$ fluxctl list-workloads --k8s-fwd-ns=flux
+$ fluxctl list-workloads --k8s-fwd-ns=flux -a
 
 # 列出workloads镜像版本
 $ luxctl list-images --k8s-fwd-ns=flux --workload default:deployment/helloworld

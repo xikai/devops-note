@@ -5,13 +5,18 @@
 ```
 kubectl apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/1.4.0/deploy/crds.yaml
 ```
-
-* 创建credentials
+* 生成SSH key 
 ```
-kubectl create secret generic flux-git-deploy \
-    --from-file=identity=<path to key file>
+ssh-keygen -q -N "" -f /tmp/identity
+kubectl create secret generic helm-operator-ssh \
+    --from-file=/tmp/identity
+    --namespace flux
 ```
-
+* 避免helm-operator在git pull时 出现StrictHostKeyChecking
+```
+ssh-keyscan <your_git_host_domain>  > /tmp/flux_known_hosts
+```
+* 添加identity.pub到git仓库为只读权限
 * 安装 helm-operator
 ```
 kubectl create ns flux
@@ -19,7 +24,10 @@ helm repo add fluxcd https://charts.fluxcd.io
 
 helm upgrade -i helm-operator fluxcd/helm-operator \
     --namespace flux \
-    --set git.ssh.secretName=flux-git-deploy
+    --set git.ssh.secretName=helm-operator-ssh \
+    #--set git.ssh.secretName=flux-git-deploy  或使用flux生成的deploy key
+    --set-file git.ssh.known_hosts=/tmp/flux_known_hosts
+
 
 $ kubectl get pods -n flux
 NAME                             READY   STATUS    RESTARTS   AGE
@@ -76,7 +84,7 @@ spec:
     replicaCount: 2
 ```
 
-### 卸载chart
+### 卸载chart(删除相关hr资源)
 ```
 kubectl delete helmrelease podinfo
 ```

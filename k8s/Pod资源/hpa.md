@@ -1,7 +1,10 @@
-### 安装metrics-server (https://github.com/kubernetes-sigs/metrics-server)
-```
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-```
+### 实现hpa的条件
+1. 安装metrics-server (https://github.com/kubernetes-sigs/metrics-server)
+   ```
+   kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+   ```
+2. 要实现autoscale，pod必须设置request
+3. hpa不能autoscale daemonset类型control
 
 ### hpa工作机制
 * horizontal-pod-autoscaler(控制器) -> RC/Depolyment(scale) -> pod1 ... pod N
