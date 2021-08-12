@@ -9,13 +9,10 @@ kubectl apply -f https://raw.githubusercontent.com/fluxcd/helm-operator/1.4.0/de
 ```
 ssh-keygen -q -N "" -f /tmp/identity
 kubectl create secret generic helm-operator-ssh \
-    --from-file=/tmp/identity
+    --from-file=/tmp/identity \
     --namespace flux
 ```
-* 避免helm-operator在git pull时 出现StrictHostKeyChecking
-```
-ssh-keyscan <your_git_host_domain>  > /tmp/flux_known_hosts
-```
+
 * 添加identity.pub到git仓库为只读权限
 * 安装 helm-operator
 ```
@@ -24,14 +21,14 @@ helm repo add fluxcd https://charts.fluxcd.io
 
 helm upgrade -i helm-operator fluxcd/helm-operator \
     --namespace flux \
-    --set git.ssh.secretName=helm-operator-ssh \
+    --set git.ssh.secretName=helm-operator-ssh
     #--set git.ssh.secretName=flux-git-deploy  或使用flux生成的deploy key
-    --set-file git.ssh.known_hosts=/tmp/flux_known_hosts
-
 
 $ kubectl get pods -n flux
 NAME                             READY   STATUS    RESTARTS   AGE
 helm-operator-6985656995-dpmdl   1/1     Running   0          31s
+
+$ kubectl logs -f deploy/helm-operator
 ```
 
 ### 部署chart

@@ -1,23 +1,18 @@
 * flux 监视&同步git仓库的k8s yaml清单
 * https://fluxcd.io/legacy/flux/tutorials/get-started/
+* https://fluxcd.io/legacy/flux/references/fluxctl/
 
 ### 安装fluxctl
-* https://fluxcd.io/legacy/flux/references/fluxctl/
 ```
 curl -s -L https://github.com/fluxcd/flux/releases/download/1.23.2/fluxctl_linux_amd64 -o /usr/local/bin/fluxctl
 chmod +x /usr/local/bin/fluxctl
 ```
+* fork示例github repo (https://github.com/fluxcd/flux-get-started)
 
-### #fork示例github repo
-```
-https://github.com/fluxcd/flux-get-started
-```
-
-### install flux
+### fluxctl install flux
 ```
 kubectl create ns flux
 
-# 替换YOURUSER为您的 GitHub 用户名
 fluxctl install \
 --git-user=xikai-dd01 \
 --git-email=xikai-dd01@users.noreply.github.com \
@@ -28,8 +23,8 @@ fluxctl install \
 # 等待flux启动
 kubectl rollout status deployment/flux -n flux 
 ```
- 
-### 授权读写github仓库
+
+* 授权读写github仓库
 ```
 # Flux 生成一个 SSH 密钥并记录公钥
 fluxctl identity --k8s-fwd-ns flux
@@ -41,18 +36,6 @@ fluxctl identity --k8s-fwd-ns flux
 * 同步github（默认情况下，Flux git pull 频率设置为 5 分钟。您可以告诉 Flux 立即同步更改）
 ```
 fluxctl sync --k8s-fwd-ns flux
-```
-
-### helm install flux(可选)
-```
-kubectl create ns flux
-helm repo add fluxcd https://charts.fluxcd.io
-
-helm upgrade -i flux fluxcd/flux \
-   --set git.url=git@github.com:xikai-dd01/flux-get-started \
-   --git-path=namespaces,workloads \
-   --set git.ssh.secretName=flux-git-deploy \
-   --namespace flux
 ```
 
 ### 验证安装
@@ -70,7 +53,7 @@ kubectl -n flux logs deployment/flux -f
 ### 操作flux
 * 查看flux workloads
 ```
-$ fluxctl list-workloads --k8s-fwd-ns=flux -a
+$ fluxctl list-workloads --k8s-fwd-ns=flux
 
 # 列出workloads镜像版本
 $ luxctl list-images --k8s-fwd-ns=flux --workload default:deployment/helloworld
@@ -84,6 +67,10 @@ default:deployment/helloworld  helloworld  quay.io/weaveworks/helloworld
                                            '-> master-a000002             23 Aug 16 10:05 UTC
                                                master-a000001             23 Aug 16 09:53 UTC
 
+```
+* 连接指定flux daemon
+```
+fluxctl --url http://127.0.0.1:3030/api/flux list-workloads
 ```
 
 * 发布更新workloads
@@ -119,3 +106,18 @@ fluxctl release --workload=default:deployment/helloworld --update-image=quay.io/
 ```
 
 
+### helm install flux(可多次安装)
+```
+ssh-keygen -q -N "" -f /tmp/identity
+kubectl -n flux create secret generic flux-ssh --from-file=/tmp/identity
+
+kubectl create ns flux
+helm repo add fluxcd https://charts.fluxcd.io
+
+helm upgrade -i flux fluxcd/flux \
+   --namespace flux \
+   --set git.url=git@github.com:xikai-dd01/flux-get-started \
+   --set git.path=workloads \
+   --set git.secretName=flux-ssh
+   #--set git.secretName=flux-git-deploy
+```

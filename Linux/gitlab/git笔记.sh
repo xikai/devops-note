@@ -11,7 +11,6 @@ git remote rm origin
 git remote add origin git@gitlab.ve.cn:xikai/test.git
 git remote add originxik git@github_xik:xikai/test.git
 
-
 #修改远程仓库地址
 git remote set-url origin git@gitlab.ve.cn:xikai/test.git
 
@@ -53,38 +52,30 @@ git stash list                #查看stash内容
 一个成功的git分支方案： 
 http://blog.csdn.net/dbzhang800/article/details/6798724
 
-git branch -a                            #列出所有本地分支及远程分支
-git checkout -b develop                 #创建并切换develop分支
 git checkout develop                    #切换分支
-
-git branch -d myfeature                   #删除develop本地分支(git branch -D myfeature 强行删除没有被合并的分支)
-
-#删除远程库分支
-git branch -r -d origin/develop            #删除本地对应的remotes/origin/develop
-git push origin  :develop                #将本地空的分支推送到远程指定分支,冒号前面空格不能少
-
+git checkout -b develop                 #创建并切换develop分支
 git checkout -b develop origin/develop    #创建远程develop分支到本地
+
+git branch                              #查看当前分支及本地分支
+git branch -a                            #列出所有本地分支及远程分支
+git branch -r                           #列出远程分支
+git branch -d myfeature                   #删除develop本地分支(git branch -D myfeature 强行删除没有被合并的分支)
+git branch -r -d origin/develop            #删除本地对应的remotes/origin/develop
 git branch --set-upstream branch-name origin/branch-name        #建立本地分支和远程分支的关联
 
-
-#合并分支
-git merge develop
+git merge develop                               #合并分支
 git merge --no-ff -m "commit message" develop            #合并develop分支到当前分支(develop分支文件的内容会覆盖当前的内容)  
 
 注：合并分支默认会使用Fast forward "快进模式"，合并功能分支所有的commit信息，当被合并的功能分支被删除时，会丢失分支信息; --no-ff禁用快进模式，Git就会在merge时生成一个新的commit
 
-# 合并指定commit（ 合并某个分支某个commit 到当前分支）
-假设分支A和分支B, 我们想把A上的某个commit 点合并到B分支上
+# 合并指定commit（ 合并某个分支某个commit 到当前分支）假设分支A和分支B, 我们想把A上的某个commit 点合并到B分支上
 git checkout A (切换到A分支）
 git log (查看所有commit 点，找到需要合并到B上的CommitId 复制commitId)
 git checkout B （切回到B分支）
 git cherry-pick [commitid] (上面复制的A分支的commitId)
 
 
-
 #推送拉取
-git remote -v                #查看远程git服务端地址
-
 git push -u origin master    #推送本地当前指定分支到远程服务端 -u第一次推送用于关联本地master分支与远程master分支
 git push -u origin develop
 git pull origin master        #从远程git服务器拉取指定分支数据到本地当前分支
@@ -96,10 +87,8 @@ git pull --tags                    #拉取所有分支tag
 git fetch origin master            #将远程master分支在本地更新为一个名为origin/master的本地分支
 
 #pull所有分支到本地
-  git branch -r | grep -v '\->' | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
   git fetch --all
   git pull --all
-
 
 注： git pull = git fetch + git merge
 
