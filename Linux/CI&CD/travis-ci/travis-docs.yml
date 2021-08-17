@@ -1,0 +1,55 @@
+if: branch =~ ^master$|^release|^development$
+dist: xenial
+os: linux
+language: shell
+
+# 缓存归档存储在travis远程存储
+# 构建前检查缓存是否存在，如果存在则下载解压到指定目录（如果缓存归档太大会影响构建加速效果）
+# 构建完成后检查目录变更，对变更创建新的缓存归档，并上传到travis远程存储
+cache: #
+  directories:
+    - $HOME/.cache/pip
+before_cache: #创建新缓存前
+  - rm -f $HOME/.cache/pip/log/debug.log
+
+services:
+  - docker
+
+env:
+  - TEST_SUITE=units
+  - TEST_SUITE=integration
+
+stages:
+  - test
+  - build
+  - name: deploy
+    if: branch = master #运行stage的条件
+
+jobs:  
+  include:
+    - stage: test   
+      if: branch = staging #运行job的条件
+      # 安装未包含在ubuntu发行版的软件包
+      befor_install:
+          - sudo apt-get -y install libxml2-dev
+      # 安装构建过程所依赖的软件包
+      install:
+          - sudo apt-get -y install mysql mongodb
+      # 构建前需要执行的脚本
+      befor_script: skip
+      # 运行构建脚本
+      script: |-
+        bash xxx
+        bash xxx
+
+    #相同stage并行运行，如果相同stage的一个job运行失败，其它job继续运行。
+    #每个job都在新的虚拟机或容器中运行 不共享数据
+    - script: skip     #stage名字没有定义时，将沿用上一个stage的name:`test`。
+      
+    #不同stage按顺序执行（先执行test stage再执行deploy stage）
+    - stage: deploy
+      deploy:
+        - provider: s3
+          skip_cleanup: true    #不清理构建工作目录
+          on:
+            all_branches: true
