@@ -1,21 +1,3 @@
-#变量替换
-echo ${HOSTNAME}
-zabbix-172-31-24-10
-计算变量长度
-echo ${#HOSTNAME}     //19
-
-变量截取
-抽取string的子串
-#{HOSTNAME:5}     //从position个位置开始截取子串到结束  x-172-31-24-10
-#{HOSTNAME:5:10}   //从position处开始截取长度为10的子串  x-172-31-2
-删除子串 
-${string#substring} //删除string开头处与substring匹配的最短子串 
-${string##substring} //删除string开头处与substring匹配的最长子串 
-替换子串 
-${HOSTNAME/zabbix/aaaa}  //仅替换第一次与字符串"zabbix"相匹配的子串  aaaa-172-31-24-10
-${HOSTNAME//2/8}         //替换所有与substring相匹配的子  zabbix-178-31-84-10
-
-
 #监控进程
 #!/bin/sh
 while true
@@ -67,3 +49,23 @@ ls: cannot access /a.txt: No such file or directory
 
 set -eo pipefail  若命令或管道命令中有一个管道返回值为非0，则立即退出shell。
 
+选项名	     开关缩写	    描述
+allexport	-a	        打开此开关，所有变量都自动输出给子Shell。
+noclobber	-C	        防止重定向时文件被覆盖。
+noglob	    -d	        在路径和文件名中，关闭通配符。
+
+打开该选项
+/> set -o allexport   #等同于set -a
+#关闭该选项
+/> set +o allexport  #等同于set +a
+#列出当前所有选项的当前值。
+/> set -o
+allexport         off
+braceexpand   on
+emacs             on
+errexit            off
+errtrace          off
+functrace        off
+hashall            on
+histexpand      on
+... ...
