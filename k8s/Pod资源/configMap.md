@@ -35,7 +35,7 @@ kubectl get configmaps game-config -o yaml
 
 ### yaml创建ConfigMap对象
 * 创建字符串类型ConfigMap对象
-```
+```yml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -45,7 +45,7 @@ data:
   special.how: very
   SPECIAL_TYPE: charm
 ```
-```
+```yml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -89,7 +89,7 @@ data:
 
 
 * 将ConfigMap 里的数据指定为文件
-```
+```yml
 {{- if .Values.nginx -}}
 apiVersion: v1
 kind: ConfigMap
@@ -109,7 +109,7 @@ data:
 
 ### pod中使用ConfigMap
 * 使用ConfigMap数据定义容器环境变量（valueFrom）
-```
+```yml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -132,7 +132,7 @@ spec:
 ```
 
 * 将所有 ConfigMap 的键值对都设置为Pod的环境变量（envFrom）
-```
+```yml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -149,7 +149,7 @@ spec:
 ```
 
 * 在 Pod 命令里使用 ConfigMap 定义的环境变量（$(VAR_NAME)替换变量）
-```
+```yml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -175,7 +175,7 @@ spec:
 ```
 
 * 从 ConfigMap 里的数据生成一个卷
-```
+```yml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -198,7 +198,7 @@ spec:
 ```
 
 * 将ConfigMap 里的指定数据生成一个卷
-```
+```yml
 apiVersion: v1
 kind: Pod
 metadata:

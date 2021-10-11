@@ -12,14 +12,14 @@ kubectl taint nodes node1 key1=value1:NoSchedule
 kubectl taint nodes node1 key1:NoSchedule
 ```
 * 只有拥有和这个 taint 相匹配的 toleration 的 pod 才能够被分配到 node1 这个节点
-```
+```yml
 tolerations:
 - key: "key1"
   operator: "Equal"
   value: "value1"
   effect: "NoSchedule"
 ```
-```
+```yml
 tolerations:
 - key: "key"
   operator: "Exists"
@@ -27,12 +27,12 @@ tolerations:
 ```
 
 >toleration 能容忍任意 taint
-```
+```yml
 tolerations:
 - operator: "Exists"
 ```
 >toleration 能容忍任意effect的taint
-```
+```yml
 tolerations:
 - key: "key"
   operator: "Exists"
@@ -63,7 +63,7 @@ node.cloudprovider.kubernetes.io/uninitialized：如果 kubelet 启动时指定�
 ```
 >Kubernetes 会自动添加 toleration 机制保证了在not-ready、unreachable问题被检测到时 pod 默认能够继续停留在当前节点运行 5 分钟
 * 避免 pod 被驱逐，当内置taint条件为真时
-```
+```yml
 tolerations:
 - key: "node.alpha.kubernetes.io/unreachable"
   operator: "Exists"

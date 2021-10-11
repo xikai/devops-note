@@ -9,7 +9,7 @@ MWYyZDFlMmU2N2Rm
 ```
 
 >vim secret.yaml
-```
+```yml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -37,7 +37,7 @@ $ echo "MWYyZDFlMmU2N2Rm" | base64 --decode
 ```
 
 * 在 pod 中使用 volume 挂在 secret 的例子
-```
+```yml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -68,7 +68,7 @@ $ cat /etc/foo/password
 
 
 * 将 secret 作为 pod 中的环境变量使用
-```
+```yml
 apiVersion: v1
 kind: Pod
 metadata:

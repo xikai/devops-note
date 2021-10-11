@@ -6,7 +6,7 @@ git checkout v1.1.1
 ```
 * 新建配置文件，覆盖源values.yaml配置(使用阿里云nas作为持久化存储,==alicloud-nas==存储类之前己创建)
 >vim dd01-values.yaml
-```
+```yml
 expose:
   type: ingress
   tls:
@@ -51,7 +51,7 @@ LS0tLS1DEDefeef...(skip)...UFJVVkFURSBLRVktLS1tLQo
 ```
 * 创建harbor tls secret
 >vim ingress-tls-secret.yaml
-```
+```yml
 apiVersion: v1
 kind: Secret
 metadata:

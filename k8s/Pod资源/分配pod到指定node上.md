@@ -9,7 +9,7 @@ kubectl label nodes k8s-node1 disk-
 ```
 
 * 在pod配置中加nodeSelector
-```
+```yml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -26,7 +26,7 @@ spec:
 ```
 
 ### 节点亲和性
-```
+```yml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -46,7 +46,7 @@ spec:
 
 ### pod亲和性和反亲和性
 >基于已经在节点上运行的 Pod 的标签 来约束 Pod 可以调度到的节点，而不是基于节点上的标签。
-```
+```yml
 spec:
   affinity:
     podAffinity:  #亲和性

@@ -15,7 +15,7 @@ export  KUBECONFIG_SAVED=$KUBECONFIG
 ```
 
 * 修改两个.kube/config的集群名和user名
-```
+```yml
 #vim $HOME/.kube/config-alitest修改集群名（:1,$ s/kubernetes/kubernetes-alitest/g）
 apiVersion: v1
 clusters:
