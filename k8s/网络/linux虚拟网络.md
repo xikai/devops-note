@@ -1,4 +1,9 @@
+* https://weread.qq.com/web/reader/829328f071a74c6182975cck16732dc0161679091c5aeb1
+
 # network namespace
+* 在Linux的世界里，文件系统挂载点、主机名、POSIX进程间通信消息队列、进程PID数字空间、IP地址、user ID数字空间等全局系统资源被namespace分割，装到一个个抽象的独立空间里。而隔离上述系统资源的namespace分别是Mount namespace、UTS namespace、IPC namespace、PID namespace、networknamespace和user namespace。
+* Linux的namespace给里面的进程造成了两个错觉：（1）它是系统里唯一的进程。（2）它独享系统的所有资源。
+* network namespace，它在Linux内核2.6版本引入，作用是隔离Linux系统的设备，以及IP地址、端口、路由表、防火墙规则等网络资源。
 
 
 # veth pair
@@ -15,6 +20,7 @@
 * 两个network namespace可以通过veth pair连接，但两个以上的network namespace相连就需要网桥。
 * 网桥是二层设备通过mac地址通讯，linux bridge不能跨主机
 
+
 # linux隧道
 ### ipip
 
@@ -23,13 +29,17 @@
 # 多个设备的vetp组成虚拟二层网络vxlan:
 vetp(host1) - vetp(host2) - vetp(host3)
 ```
-* VTEP：可以是网络设备，也可以是一台机器（例如虚拟化集群中的宿主机）,用于VXLAN报文的封装和解封装
-* VNI： 每个vxlan的标识,24位的整数；VIN相同的机器逻辑上处于同一个二层网络
-* vxlan的报文是mac in udp 即在三层网络基础上搭建虚拟的二层网络
+* VTEP：可以是网络设备 也可以是一台机器（例如虚拟化集群中的宿主机）,即有IP也有MAC地址。
+* VNI： 每个vxlan的标识,24位的整数；VNI相同的机器逻辑上处于同一个二层网络
+* vxlan在三层网络基础上搭建虚拟的二层网络
+  ```
+    | ethernet header | IP header | udp header | vxlan header | original L2 frame | FCS |
+  ```
 
 
 # flannel（vxlan模式）
-1. (container1:eth0 --veth--> host1:vethxxxx1) --container1 route--> cni0网桥 --host1 route--> host1 VETP:flannel.1 --> host1 eth0
+* 在VXLAN模式下，数据是由内核转发的，flannel不转发数据
+1. (container1:eth0 --veth--> host1:vethxxxx) --container1 route--> cni0网桥 --host1 route--> host1 VETP:flannel.1 --> host1 eth0
   - container1直接将数据包通过veth发送给另一端host1上的vethxxxxx,同主机的容器通讯封装目标容器mac地址走cni0网桥
   - cni0网桥收到数据包 通过host1 路由表转发给 flannel.1 (封装vxlan头，通过etcd得到节点2的IP。然后，通过节点1中的转发表得到节点2对应的VTEP的MAC)
   - host1 flannel.1通过host1 路由表转发给host1 eth0
