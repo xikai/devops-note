@@ -39,9 +39,9 @@ vetp(host1) - vetp(host2) - vetp(host3)
 
 # flannel（vxlan模式）
 * 在VXLAN模式下，数据是由内核转发的，flannel不转发数据
-1. (container1:eth0 --veth--> host1:vethxxxx) --container1 route--> cni0网桥 --host1 route--> host1 VETP:flannel.1 --> host1 eth0
+1. (container1:eth0 --veth--> host1:vethxxxx) --container1 route--> cni0网桥 --host1 route--> host1 VETP:flannel.1() --> host1 eth0
   - container1直接将数据包通过veth发送给另一端host1上的vethxxxxx,同主机的容器通讯封装目标容器mac地址走cni0网桥
-  - cni0网桥收到数据包 通过host1 路由表转发给 flannel.1 (封装vxlan头，通过etcd得到节点2的IP。然后，通过节点1中的转发表得到节点2对应的VTEP的MAC)
-  - host1 flannel.1通过host1 路由表转发给host1 eth0
+  - 跨主机容器通讯：cni0网桥收到数据包 通过host1 路由表转发给 flannel.1 (与其它主机的VTEP组成虚拟二层网络，在原始报文上封装vxlan头[目标主机VTEP MAC+目标主机IP])
+  - host1 flannel.1通过内核转发给host1 eth0
   - host1 eth0通过host1 路由表转发给host2 eth0
 2. host2 eth0 -> host2 VETP:flannel.1 -> cni0网桥 -route-> (host2:vethxxxxx -veth-> container2:eth0)
