@@ -29,9 +29,9 @@ vetp(host1) - vetp(host2) - vetp(host3)
 
 
 # flannel（vxlan模式）
-1. container1:eth0 -veth-> host1:vethxxxxx -route-> host1 VETP:flannel.1 -> host1 eth0
-  - container1直接将数据包通过veth发送给另一端host1上的vethxxxxx
-  - vethxxxxx 通过host1 路由表转发给 flannel.1 (封装vxlan头，在udp层添加一个目的container2的MAC地址)
+1. (container1:eth0 --veth--> host1:vethxxxx1) --container1 route--> cni0网桥 --host1 route--> host1 VETP:flannel.1 --> host1 eth0
+  - container1直接将数据包通过veth发送给另一端host1上的vethxxxxx,同主机的容器通讯封装目标容器mac地址走cni0网桥
+  - cni0网桥收到数据包 通过host1 路由表转发给 flannel.1 (封装vxlan头，通过etcd得到节点2的IP。然后，通过节点1中的转发表得到节点2对应的VTEP的MAC)
   - host1 flannel.1通过host1 路由表转发给host1 eth0
   - host1 eth0通过host1 路由表转发给host2 eth0
-2. host2 eth0 -route-> host2 VETP:flannel.1 -route-> host2:vethxxxxx -veth-> container2:eth0
+2. host2 eth0 -> host2 VETP:flannel.1 -> cni0网桥 -route-> (host2:vethxxxxx -veth-> container2:eth0)
