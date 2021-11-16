@@ -1,4 +1,5 @@
 * https://kafka.apache.org/quickstart
+* http://kafka.apache.org/documentation/#gettingStarted
 * https://my.oschina.net/gemron/blog/830297
 
 

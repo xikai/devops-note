@@ -15,7 +15,7 @@
       files:
       - "/usr/local/prometheus/prometheus/conf/node*.yml"
     relabel_configs:
-    - source_labels:       #指定我们我们需要处理的源标签
+    - source_labels:       #指定我们需要处理的源标签
       - "__hostname__"
       regex: "(.*)"        #regex去匹配源标签（__hostname__）的值，"(.*)"代表__hostname__这个标签是什么值都匹配的
       target_label: "nodename"  #指定了我们要replace后的标签名字

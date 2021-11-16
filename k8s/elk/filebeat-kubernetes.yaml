@@ -50,6 +50,9 @@ data:
       hosts: ["10.12.0.116:9092"]
       topic: "k8s-%{[kubernetes][labels][app_kubernetes_io/name]}-%{[kubernetes][container][name]}"
 
+    # kafka <-input- logstash -output-> es
+    # ref: Linux/ELK/docker-efk/elk/logstash/pipeline/logstash.conf
+
     #setup.ilm.enabled: false
     #setup.template.name: "k8s"
     #setup.template.pattern: "k8s-*"

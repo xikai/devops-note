@@ -115,7 +115,7 @@ systemctl start ipsec
 systemctl enable ipsec
 ```
 
----
+
 ### L2TP VPN
 ```
 yum install ppp xl2tpd iptables -y
@@ -209,8 +209,6 @@ idle 259200             #72个小时空闲断开
 ms-dns 8.8.8.8  
 ```
 
-
-
 ### 其它配置
 ```
 # 设置VPN账号密码
@@ -240,4 +238,8 @@ ifconfig $1 mtu 1500  #查看ifconfig与本地网卡MTU值匹配
 ```
 chmod +x /etc/ppp/ip-up.local
 ```
+
+
+
+
 
