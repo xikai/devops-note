@@ -1,3 +1,5 @@
+* https://dev.mysql.com/doc/refman/5.7/en/replication-howto.html
+
 # 主服务器
 1. 在主服务器上为从服务器创建一个用来同步的用户，指定只允许从192.168.1.17（mysql slave）登陆
 ```

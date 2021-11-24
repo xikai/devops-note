@@ -70,7 +70,7 @@ systemctl restart elasticsearch
 * https://github.com/elastic/elasticsearch/blob/master/docs/plugins/repository-s3.asciidoc
 * https://www.elastic.co/guide/en/elasticsearch/plugins/current/repository-s3-repository.html#repository-s3-permissions
 ```
-$ curl -XPUT 'http://localhost:9200/_snapshot/backup' -H 'Content-Type: application/json' -d '{
+$ curl -XPUT 'http://localhost:9200/_snapshot/s3_backup' -H 'Content-Type: application/json' -d '{
     "type": "s3",
     "settings": {
         #"endpoint": "https://s3.cn-northwest-1.amazonaws.com.cn", #AWS中国需要指定s3终端节点地址
@@ -84,7 +84,7 @@ $ curl -XPUT 'http://localhost:9200/_snapshot/backup' -H 'Content-Type: applicat
 curl -XPOST http://localhost:9200/_snapshot/s3_backup/_verify?pretty
 
 #查看创建的存储仓库
-curl -XGET localhost:9200/_snapshot/backup?pretty
+curl -XGET localhost:9200/_snapshot/s3_backup?pretty
 ```
 
 # 创建快照
@@ -110,7 +110,7 @@ curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_1?wait_for_completion=tru
 #获取多个快照
 curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_*,some_other_snapshot
 #获取所有快照
-curl -XGET localhost:9200/_snapshot/s3_backup/_all
+curl -XGET localhost:9200/_snapshot/s3_backup/_all?pretty
 
 # 获取快照详细信息
 curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_1/_status

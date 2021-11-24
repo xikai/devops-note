@@ -5,6 +5,7 @@
 # 授权容器IP
 CREATE USER 'exporter'@'172.17.%.%' IDENTIFIED BY 'xxxxxxxxx' WITH MAX_USER_CONNECTIONS 3;
 GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO 'exporter'@'172.17.%.%';
+flush privileges;
 ```
 ```
 docker run -d \
@@ -19,6 +20,7 @@ docker run -d \
 ```
 CREATE USER 'exporter'@'localhost' IDENTIFIED BY 'xxxxxxxxx' WITH MAX_USER_CONNECTIONS 3;
 GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO 'exporter'@'localhost';
+flush privileges;
 ```
 
 * 下载mysqld-exporter
@@ -54,12 +56,14 @@ systemctl enable mysqld_exporter
 # vim prometheus.yaml
 scrapy_confings:
 ···
-  - job_name: MySQL
-    static_configs:
-    - targets:
-      - ip:9104
-      labels:
-        instance: ip:3306
+- job_name: 'mysql_base_targets'
+  static_configs: 
+  - targets: ['10.10.13.79:9104']
+    labels:
+      instance: mysql_base_master
+  - targets: ['10.10.26.114:9104']
+    labels:
+      instance: mysql_base_slave
 ```
 ```
 systemctl restart prometheus
