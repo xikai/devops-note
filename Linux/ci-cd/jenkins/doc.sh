@@ -1,4 +1,5 @@
 https://jenkins.io/doc/
+https://www.k8stech.net/jenkins-docs/
 https://www.w3cschool.cn/jenkins/
 
 

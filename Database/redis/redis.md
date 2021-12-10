@@ -108,9 +108,12 @@ https://www.cnblogs.com/SailorXiao/p/5808871.html
 ```
 
 
-
-
-
+# [redis-benchmark](https://www.redis.com.cn/topics/benchmarks.html)
+* 100个并发，10万请求数，每个key数据大小500字节,只测set/get
+```
+./redis-benchmark --help
+./redis-benchmark -h 10.10.4.85 -p 6391 -a XeQ1htbZf2mpQyZn -c 100 -d 500 -n 100000 -t set,get
+```
 
 
 

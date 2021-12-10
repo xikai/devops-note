@@ -93,14 +93,14 @@ pipeline {
                 
                     while true
                     do
-                       kubectl rollout status deployment/qa-$PROJECT_NAME -n kube-test
-                       if [ \$? != 0 ] ;then
-                          sleep 3
-                          continue
-                       else
-                          echo "deployment successfully"
-                          break
-                       fi
+                        kubectl rollout status deployment/qa-$PROJECT_NAME -n kube-test
+                        if [ \$? != 0 ] ;then
+                            sleep 3
+                            continue
+                        else
+                            echo "deployment successfully"
+                            break
+                        fi
                     done
                 """
             }
@@ -132,14 +132,14 @@ pipeline {
                 
                     while true
                     do
-                       kubectl rollout status deployment/qa-$PROJECT_NAME-erp -n kube-test
-                       if [ \$? != 0 ] ;then
-                          sleep 3
-                          continue
-                       else
-                          echo "deployment successfully"
-                          break
-                       fi
+                        kubectl rollout status deployment/qa-$PROJECT_NAME-erp -n kube-test
+                        if [ \$? != 0 ] ;then
+                            sleep 3
+                            continue
+                        else
+                            echo "deployment successfully"
+                            break
+                        fi
                     done
                 """
             }
@@ -171,14 +171,14 @@ pipeline {
                 
                     while true
                     do
-                       kubectl rollout status deployment/qa-$PROJECT_NAME-crm -n kube-test
-                       if [ \$? != 0 ] ;then
-                          sleep 3
-                          continue
-                       else
-                          echo "deployment successfully"
-                          break
-                       fi
+                        kubectl rollout status deployment/qa-$PROJECT_NAME-crm -n kube-test
+                        if [ \$? != 0 ] ;then
+                            sleep 3
+                            continue
+                        else
+                            echo "deployment successfully"
+                            break
+                        fi
                     done
                 """
             }
@@ -210,14 +210,14 @@ pipeline {
                 
                     while true
                     do
-                       kubectl rollout status deployment/stg-$PROJECT_NAME -n kube-staging
-                       if [ \$? != 0 ] ;then
-                          sleep 3
-                          continue
-                       else
-                          echo "deployment successfully"
-                          break
-                       fi
+                        kubectl rollout status deployment/stg-$PROJECT_NAME -n kube-staging
+                        if [ \$? != 0 ] ;then
+                            sleep 3
+                            continue
+                        else
+                            echo "deployment successfully"
+                            break
+                        fi
                     done
                 """
             }
@@ -249,14 +249,14 @@ pipeline {
 
                     while true
                     do
-                       kubectl rollout status deployment/prod-$PROJECT_NAME -n kube-prod
-                       if [ \$? != 0 ] ;then
-                          sleep 3
-                          continue
-                       else
-                          echo "deployment successfully"
-                          break
-                       fi
+                        kubectl rollout status deployment/prod-$PROJECT_NAME -n kube-prod
+                        if [ \$? != 0 ] ;then
+                            sleep 3
+                            continue
+                        else
+                            echo "deployment successfully"
+                            break
+                        fi
                     done
                 """
             }

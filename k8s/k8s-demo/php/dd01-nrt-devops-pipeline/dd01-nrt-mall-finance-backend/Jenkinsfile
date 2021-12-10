@@ -121,14 +121,14 @@ pipeline {
                 
                     while true
                     do
-                       kubectl rollout status deployment/stg-$PROJECT_NAME -n kube-staging
-                       if [ \$? != 0 ] ;then
-                          sleep 3
-                          continue
-                       else
-                          echo "deployment successfully"
-                          break
-                       fi
+                        kubectl rollout status deployment/stg-$PROJECT_NAME -n kube-staging
+                        if [ \$? != 0 ] ;then
+                            sleep 3
+                            continue
+                        else
+                            echo "deployment successfully"
+                            break
+                        fi
                     done
                 """
             }
@@ -160,14 +160,14 @@ pipeline {
 
                     while true
                     do
-                       kubectl rollout status deployment/prod-$PROJECT_NAME -n kube-prod
-                       if [ \$? != 0 ] ;then
-                          sleep 3
-                          continue
-                       else
-                          echo "deployment successfully"
-                          break
-                       fi
+                        kubectl rollout status deployment/prod-$PROJECT_NAME -n kube-prod
+                        if [ \$? != 0 ] ;then
+                            sleep 3
+                            continue
+                        else
+                            echo "deployment successfully"
+                            break
+                        fi
                     done
                 """
             }

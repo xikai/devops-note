@@ -1,0 +1,72 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    app.kubernetes.io/component: prometheus
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/part-of: kube-prometheus
+    app.kubernetes.io/version: 2.30.3
+    prometheus: k8s
+    role: alert-rules
+  name: rabbitmq-prometheus-rules
+  namespace: monitoring
+spec:
+  groups:
+  - name: rabbitmq.rules
+    rules:
+    - alert: RabbitmqDown
+      expr: rabbitmq_up == 0
+      for: 0m
+      labels:
+        severity: critical
+      annotations:
+        summary: Rabbitmq down (instance {{ $labels.instance }})
+        description: "RabbitMQ node down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+    - alert: RabbitmqClusterDown
+      expr: sum(rabbitmq_running) < 3
+      for: 0m
+      labels:
+        severity: critical
+      annotations:
+        summary: Rabbitmq cluster down (instance {{ $labels.instance }})
+        description: "Less than 3 nodes running in RabbitMQ cluster\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+    - alert: RabbitmqClusterPartition
+      expr: rabbitmq_partitions > 0
+      for: 0m
+      labels:
+        severity: critical
+      annotations:
+        summary: Rabbitmq cluster partition (instance {{ $labels.instance }})
+        description: "Cluster partition\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+    - alert: RabbitmqOutOfMemory
+      expr: rabbitmq_node_mem_used / rabbitmq_node_mem_limit * 100 > 90
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: Rabbitmq out of memory (instance {{ $labels.instance }})
+        description: "Memory available for RabbmitMQ is low (< 10%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+    - alert: RabbitmqTooManyConnections
+      expr: rabbitmq_connections > 1000
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: Rabbitmq too many connections (instance {{ $labels.instance }})
+        description: "RabbitMQ instance has too many connections (> 1000)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+    - alert: RabbitmqTooManyMessagesInQueue
+      expr: rabbitmq_queue_messages_ready{queue="my-queue"} > 1000
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: Rabbitmq too many messages in queue (instance {{ $labels.instance }})
+        description: "Queue is filling up (> 1000 msgs)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+    - alert: RabbitmqNoConsumer
+      expr: rabbitmq_queue_consumers == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: Rabbitmq no consumer (instance {{ $labels.instance }})
+        description: "Queue has no consumer\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"

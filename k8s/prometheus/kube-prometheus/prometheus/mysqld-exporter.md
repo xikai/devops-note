@@ -38,7 +38,9 @@ After=network.target
 [Service]
 Type=simple
 Environment=DATA_SOURCE_NAME=exporter:exporterpwd@(localhost:3306)/
-ExecStart=/usr/local/mysqld_exporter/mysqld_exporter --web.listen-address=:9104
+ExecStart=/usr/local/mysqld_exporter/mysqld_exporter \
+  --web.listen-address=:9104 \
+  --collect.info_schema.processlist
 Restart=on-failure
 [Install]
 WantedBy=multi-user.target
@@ -58,13 +60,15 @@ scrapy_confings:
 ···
 - job_name: 'mysql_base_targets'
   static_configs: 
-  - targets: ['10.10.13.79:9104']
+  - targets: ['10.10.13.79:9104','10.10.13.79:9100'] # mysql_exporter和node_exporter的metrics一起采集，加相同label便于匹配
     labels:
       instance: mysql_base_master
-  - targets: ['10.10.26.114:9104']
+  - targets: ['10.10.26.114:9104','10.10.26.114:9100']
     labels:
       instance: mysql_base_slave
 ```
 ```
 systemctl restart prometheus
 ```
+
+* [grafana dashboards](https://grafana.com/grafana/dashboards/7362)

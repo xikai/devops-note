@@ -10,3 +10,4 @@ container_cpu_cfs_throttled_periods_total：container生命周期中度过的受
 
 # 告警规则
 * https://awesome-prometheus-alerts.grep.to/rules
+* zookeeper: https://github.com/apache/zookeeper/blob/master/zookeeper-docs/src/main/resources/markdown/zookeeperMonitor.md

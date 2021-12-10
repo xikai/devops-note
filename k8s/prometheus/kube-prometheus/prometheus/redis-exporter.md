@@ -1,6 +1,30 @@
 * https://github.com/oliver006/redis_exporter
 
 # 部署redis-exporter
+* 配置redis密码
+* vim manifests/additional/redis-pwd-file-configmap.yaml
+```yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-pwd-file
+  namespace: monitoring
+data:
+  redis-pwd-file.json: |
+    {
+      "redis://10.10.13.228:6391": "g3kBySjY8G5XWLs9",
+      "redis://10.10.21.174:6391": "g3kBySjY8G5XWLs9",
+      "redis://10.10.13.228:6392": "id8Ka2x4WizGwrOO",
+      "redis://10.10.21.174:6392": "id8Ka2x4WizGwrOO",
+      "redis://10.10.32.132:6391": "4O9CeN5H7xHajiCe",
+      "redis://10.10.66.105:6391": "4O9CeN5H7xHajiCe",
+    }
+```
+```
+kubectl apply -f redis-pwd-file-configmap.yaml
+```
+
+* 部署redis-exporter
 * vim manifests/additional/redis-exporter.yaml
 ```yml
 apiVersion: v1
@@ -37,7 +61,9 @@ spec:
         image: oliver006/redis_exporter:v1.27.1-arm
         imagePullPolicy: IfNotPresent
         command: ["/redis_exporter"]
-        args: ["-redis.password-file","/tmp/redis-pwd-file.json"]
+        args:
+        - --redis.password-file=/tmp/redis-pwd-file.json
+        - --include-system-metrics=true
         ports:
         - containerPort: 9121
           name: metric-port
@@ -66,28 +92,7 @@ spec:
 kubectl apply -f manifests/additional/redis-exporter.yaml
 ```
 
-* 配置redis密码
-* vim manifests/additional/redis-pwd-file-configmap.yaml
-```yml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: redis-pwd-file
-  namespace: monitoring
-data:
-  redis-pwd-file.json: |
-    {
-      "redis://10.10.13.228:6391": "g3kBySjY8G5XWLs9",
-      "redis://10.10.21.174:6391": "g3kBySjY8G5XWLs9",
-      "redis://10.10.13.228:6392": "id8Ka2x4WizGwrOO",
-      "redis://10.10.21.174:6392": "id8Ka2x4WizGwrOO",
-      "redis://10.10.32.132:6391": "4O9CeN5H7xHajiCe",
-      "redis://10.10.66.105:6391": "4O9CeN5H7xHajiCe",
-    }
-```
-```
-kubectl apply -f redis-pwd-file-configmap.yaml
-```
+
 
 # 配置prometheus
 * 通过此文件，prometheus自动发现redis监控目标
@@ -147,13 +152,13 @@ kubectl apply -f manifests/prometheus-prometheus.yaml
     - source_labels: [__param_target]
       target_label: instance
     - target_label: __address__
-      replacement: redis-exporter-svc:9114
+      replacement: redis-exporter-svc:9121
 
 ## config for scraping the exporter itself
 - job_name: 'redis_exporter_itself'
   static_configs:
     - targets:
-      - redis-exporter-svc:9114
+      - redis-exporter-svc:9121
 ```
 
 * 更新promtheus附加配置

@@ -1,4 +1,5 @@
 * https://github.com/yoshinorim/mha4mysql-manager/wiki
+* https://blog.51cto.com/u_14154700/2472806
 
 * [Download](https://code.google.com/archive/p/mysql-master-ha/downloads)
 
@@ -7,22 +8,24 @@
 * install MHA Node to also management server(MHA Manager modules internally depend on MHA Node modules)
 
 ```
-yum install perl-DBD-MySQL
+yum install -y perl-DBD-MySQL perl-ExtUtils-MakeMaker perl-CPAN
 wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/mysql-master-ha/mha4mysql-node-0.53.tar.gz
 tar -zxf mha4mysql-node-0.53.tar.gz
+mv mha4mysql-node-0.53 /usr/local/mha-node
 perl Makefile.PL
-make --prefix=/usr/local/mha-node
+make
 make install
 ```
 
 # [Installing MHA Manager](https://github.com/yoshinorim/mha4mysql-manager/wiki/Installation#installing-mha-manager)
 * install MHA Manager to management server
 ```
-yum install perl-DBD-MySQL perl-Config-Tiny perl-Log-Dispatch perl-Parallel-ForkManager
+yum install -y perl-DBD-MySQL perl-Config-Tiny perl-Log-Dispatch perl-Parallel-ForkManager
 wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/mysql-master-ha/mha4mysql-manager-0.53.tar.gz
 tar -zxf mha4mysql-manager-0.53.tar.gz
+mv mha4mysql-node-0.53 /usr/local/mha-node
 perl Makefile.PL
-make --prefix=/usr/local/mha-manager
+make
 make install
 ```
 
@@ -35,24 +38,27 @@ cat << EOF > /usr/local/mha-manager/app1.conf
 user=root
 password=mysqlpass
 ssh_user=root
-# working directory on the manager
+
 manager_workdir=/var/log/masterha/app1
-# working directory on MySQL servers
 remote_workdir=/var/log/masterha/app1
 
 [server1]
 hostname=host1
+#candidate_master=1
 
 [server2]
 hostname=host2
+candidate_master=1
 
-[server3]
-hostname=host3
+#[server3]
+#hostname=host3
+#no_master=1
 EOF
 ```
 
 * 验证非交互式 SSH 连接是否可以相互建立
 ```
+# ssh-copy-id -i /root/.ssh/id_rsa.pub root@ip
 manager_host$ masterha_check_ssh --conf=/usr/local/mha-manager/app1.conf
 ```
 * 检查复制健康

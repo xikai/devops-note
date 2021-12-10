@@ -119,4 +119,6 @@ kubectl create secret generic additional-scrape-configs --from-file=prometheus-a
 kubectl get secret additional-scrape-configs -n monitoring -oyaml |yq e '.data ."prometheus-additional.yaml"' - |base64 -d
 ```
 
-* [elasticsearch dashboard](https://github.com/prometheus-community/elasticsearch_exporter/blob/master/examples/grafana/dashboard.json)
+# elasticsearch dashboard
+* https://github.com/prometheus-community/elasticsearch_exporter/blob/master/examples/grafana/dashboard.json
+* https://grafana.com/grafana/dashboards/6483

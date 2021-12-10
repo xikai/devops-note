@@ -1,10 +1,9 @@
 * https://www.elastic.co/guide/en/elasticsearch/reference/7.15/snapshot-restore.html
 
-# es snapshot操作管理
+# es snapshot
 * 在es中注册快照存储仓库
 ```
-PUT /_snapshot/my_backup
-{
+curl -XPUT 'http://localhost:9200/_snapshot/my_backup' -H 'Content-Type: application/json' -d '{
   "type": "fs",
   "settings": {
         ... repository specific settings ...
@@ -14,17 +13,14 @@ PUT /_snapshot/my_backup
 
 * 获取快照存储仓库信息
 ```
-GET /_snapshot/my_backup
-```
-* 获取多个快照存储仓库信息（用逗号隔开 可以用通配符匹配）
-```
-GET /_snapshot/repo*,*backup*
-```
+curl -XGET localhost:9200/_snapshot/my_backup
 
-* 返回当前注册的所有存储仓库
-```
-GET /_snapshot
-GET /_snapshot/_all
+# 获取多个快照存储仓库信息（用逗号隔开 可以用通配符匹配）
+curl -XGET localhost:9200/_snapshot/repo*,*backup*
+
+# 返回当前注册的所有存储仓库
+curl -XGET localhost:9200/_snapshot
+curl -XGET localhost:9200/_snapshot/_all
 ```
 
 # 挂载共享文件系统作为快照仓库
@@ -75,6 +71,7 @@ $ curl -XPUT 'http://localhost:9200/_snapshot/s3_backup' -H 'Content-Type: appli
     "settings": {
         #"endpoint": "https://s3.cn-northwest-1.amazonaws.com.cn", #AWS中国需要指定s3终端节点地址
         "bucket": "es-snapshot-backup",
+        "region": "us-west-2",
         "compress": true
     }
 }'
@@ -102,24 +99,24 @@ curl -XPUT 'http://localhost:9200/_snapshot/s3_backup/index-201807' -H 'Content-
    "include_global_state": false
 }'
 ```
-* 获取快照信息
+
+# 查看快照
 ```
-# 获取指定快照
-curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_1
+# 查询指定快照
+curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_1?pretty
 curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_1?wait_for_completion=true  #等待完成
-#获取多个快照
-curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_*,some_other_snapshot
-#获取所有快照
+# 查询多个快照
+curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_*,some_other_snapshot?pretty
+# 查询所有快照
 curl -XGET localhost:9200/_snapshot/s3_backup/_all?pretty
 
-# 获取快照详细信息
-curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_1/_status
-curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_1,snapshot_2/_status
+# 查询条件过滤(snap开头，2个快照，name排序)
+curl -XGET localhost:9200/_snapshot/s3_backup/snap*?size=2&sort=name
 ```
-
-* 从存储仓库删除快照
+* 从多个仓库检索快照
 ```
-DELETE /_snapshot/s3_backup/snapshot_1
+GET -XGET localhost:9200/_snapshot/my_backup,my_fs_backup
+GET -XGET localhost:9200/_snapshot/my*
 ```
 
 # 恢复快照
@@ -136,4 +133,71 @@ curl -XPOST 'http://localhost:9200/_snapshot/s3_backup/snapshot_1/_restore -d '{
   "rename_pattern": "index_(.+)",
   "rename_replacement": "restored_index_$1"
 }'
+```
+
+# 监视快照创建和恢复过程
+```
+# 监视所有快照的创建恢复过程
+curl -XGET localhost:9200/_snapshot/s3_backup/_current?pretty
+# 监视快照snapshot_1的创建恢复过程
+curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_1/_current?pretty
+# 监视多个快照的创建恢复过程
+curl -XGET localhost:9200/_snapshot/my_backup/snapshot_*,some_other_snapshot?pretty
+```
+```
+curl -XGET localhost:9200/_cat/snapshots/s3_backup?pretty
+```
+
+# 获取快照详细信息
+```
+curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_1/_status?pretty
+curl -XGET localhost:9200/_snapshot/s3_backup/snapshot_1,snapshot_2/_status?pretty
+```
+
+# 从存储仓库删除快照(停止快照创建和恢复操作)
+```
+curl -XDELETE localhost:9200/_snapshot/s3_backup/snapshot_1
+curl -XDELETE localhost:9200/_snapshot/s3_backup/snapshot_2,snapshot_3
+curl -XDELETE localhost:9200/_snapshot/s3_backup/snap*
+```
+* 删除快照仓库
+```
+curl -XDELETE localhost:9200/_snapshot/s3_backup
+```
+
+# [SLM(快照生命周期管理策略)](https://www.elastic.co/guide/en/elasticsearch/reference/7.15/getting-started-snapshot-lifecycle-management.html#slm-gs-create-policy)
+```
+curl -XPUT localhost:9200/_slm/policy/nightly-snapshots
+{
+  "schedule": "0 30 1 * * ?", 
+  "name": "<nightly-snap-{now/d}>", 
+  "repository": "s3_backup", 
+  "config": { 
+    "indices": ["*"] 
+  },
+  "retention": { 
+    "expire_after": "30d", 
+    "min_count": 5, 
+    "max_count": 50 
+  }
+}
+```
+
+* 立即执行SLM快照策略
+```
+curl -XPOST localhost:9200/_slm/policy/nightly-snapshots/_execute
+```
+* 查看slm是否运行成功
+>如果快照在复制文件时丢失了与远程存储库的连接，则初始快照可能会失败。
+```
+curl -XGET localhost:9200/_slm/policy/nightly-snapshots?human
+```
+
+* 查看所有slm policy
+```
+curl -XGET localhost:9200/_slm/policy
+```
+* 删除slm
+```
+curl -XDELETE localhost:9200/_slm/policy/nightly-snapshots
 ```

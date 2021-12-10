@@ -1,4 +1,5 @@
-#监控进程
+# 监控进程
+```sh
 #!/bin/sh
 while true
 do
@@ -11,9 +12,10 @@ do
       break
    fi
 done
+```
 
-
-#按行循环读入文件
+# 按行循环读入文件
+```sh
 echo " cat file whiel read line"
 cat test.txt |while read line  
 do  
@@ -25,8 +27,10 @@ while read line  
 do  
   echo $line;  
 done <test.txt 
+```
 
-#set
+# set
+```sh
 -e 若指令传回值不等于0，则立即退出shell。
 -x  交互执行shell ，和sh -x a.sh 一样
 -o pipefail 在有管道的命令中默认返回最后一个管道命令的返回值，若设置-o pipefail命令则返回从右往左第一个不为0的返回值
@@ -69,3 +73,12 @@ functrace        off
 hashall            on
 histexpand      on
 ... ...
+```
+
+# envsubst 用环境变量值替换文件中对应变量名
+```sh
+[root@xinnet-baoleiji ~]# cat file.yml
+I am: ${name}
+[root@xinnet-baoleiji ~]# export name="xikai" && envsubst < file.yml
+I am: xikai
+```

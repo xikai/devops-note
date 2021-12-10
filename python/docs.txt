@@ -1,6 +1,7 @@
 os、sys、time、random、re、urllib、stmplib、request、psutil、paramiko 
 
 python:
+https://docs.python.org/zh-cn/3.9/
 https://gitbook.cn/gitchat/column/5e37978dec8d9033cf916b5d
 https://www.w3cschool.cn/flask/flask_redirect_and_errors.html
 

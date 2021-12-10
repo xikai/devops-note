@@ -1,4 +1,6 @@
 * https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index.html
+* 集群原理: https://www.elastic.co/guide/cn/elasticsearch/guide/current/distributed-cluster.html
+
 
 * 下载安装
 ```
@@ -27,6 +29,7 @@ bootstrap.memory_lock: false
 network.host: 0.0.0.0
 http.port: 9400
 transport.tcp.port: 9500
+# 单播发现，加入集群
 discovery.zen.ping.unicast.hosts: ["es01:9500", "es02:9500", "es03:9500"]
 discovery.zen.minimum_master_nodes: 2
 ```

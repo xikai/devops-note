@@ -42,8 +42,8 @@ spec:
           image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
           command:
             - /bin/elasticsearch_exporter
-            #- --es.uri=http://elasticsearch:9200  #被采集es集群的一个节点
-            #- --es.all  #采集集群所有节点，不仅是本节点
+            - --es.uri=http://elasticsearch:9200  #被采集es集群的一个节点
+            #- --es.all  #采集集群所有节点，不仅是本节点（自动发现模式不要开启）
             - --es.cluster_settings
             - --es.indices
             - --es.indices_settings
@@ -177,4 +177,6 @@ kubectl create secret generic additional-scrape-configs --from-file=prometheus-a
 kubectl get secret additional-scrape-configs -n monitoring -oyaml |yq e '.data ."prometheus-additional.yaml"' - |base64 -d
 ```
 
-* [elasticsearch dashboard](https://github.com/prometheus-community/elasticsearch_exporter/blob/master/examples/grafana/dashboard.json)
+# elasticsearch dashboard
+* https://github.com/prometheus-community/elasticsearch_exporter/blob/master/examples/grafana/dashboard.json
+* https://grafana.com/grafana/dashboards/6483
