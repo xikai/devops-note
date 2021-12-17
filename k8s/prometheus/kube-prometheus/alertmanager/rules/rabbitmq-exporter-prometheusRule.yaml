@@ -55,7 +55,7 @@ spec:
         summary: Rabbitmq too many connections (instance {{ $labels.instance }})
         description: "RabbitMQ instance has too many connections (> 1000)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
     - alert: RabbitmqTooManyMessagesInQueue
-      expr: rabbitmq_queue_messages_ready{queue="my-queue"} > 1000
+      expr: rabbitmq_queue_messages_ready > 1000
       for: 2m
       labels:
         severity: warning

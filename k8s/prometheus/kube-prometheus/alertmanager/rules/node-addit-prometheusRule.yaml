@@ -54,3 +54,11 @@ spec:
       annotations:
         summary: Host OOM kill detected (instance {{ $labels.instance }})
         description: "OOM kill detected\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+    - alert: SystemdUnitNotRunning
+      expr: node_systemd_unit_state{state=~"inactive|failed"} != 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: systemd {{ $labels.name }} not running on (instance {{ $labels.instance }})
+        description: "systemd {{ $labels.name }} not running on {{ $labels.instance }}"

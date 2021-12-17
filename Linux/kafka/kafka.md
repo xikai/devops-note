@@ -1,6 +1,7 @@
 * https://kafka.apache.org/quickstart
 * http://kafka.apache.org/documentation/#gettingStarted
 * https://my.oschina.net/gemron/blog/830297
+* https://zhuanlan.zhihu.com/p/371886710
 
 
 # 安装kafka
@@ -61,11 +62,11 @@ nohup bin/kafka-server-start.sh config/server-1.properties &
 nohup bin/kafka-server-start.sh config/server-2.properties &
 
 #创建一个新的主题，复制因子为3
-bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 3 --partitions 1 --topic my-replicated-topic
+bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic my-replicated-topic
 
 #现在我们有一个集群，我们怎么知道哪个代理正在做什么？要看到运行“describe topics”命令：
 > bin/kafka-topics.sh --describe --zookeeper localhost:2181 --topic my-replicated-topic
-Topic:my-replicated-topic   PartitionCount:1    ReplicationFactor:3 Configs:
+Topic:my-replicated-topic   PartitionCount:3    ReplicationFactor:1 Configs:
     Topic: my-replicated-topic  Partition: 0    Leader: 1   Replicas: 1,2,0 Isr: 1,2,0
 
 “leader”是负责给定分区的所有读取和写入的节点。每个节点将是分区的随机选择部分的领导者。

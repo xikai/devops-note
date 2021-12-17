@@ -1,6 +1,8 @@
 * CPUThrottlingHigh
 ```
 # 查出最近5分钟，超过25%的CPU执行周期受到限制的container
+# 原因：容器cpu limit值设置太小，容器运行时cpu总是超过limit阈值
+# 解决：调大容器 cpu limit值
 sum by(container, pod, namespace) (increase(container_cpu_cfs_throttled_periods_total{container!=""}[5m])) / sum by(container, pod, namespace) (increase(container_cpu_cfs_periods_total[5m])) > (25 / 100)
 ```
 ```

@@ -1,6 +1,11 @@
 # 监控进程
 ```sh
 #!/bin/sh
+#while true; do
+#  ...
+#  condition || break
+#done
+
 while true
 do
    ps aux|grep ssh|grep -v grep
@@ -31,7 +36,7 @@ done <test.txt 
 
 # set
 ```sh
--e 若指令传回值不等于0，则立即退出shell。
+-e 若指令返回值不等于0，则立即退出shell （+e 关闭退出shell功能）
 -x  交互执行shell ，和sh -x a.sh 一样
 -o pipefail 在有管道的命令中默认返回最后一个管道命令的返回值，若设置-o pipefail命令则返回从右往左第一个不为0的返回值
 [root@localhost ~]# cat test.sh

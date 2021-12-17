@@ -2,6 +2,11 @@ https://jenkins.io/doc/
 https://www.k8stech.net/jenkins-docs/
 https://www.w3cschool.cn/jenkins/
 
+# groovy
+http://groovy-lang.org/documentation.html
+https://www.qikqiak.com/post/groovy-simple-tutorial/
+https://cloud.tencent.com/developer/article/1358357
+
 
 #插件
 GIT plugin
