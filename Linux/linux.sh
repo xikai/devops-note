@@ -51,3 +51,7 @@ grep -rl "rm-wz90448rzu9sd21h0.mysql.rds.aliyuncs.com" * |xargs perl -pi -e 's|r
 
 #curl带头部参数的post请求
 curl -H "token: 8dbcc3fd-22f2-452e-b205-a2b268746219" -H "Content-Type: application/json" -X POST -d '{"from":"chicuu@chicuu.com","toEmail":"2853635728@qq.com","title":"test111","content":"0000000000content test11"}' http://email.api.tomtop.com/email/send
+
+
+#yum下载相关依赖rpm包文件
+yum install --downloadonly --downloaddir=/test chrony libreswan aide

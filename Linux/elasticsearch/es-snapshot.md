@@ -1,4 +1,6 @@
 * https://www.elastic.co/guide/en/elasticsearch/reference/7.15/snapshot-restore.html
+# snapshot原理
+* 对运行中的es集群索引进行增量备份
 
 # es snapshot
 * 在es中注册快照存储仓库

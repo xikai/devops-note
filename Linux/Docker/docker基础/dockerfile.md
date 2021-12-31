@@ -1,3 +1,5 @@
+* https://yeasy.gitbook.io/docker_practice/image/dockerfile/entrypoint
+
 # CMD && ENTRYPOINT
 ### ENTRYPOINT、CMD同时存在时,CMD作为ENTRYPOINT指定参数
 ```

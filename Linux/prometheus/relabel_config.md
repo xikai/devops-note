@@ -1,61 +1,262 @@
-* https://www.cnblogs.com/zhaojiedi1992/p/zhaojiedi_liunx_61_prometheus_relabel.html
-* https://www.jianshu.com/p/c21d399c140a
+* https://www.kancloud.cn/pshizhsysu/prometheus/1869390
+* https://blog.csdn.net/liangkiller/article/details/105758857
+* https://www.modb.pro/db/50726
 
-### relabel_config
-* Relabel用来重写target的标签
+# Target的初始Label
+* Prometheus 加载 Targets 后，这些 Targets 会自动包含一些默认的标签，Target 以 __ 作为前置的标签是在系统内部使用的，这些标签不会被写入到样本数据中。
+* 默认每次增加 Target 时会自动增加一个 instance 标签，而 instance 标签的内容刚好对应 Target 实例的 __address__ 值，这是因为实际上 Prometheus 内部做了一次标签重写处理
+* 对于静态配置的Target，最开始的时候，Target固定会有这几个标签：
+  ```
+  __address__：当前Target实例的访问地址<host>:<port>
+  __scheme__：采集目标服务访问地址的HTTP Scheme，HTTP或者HTTPS
+  __metrics_path__：采集目标服务访问地址的访问路径
+  __param_<name>：采集任务目标服务的中包含的请求参数
+  ```
+
+# 服务发现的Target
+>可以从promtheus -> Status -> Service Discovery页面看到初始标签（Discoverd Labels）及最后的标签（Target Labels）
+* https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config
+```
+公共配置中的job、__address__、__scheme__、__metrics_path__ 这些标签依然存在
+__meta_：在重新标记阶段可以使用以 _meta_ 为前缀的附加标签。它们由提供目标的服务发现机制设置的
+```
+
+# [relabel_configs](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config)
+* relabel_configs，在拉取(scraping)前,修改target和它的labels
 * 每个Target可以配置多个Relabel动作，按照配置文件顺序应用
 * 目标重新标签之后，以__开头的标签将从标签集中删除的
+```
+ [ source_labels: '[' <labelname> [, ...] ']' ]
+ [ separator: <string> | default = ; ]
+ [ target_label: <labelname> ]
+ [ regex: <regex> | default = (.*) ]
+ [ modulus: <uint64> ]
+ [ replacement: <string> | default = $1 ]
+ [ action: <relabel_action> | default = replace ]
+```
+```
+• replace：根据 regex 的配置匹配 source_labels 标签的值（注意：多个 source_label 的值会按照 separator 进行拼接），并且将匹配到的值写入到 target_label 当中。
+           如果有多个匹配组，则可以使用 ${1}, ${2} 确定写入的内容。如果没匹配到任何内容则不对 target_label 进行替换， 默认为 replace。
+• keep：丢弃 source_labels 的值中没有匹配到 regex 正则表达式内容的 Target 实例
+• drop：丢弃 source_labels 的值中匹配到 regex 正则表达式内容的 Target 实例
+• hashmod：将 target_label 设置为关联的 source_label 的哈希模块
+• labelmap：根据 regex 去匹配 Target 实例所有标签的名称（注意是名称），并且将捕获到的内容作为为新的标签名称，regex 匹配到标签的的值作为新标签的值。
+• labeldrop：对 Target 标签进行过滤，会移除匹配过滤条件的所有标签
+• labelkeep：对 Target 标签进行过滤，会移除不匹配过滤条件的所有标签
+```
 
-### relabel的action类型
-- replace 对标签和标签值进行替换
+# 示例
+### 默认初始标签
+```yml
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
 ```
-  - job_name: "node"
-    file_sd_configs:
-    - refresh_interval: 1m
-      files:
-      - "/usr/local/prometheus/prometheus/conf/node*.yml"
+* curl 'http://localhost:9090/api/v1/targets?state=active'
+```
+{
+	"status": "success",
+	"data": {
+		"activeTargets": [{
+			"discoveredLabels": { // 这块只能作为源标签
+				"__address__": "localhost:9090",
+				"__metrics_path__": "/metrics",
+				"__scheme__": "http",
+				"job": "prometheus"
+			},
+			"labels": { // relabel后的初始标签
+				"instance": "localhost:9090",
+				"job": "prometheus"
+			},
+			"scrapePool": "prometheus",
+			"scrapeUrl": "http://localhost:9090/metrics",
+			"lastError": "",
+			"lastScrape": "2020-04-25T08:42:19.254191755-04:00",
+			"lastScrapeDuration": 0.012091634,
+			"health": "up"
+		}],
+		"droppedTargets": []
+	}
+}
+```
+### 添加自定义标签
+```
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels: 
+          userLabel1: value1
+          userLabel2: value2
+```
+* curl 'http://localhost:9090/api/v1/targets?state=active'
+```
+{
+	"status": "success",
+	"data": {
+		"activeTargets": [{
+			"discoveredLabels": {
+				"__address__": "localhost:9090",
+				"__metrics_path__": "/metrics",
+				"__scheme__": "http",
+				"job": "prometheus",
+				"userLabel1": "value1", //新增
+				"userLabel2": "value2"  //新增
+			},
+			"labels": {
+				"instance": "localhost:9090",
+				"job": "prometheus",
+				"userLabel1": "value1",  //新增
+				"userLabel2": "value2"  //新增
+			},
+            ...
+		}],
+		"droppedTargets": []
+	}
+}
+```
+### replace 替换标签的值
+```
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels: 
+          userLabel1: value1
+          userLabel2: value2
     relabel_configs:
-    - source_labels:       #指定我们需要处理的源标签
-      - "__hostname__"
-      regex: "(.*)"        #regex去匹配源标签（__hostname__）的值，"(.*)"代表__hostname__这个标签是什么值都匹配的
-      target_label: "nodename"  #指定了我们要replace后的标签名字
-      action: replace      #指定relabel动作
-      replacement: "$1"   #指定的替换后的标签（target_label）对应的数值
+    # 用source_labels: [userLabel1] 的值，替换 target_label: userLabel2的值
+    - source_labels: [userLabel1] 
+      target_label:  userLabel2  
+      #默认action 是 'replace'
 ```
+* curl 'http://localhost:9090/api/v1/targets?state=active'
 ```
-# 基础信息里面有__region_id__和__availability_zone__，但是我想融合2个字段在一起，可以通过replace来实现 //region_zone="cn-beijing-a"
-  - job_name: "node"
-    file_sd_configs:
-    - refresh_interval: 1m
-      files:
-      - "/usr/local/prometheus/prometheus/conf/node*.yml"
+			"discoveredLabels": {
+				"__address__": "localhost:9090",
+				"__metrics_path__": "/metrics",
+				"__scheme__": "http",
+				"job": "prometheus",
+				"userLabel1": "value1", //不变
+				"userLabel2": "value2"  //不变
+			},
+			"labels": {
+				"instance": "localhost:9090",
+				"job": "prometheus",
+				"userLabel1": "value1",
+				"userLabel2": "value1"  //用userLabel1的值替换了userLabel2
+			},
+```
+* replacement ,用userLabel1的部分值替换userLabel2
+```
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels: 
+          userLabel1: value1
+          userLabel2: value2
     relabel_configs:
-    - source_labels:
-      - "__region_id__"
-      - "__availability_zone__"
-      separator: "-"
-      regex: "(.*)"
-      target_label: "region_zone"
+    - source_labels: [userLabel1]
+      regex: 'value([0-9]+)'
+      target_label:  userLabel2
+      replacement: '$1'
       action: replace
-      replacement: "$1"
+```
+* curl 'http://localhost:9090/api/v1/targets?state=active'
+```
+			"labels": {
+				"instance": "localhost:9090",
+				"job": "prometheus",
+				"userLabel1": "value1",
+				"userLabel2": "1"
+			},
 ```
 
-- keep: 满足特定条件的实例进行采集，其他的不采集
->只要source_labels的值匹配regex（node00）的实例才能会被采集。 其他的实例不会被采集。
+### labelmap 取匹配的标签名的一部分生成新标签
 ```
-  - job_name: "node"
-    file_sd_configs:
-    - refresh_interval: 1m
-      files: 
-      - "/usr/local/prometheus/prometheus/conf/node*.yml"
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels: 
+          userLabel1: value1
+          userLabel2: value2
     relabel_configs:
-    - source_labels:
-      - "__hostname__"
-      regex: "node00"
-      action: keep  
+    - action: labelmap
+	  regex: user(.*)1
+      
 ```
-- drop： 满足特定条件的实例不采集，其他的采集
->与keep相反
+* curl 'http://localhost:9090/api/v1/targets?state=active'
+```
+			"labels": {
+				"instance": "localhost:9090",
+				"job": "prometheus",
+				"userLabel1": "value1",
+				"userLabel2": "value2",
+				"Label": "value1" //新生成的标签
+			},
+```
 
-- labeldrop： 对抓取的实例特定标签进行删除。
-- labelkeep：  对抓取的实例特定标签进行保留，其他标签删除。
+### labeldrop/labelkeep 删除匹配/不匹配regex条件的标签
+```
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels: 
+          userLabel1: value1
+          userLabel2: value2
+    relabel_configs:
+    - raction: labeldrop
+	  regex: userLabel1
+      
+```
+* curl 'http://localhost:9090/api/v1/targets?state=active'
+```
+{
+	"status": "success",
+	"data": {
+		"activeTargets": [{
+			"discoveredLabels": { //这部分只能做为源标签
+				"__address__": "localhost:9090",
+				"__metrics_path__": "/metrics",
+				"__scheme__": "http",
+				"job": "prometheus",
+				"userLabel1": "value1",
+				"userLabel2": "value2"
+			},
+			"labels": {
+				"instance": "localhost:9090",
+				"job": "prometheus",
+				"userLabel2": "value2" //删除了userLabel1
+			},
+            ...
+	}
+}
+```
+
+### drop/keep 删除匹配/不匹配regex条件的target
+```
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        abels: 
+           userLabel1: value1
+    relabel_configs:
+    - source_labels: [userLabel1]
+	  regex: userLabel1 
+      action: drop
+```
+* curl 'http://localhost:9090/api/v1/targets?state=active'
+```
+{
+	"status": "success",
+	"data": {
+		"activeTargets": [],
+		"droppedTargets": []
+	}
+}
+```

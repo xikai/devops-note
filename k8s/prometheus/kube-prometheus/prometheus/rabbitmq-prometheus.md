@@ -1,6 +1,5 @@
-* https://www.rabbitmq.com/prometheus.html
-
-* 从 3.8.0 开始，RabbitMQ 附带内置 Prometheus 和 Grafana 支持
+* [3.8.0以前的rabbitmq监控需要使用rabbitmq-exporter](https://github.com/kbudde/rabbitmq_exporter)
+* [从 3.8.0 开始，RabbitMQ 附带内置 Prometheus 和 Grafana 支持](https://www.rabbitmq.com/prometheus.html)
 ```
 # 对任一集群节点执行
 rabbitmq-plugins enable rabbitmq_prometheus

@@ -1,7 +1,7 @@
 ### 部署 Metrics Server
 * 下载资源清单文件
 ```
-wget https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.7/components.yaml -O metrics-server.yaml
+wget https://github.com/kubernetes-sigs/metrics-server/releases/download/latest/components.yaml -O metrics-server.yaml
 ```
 * 修改清单
 ```yml
@@ -12,8 +12,8 @@ spec:
     spec:
       containers:
         - name: metrics-server
-          #image: k8s.gcr.io/metrics-server/metrics-server:v0.3.7
-          image: bitnami/metrics-server:0.3.7
+          #image: k8s.gcr.io/metrics-server/metrics-server:latest
+          image: bitnami/metrics-server:latest
           imagePullPolicy: IfNotPresent
           args:
             - --cert-dir=/tmp

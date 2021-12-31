@@ -14,9 +14,17 @@ spec:
   groups:
   - name: elasticsearch.rules
     rules:
+    - alert: ElasticsearchTooFewNodesRunning
+      expr: elasticsearch_cluster_health_number_of_nodes < 3
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "ElasticSearch running on less than 3 nodes"
+        description: "There are only {{$value}} < 3 ElasticSearch nodes running"
     - alert: ElasticsearchHeapUsageTooHigh
       expr: (elasticsearch_jvm_memory_used_bytes{area="heap"} / elasticsearch_jvm_memory_max_bytes{area="heap"}) * 100 > 80
-      for: 2m
+      for: 5m
       labels:
         severity: warning
       annotations:
@@ -24,7 +32,7 @@ spec:
         description: "The heap usage is over 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
     - alert: ElasticsearchDiskSpaceLow
       expr: elasticsearch_filesystem_data_available_bytes / elasticsearch_filesystem_data_size_bytes * 100 < 20
-      for: 2m
+      for: 5m
       labels:
         severity: warning
       annotations:
