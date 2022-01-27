@@ -56,3 +56,10 @@ ZSH_THEME="simple"
 ```
 open -n /Applications/WeChat.app/Contents/MacOS/WeChat
 ```
+
+* sshkey ppk转pem
+```
+brew upgrade
+brew install putty
+puttygen test.ppk -O private-openssh -o test.pem
+```

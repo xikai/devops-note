@@ -1,4 +1,4 @@
-# 用户
+# [用户](https://docs.mongodb.com/manual/reference/method/js-user-management/)
 * 创建管理员帐号
 ```
 use admin
@@ -19,6 +19,14 @@ db.createUser(
 ```
 use admin
 db.auth("root", "abc123" )
+```
+
+* 查询用户
+```
+获取当前db所有用户
+db.getUsers()
+获取当前db指定用户
+db.getUser("test")
 ```
 
 * 创建其它用户
@@ -66,7 +74,7 @@ db.getRole( "readWriteRole", { showPrivileges: true } )
 db.changeUserPassword("reporting", "SOh3TbYhxuLiW8ypJPxmt1oOfL")
 ```
 
-# 角色
+# [角色](https://docs.mongodb.com/manual/reference/method/js-role-management/)
 * 创建角色
 >创建可以修改自己的密码和数据的角色
 ```
@@ -82,6 +90,14 @@ db.createRole(
      roles: []
    }
 )
+```
+
+* 查询用户定义的角色
+```
+查询用户定义的所有角色
+db.getRoles()
+查询用户定义的指定角色
+db.getRole("changeOwnPasswordCustomDataRole")
 ```
 
 * 创建用户应用自定义角色

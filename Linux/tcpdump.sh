@@ -1,5 +1,5 @@
 tcpdump：
-http://www.01happy.com/linux-use-tcpdump-capture-network-packets/
+https://www.cnblogs.com/pyng/p/9698723.html
 
 tcpdump [-i 网卡] -nn '表达式'
 tcpdump tcp -i eth1 -t -s 0 -c 100 'dst port ! 22 and src net 192.168.1.0/24' -w ./target.cap

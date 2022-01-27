@@ -35,6 +35,10 @@ docker rmi `docker images|egrep -v "library|jenkinsci" |awk '{print $3}'`
 docker image prune -a --filter "until=$(date +'%Y-%m-%dT%H:%M:%S' --date='-7 days')"
 ```
 
+* 删除镜像缓存
+```
+docker system prune --volumes
+```
 
 * 存储镜像文件为本地文件
 ```

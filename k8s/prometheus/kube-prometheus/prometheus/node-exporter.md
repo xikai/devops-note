@@ -34,7 +34,7 @@ http://202.10.76.12:9090/graph -> node_cpu_seconds_total
 
 # grafana dashboards
 * https://grafana.com/grafana/dashboards/1860
-
+* https://grafana.com/grafana/dashboards/8919
 
 # node_exporter监控systemd
 ```

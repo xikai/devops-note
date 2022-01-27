@@ -12,10 +12,10 @@
 
 ### 架构
 * 一主两从：
-![image](http://www.mongoing.com/docs/_images/replica-set-primary-with-two-secondaries.png)
+![image](https://mongoing.com/docs/_images/replica-set-primary-with-two-secondaries.png)
 
 * 一主一从一仲裁：
-![image](http://www.mongoing.com/docs/_images/replica-set-primary-with-secondary-and-arbiter.png)
+![image](https://www.mongoing.com/docs/_images/replica-set-primary-with-secondary-and-arbiter.png)
 
 ### 部署复制集
 1. 部署mongodb,参考mongodb安装文档

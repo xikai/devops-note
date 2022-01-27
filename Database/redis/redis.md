@@ -36,6 +36,17 @@ dbfilename dump_6379.rdb        #指定快照料文件名
 appendonly yes                                            #开启aof方式
 appendfilename /data/redis/appendonly_6300.aof            #指定aof文件保存位置
 appendfsync everysec                                      #aof同步方式，每秒
+
+3,缓存策略，达到maxmemory时，触发maxmemory-policy
+maxmemory 14G  #maxmemory默认值为0，表示不做限制
+
+# volatile-lru -> remove the key with an expire set using an LRU algorithm
+# allkeys-lru -> remove any key according to the LRU algorithm
+# volatile-random -> remove a random key with an expire set
+# allkeys-random -> remove a random key, any key
+# volatile-ttl -> remove the key with the nearest expire time (minor TTL)
+# noeviction -> don't expire at all, just return an error on write operations
+maxmemory-policy noeviction
 ```
 
 * 恢复
@@ -102,9 +113,44 @@ persist keyname                    #取消key的过期时间
 ```
 
 
+# [慢日志slowlog](http://redis.cn/commands/slowlog.html)
+>Redis慢查询日志是一个记录超过指定执行时间的查询的系统。 这里的执行时间不包括IO操作，比如与客户端通信，发送回复等等，而只是实际执行命令所需的时间（这是唯一在命令执行过程中线程被阻塞且不能同时处理其他请求的阶段）。
+* 在redis.conf中slowlog的设置：
 ```
-慢日志
-https://www.cnblogs.com/SailorXiao/p/5808871.html
+slowlog-log-slower-than 10000       # 执行时间超过多少(微秒)将会被记录,使用负数将会关闭慢查询日志，而值为0将强制记录每一个命令
+slowlog-max-len 128                 # 慢查询最大的条数，当一个新命令被记录，且慢查询日志已经达到其最大长度时，将从记录命令的队列中移除删除最旧的命令以腾出空间。
+```
+* 使用config方式动态设置slowlog
+```
+- 查看当前slowlog-log-slower-than设置
+    127.0.0.1:6379> CONFIG GET slowlog-log-slower-than
+    1) "slowlog-log-slower-than"
+    2) "10000"
+- 设置slowlog-log-slower-than为100ms
+    127.0.0.1:6379> CONFIG SET slowlog-log-slower-than 100000
+    OK
+- 设置slowlog-max-len为1000
+    127.0.0.1:6379> CONFIG SET slowlog-max-len 1000
+    OK
+```
+* 读取slowlog
+```
+127.0.0.1:6379> slowlog get    # 返回慢查询日志中的每一个条目 
+127.0.0.1:6379> slowlog get 2  # 返回慢查询日志中最近的2个条目
+1) 1) (integer) 14
+   2) (integer) 1309448221
+   3) (integer) 15
+   4) 1) "ping"
+2) 1) (integer) 13              # 唯一的递增标识符
+   2) (integer) 1309448128      # 处理记录命令的unix时间戳 
+   3) (integer) 30              # 命令执行所需的总时间，以微秒为单位。
+   4) 1) "slowlog"              # 组成该命令的参数的数组。
+      2) "get"
+      3) "100"
+```
+```
+SLOWLOG LEN    # 获得慢查询日志的条数
+SLOWLOG RESET  # 重置慢查询日志,删除后，信息将永远丢失
 ```
 
 

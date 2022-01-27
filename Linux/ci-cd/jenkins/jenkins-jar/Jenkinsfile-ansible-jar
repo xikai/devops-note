@@ -1,0 +1,124 @@
+if(!repository){
+    error "repository is null"
+}
+if(!branch){
+    error "branch is null"
+}
+if(!deploy_host){
+    error "deploy host is null"
+}
+if(!runtime_env){
+    error "runtime env is null"
+}
+
+def getTarget(jobName) {
+    def fileName=""
+    def files = findFiles(glob: "${jobName}/pom.xml")
+    if(files.size()==1){ //判断是否是子项目
+       fileName="${jobName}/target/${jobName}-*.tar.gz"
+    }else{
+        fileName="target/${jobName}-*.tar.gz"
+    }
+    //获取文件
+    def targetList = findFiles(glob:fileName)
+    def targetFile = targetList[0]
+    return targetFile
+}
+
+def getVersion(targetFile) {
+	def s=targetFile.name.split('-');
+	def version=""
+	for (int i=0;i<s.size()-1;i++){
+	    if(s[i][0]>="0" && s[i][0]<="9"){
+	        version="${s[i]}"
+	        for (int j=i+1;j<s.size()-1;j++){
+	            version=version+"-"+"${s[j]}"
+	        }
+	        break;
+	    }    
+	}
+	return version.toLowerCase()
+}
+
+node {
+    if (active == "release") {
+        stage('下载代码') {
+            wrap([$class: 'BuildUser']) {
+                println "执行用户为:  ${BUILD_USER}"
+            }
+            cleanWs()
+            // Get some code from a GitHub repository
+            git branch: "${branch}", credentialsId: 'dfcdbee5-dacf-4182-94f0-73dc29df0030', url: "${repository}"
+        }
+
+        stage('编译打包') {
+            withMaven(maven: 'Maven', mavenLocalRepo: '.repository') {
+                sh "mvn clean compile package -U -Dmaven.test.skip=true"
+            }
+        }
+
+        stage('项目部署') {
+            def targetFile=getTarget("${JOB_NAME}")
+            def version=getVersion(targetFile)
+            def projectName="${JOB_NAME}-${version}"
+            println "部署主机：${deploy_host}"
+            println "部署文件：${targetFile}"
+            println "部署版本：${version}"
+            println "项目名：${projectName}"
+
+            def hosts="${deploy_host}".split(",")
+            for ( ip in hosts) {
+                sh """
+                    ansible $ip -m copy -a "src=/data/jenkins/workspace/code-config/systemd/${JOB_NAME}.service dest=/usr/lib/systemd/system/${JOB_NAME}.service" --become
+                """
+
+                input( message: "是否停止服务?\n $ip",ok: "Yes")
+                sh """
+                    ansible $ip -m systemd -a "name=${JOB_NAME} state=stopped" --become
+                """
+
+                input( message: "是否部署代码?\n $ip",ok: "Yes")
+                sh """
+                    ansible $ip -m file -a "path=/data/svc/${JOB_NAME} state=directory" --become
+                    ansible $ip -m unarchive -a "src=$targetFile dest=/data/svc/${JOB_NAME}" --become
+                    ansible $ip -m copy -a "src=/data/jenkins/workspace/code-config/mid-conf/${runtime_env}/${JOB_NAME}/conf/ dest=/data/svc/${JOB_NAME}/${projectName}/conf" --become
+                    ansible $ip -m file -a "src=/data/svc/${JOB_NAME}/${projectName} dest=/data/svc/${JOB_NAME}/${JOB_NAME} state=link" --become
+                """
+
+                input( message: "是否启动服务?\n $ip",ok: "Yes")
+                sh """
+                    ansible $ip -m systemd -a "name=${JOB_NAME} daemon_reload=true state=started" --become
+                """
+            }
+        }
+    }
+
+    if (active == "rollback") {
+        stage('版本回滚') {
+            if(!rollback_version){
+                error "rollback version is null"
+            }
+
+            def hosts="${deploy_host}".split(",")
+            def projectName="${JOB_NAME}-${rollback_version}"
+            for ( ip in hosts) {
+                input( message: "是否停止服务?\n $ip",ok: "Yes")
+                sh """
+                    ansible $ip -m systemd -a "name=${JOB_NAME} state=stopped" --become
+                """
+
+                input( message: "是否回滚代码?\n $ip",ok: "Yes")
+                sh """
+                    ansible $ip -m file -a "path=/data/svc/${JOB_NAME} state=directory" --become
+                    ansible $ip -m file -a "src=/data/svc/${JOB_NAME}/${projectName} dest=/data/svc/${JOB_NAME}/${JOB_NAME} state=link" --become
+                """
+
+                input( message: "是否启动服务?\n $ip",ok: "Yes")
+                sh """
+                    ansible $ip -m systemd -a "name=${JOB_NAME} daemon_reload=true state=started" --become
+                """
+            }
+        }
+    }
+}   
+

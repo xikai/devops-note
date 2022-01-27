@@ -1,0 +1,340 @@
+import groovy.json.JsonSlurper
+
+if(!profile){
+    error "profile is null"
+}
+if(!repository)
+{
+    error "repository is null"
+}
+if(!branch){
+     error "branch is null"
+}
+
+def mavenProfile = parseText("mavenProfile")
+if(mavenProfile == null || mavenProfile == ""){
+    println "mavenProfile 未配置 使用:${profile}"
+    mavenProfile = profile
+}
+
+println "构建${JOB_NAME},maven_profile:${mavenProfile} package=${mavenProfile}"
+
+def ecrRepo="475810397983.dkr.ecr.cn-northwest-1.amazonaws.com.cn"
+def awsRegion="cn-northwest-1"
+def nameSpace = "test"
+
+node {
+    stage("选择发布类型"){
+        BUILD_TYPE = ["release", "rollback"]; 
+        BUILD_ACTION = input(
+            message: "选择发布类型",
+            ok: "Yes",
+            parameters:[choice(choices: BUILD_TYPE, description: '发布：release, 回滚：rollback', name: '请选择"发布"或"回滚"')]
+        )
+
+        if(BUILD_ACTION == "release"){
+            stage('下载代码') {
+                sh "date"
+                wrap([$class: 'BuildUser']) {
+                  println "执行用户为:  ${BUILD_USER}"
+                  //if(profile.contains("test") && "${BUILD_USER}" != "tester"){
+                   //  error "对不起测试环境只能测试账号构建,请联系测试人员构建!"
+                  //}
+                }
+
+                cleanWs()
+                // Get some code from a GitHub repository
+                git branch: "${branch}", credentialsId: 'dfcdbee5-dacf-4182-94f0-73dc29df0030', url: "${repository}"
+
+            }
+
+            stage('编译打包') {
+                sh "date"
+                if(upload_nexus == "true") {       
+                    withMaven(
+                         maven: 'Maven',
+                         mavenLocalRepo: '.repository') {
+                                 sh "mvn  clean compile deploy  -U  -Dmaven.test.skip=true -Denv=${mavenProfile}  -Dpackage=${mavenProfile}"
+                     }
+                }else{
+                    withMaven(
+                         maven: 'Maven'){
+                                sh "mvn  clean  package -U  -Dmaven.test.skip=true -Denv=${mavenProfile}  -Dpackage=${mavenProfile}"
+                     }
+                    println "用户选择不发布到私服"
+                }
+            } 
+
+            stage('部署代码') {
+                sh "date"
+                if (deploy_app == "true"){
+                    def child=isChildProject("$JOB_NAME")
+                    def version=getVersion("$JOB_NAME",child)
+                    def dubboPort =  parseDubboPort("$JOB_NAME")
+                    def jvmPort =  parseJvmPort("$JOB_NAME") 
+                    def BUILD_Date=new Date().format("yyyyMMddHHmmssSSS")
+                    def image_name="${JOB_NAME}:${version}-${BUILD_NUMBER}-${BUILD_Date}"
+
+                    deployVersion = "${version}".replace(".","v")
+                    deployName = "${JOB_NAME}-${deployVersion}-${BUILD_NUMBER}"
+                    registryPort = 15678
+                    registryToken = "test123"
+
+                    def configProfile = parseText("configProfile");
+                    if(configProfile == null || configProfile == ''){
+                        configProfile = profile;
+                        println "未配置的 configProfile 使用默认选择的:${profile}"
+                    }
+                    println "${JOB_NAME} dubboPort: ${dubboPort}"
+                    println "${JOB_NAME} jvmPort: ${jvmPort}"
+                    println "${JOB_NAME} version: ${version}"
+                    println "${JOB_NAME} child: ${child}"
+                    println "${JOB_NAME} deployName: $deployName"
+                    println "${JOB_NAME} registryPort: $registryPort"
+                    println "${JOB_NAME} registryToken: $registryToken"
+
+                    sh "aws ecr get-login-password --region $awsRegion | sudo docker login --username AWS --password-stdin $ecrRepo"
+                    try{
+                        sh "aws ecr create-repository --repository-name ${JOB_NAME} --image-scanning-configuration scanOnPush=true --region $awsRegion"
+                    }catch(Exception e) {
+                        println e
+                    }
+                    OLD_PODS = sh( script: "kubectl get pod -n $nameSpace -o wide |grep ${JOB_NAME} |grep Running |awk '{print \$6}'",returnStdout: true ).trim()
+                    if(child){
+                      sh "cd ${JOB_NAME}&&sudo docker build -t ${image_name} ."
+                      sh "cd ${JOB_NAME}&&sudo docker tag ${image_name} $ecrRepo/${image_name}"
+                      sh "cd ${JOB_NAME}&&sudo docker push $ecrRepo/${image_name}"
+                      sh "cd ${JOB_NAME}&&sudo kubectl create configmap $deployName --from-literal=POD_CREATOR=jenkins -n $nameSpace"
+                      sh "cd ${JOB_NAME}&&export name=$deployName && export dubboPort=${dubboPort} && export jvmPort=${jvmPort} && export image_name=${image_name} && envsubst < /data/jenkins/workspace/code-config/application.yaml | sudo /usr/bin/kubectl apply -f -"
+                    }else{
+                        sh "sudo docker build -t ${image_name} ."
+                        sh "sudo docker tag ${image_name} $ecrRepo/${image_name}"
+                        sh "sudo docker push $ecrRepo/${image_name}"
+                        sh "sudo kubectl create configmap $deployName --from-literal=POD_CREATOR=jenkins -n $nameSpace"
+                        sh "export name=$deployName && export dubboPort=${dubboPort} && export jvmPort=${jvmPort} && export image_name=${image_name} && envsubst < /data/jenkins/workspace/code-config/application.yaml | sudo /usr/bin/kubectl apply -f -"
+                    }
+
+                    //监控部署后的容器状态
+                    sh """
+                        while true
+                        do
+                            kubectl rollout status deployment/$deployName -n $nameSpace
+                            if [ \$? != 0 ] ;then
+                                sleep 3
+                                continue
+                            else
+                                sleep 10
+                                echo "部署完成！"
+                                break
+                            fi
+                        done
+                    """
+                    NEW_PODS = sh( script: "kubectl get pod -n $nameSpace -o wide |grep $deployName |grep Running |awk '{print \$6}'",returnStdout: true ).trim()
+                }else{
+                     println "用户选择不部署代码"
+                }
+            }
+
+            stage("新版本容器上线") {
+                sh "date"
+                CHOICES = ["online", "revoke"]; 
+                ACTION = input(
+                    message: "新版本部署己完成：\n $NEW_PODS",
+                    ok: "Yes",
+                    parameters:[choice(choices: CHOICES, description: 'Select a action for this build', name: '请选择"上线"或"销毁"本次部署')]
+                )
+                NEWPODS = NEW_PODS.replaceAll("\n", " ");
+                if(ACTION == "online"){
+                    def num = 0
+                    while(true){
+                        try{
+                            sh """
+                                for i in $NEWPODS
+                                do
+                                    curl http://\$i:$registryPort/online?token=$registryToken
+                                done
+                            """
+                        }catch(Exception e) {
+                            println e
+                            try{
+                                def userInput = input(
+                                    message: "Dubbo注册上线失败,是否再次注册 \n(retry $num)",
+                                    ok: "确认",
+                                    parameters: [[$class: 'BooleanParameterDefinition', defaultValue: true, description: '', name: '注册']]
+                                )
+                                if (userInput){
+                                    num++
+                                    continue
+                                }
+                            } catch(err) { // input false
+                                println "跳过Dubbo注册"
+                            }
+                        }
+                        break
+                    }
+                    sh """
+                        kubectl delete configmap $deployName -n $nameSpace
+                        kubectl create configmap $deployName --from-literal=POD_CREATOR=k8s -n $nameSpace
+                    """
+                }
+                if(ACTION == "revoke"){
+                    sh """
+                        kubectl delete deploy $deployName -n $nameSpace
+                        kubectl delete cm $deployName -n $nameSpace
+                    """
+                    error "己撤销本次部署."
+                }
+            }
+
+            stage("旧版本容器下线") {
+                sh "date"
+                input(
+                    message: "是否从Dubbo下线旧版本容器?\n $OLD_PODS",
+                    ok: "Yes"
+                )
+                OLDPODS = OLD_PODS.replaceAll("\n", " ");
+                try{
+                    sh """
+                        set +e
+                        for i in $OLDPODS
+                        do
+                            curl http://\$i:$registryPort/offline?token=$registryToken
+                        done
+                    """
+                }catch(Exception e) {
+                    println e
+                    //error "容器下线错误."
+                }
+            }
+
+            stage("清理历史部署") {
+                sh "date"
+                input(
+                    message: "是否清理历史部署并删除旧版本容器?",
+                    ok: "Yes"
+                )
+                echo "开始清理历史部署..."
+                sh """
+                    set +e
+                    historyDeploy=`kubectl get deploy -n $nameSpace -o wide |grep ${JOB_NAME} |grep -v $deployName |awk '{print \$1}'`
+                    for i in \$historyDeploy
+                    do
+                        kubectl delete deploy \$i -n $nameSpace
+                        kubectl delete cm \$i -n $nameSpace
+                    done
+
+                    while true
+                    do
+                        historyNum=`kubectl get deploy -n $nameSpace -o wide |grep ${JOB_NAME} |grep -v $deployName |awk '{print \$1}' |wc -l`
+                        if [ \$historyNum != 0 ] ;then
+                            sleep 3
+                            kubectl get pods -n $nameSpace -o wide |grep ${JOB_NAME} |grep -v $deployName 
+                            continue
+                        else
+                            echo "历史部署己清理完毕."
+                            break
+                        fi
+                    done 
+                """
+            }
+        }
+
+        //版本回滚
+        if(BUILD_ACTION == "rollback"){
+            stage("版本回滚") {
+                sh "date"
+                sh "aws ecr get-login-password --region $awsRegion | sudo docker login --username AWS --password-stdin $ecrRepo"
+                IMAGETAGS = sh( 
+                    returnStdout: true, 
+                    script: "aws ecr describe-images --repository-name ${JOB_NAME} --query 'sort_by(imageDetails,& imagePushedAt)[*].imageTags[0]' |jq .[] |tr -d '\"' |tail -n 10 "
+                )
+                ROLLTAGS = input(
+                    message: "回滚镜像",
+                    ok: "Yes",
+                    parameters:[choice(choices: IMAGETAGS, description: '以上为最近20个历史版本镜像tags', name: '请选择镜像tag')]
+                )
+                ROLLDEPLOY = sh( script: "kubectl get deploy -n $nameSpace |grep ${JOB_NAME} |awk '{print \$1}'",returnStdout: true ).trim()
+                def rollbackImage = "$ecrRepo/${JOB_NAME}:$ROLLTAGS"
+                println rollbackImage
+                sh "kubectl -n $nameSpace set image deployment/$ROLLDEPLOY $ROLLDEPLOY=$rollbackImage"
+            }
+        }
+    }
+}
+
+
+
+def parseText(projectName){
+    //简化的get请求
+    try{
+        def response = httpRequest  "http://172.31.36.121:8081/configs/auto-develop/test/application"
+        def jsonStr =  response.getContent()
+        def states = new JsonSlurper().parseText(jsonStr)
+        def ips=states['configurations'][projectName]
+        return ips
+    }catch(Exception e) {
+        println e
+    }
+    return null;
+}
+def parseDubboPort(projectName){
+    //简化的get请求
+    try{
+        def response = httpRequest  "http://172.31.36.121:8081/configs/$projectName/test/application"
+        def jsonStr =  response.getContent()
+        def states = new JsonSlurper().parseText(jsonStr)
+        def ips=states['configurations']['dubbo.protocol.port']
+        return ips
+    }catch(Exception e) {
+        println e
+    }
+    return null;
+}
+def parseJvmPort(projectName){
+    //简化的get请求
+    try{
+        def response = httpRequest  "http://172.31.36.121:8081/configs/$projectName/test/ps.jmx-option"
+        def jsonStr =  response.getContent()
+        def states = new JsonSlurper().parseText(jsonStr)
+        def ips=states['configurations']['jmx.port']
+        return ips
+    }catch(Exception e) {
+        println e
+    }
+    return null;
+}
+
+
+
+def getVersion(projectName,child) {
+    def fileName="target/${projectName}-*.tar.gz"
+    if(child){
+        fileName="${projectName}/target/${projectName}-*.tar.gz"
+    }
+    def files = findFiles(glob:fileName)
+    if(files.size()!=1){
+        error "对不起数据错误!"
+    }
+	def s=files[0].name.split('-');
+	
+	def version=""
+	for (int i=0;i<s.size()-1;i++){
+	    if(s[i][0]>="0" && s[i][0]<="9"){
+	        version="${s[i]}"
+	        /*for (int j=i+1;j<s.size()-1;j++){
+	            version=version+"-"+"${s[j]}"
+	        }*/
+	        break;
+	    }    
+	}
+	return "v"+version.toLowerCase()
+}
+
+def isChildProject(projectName) {
+    def files = findFiles(glob: "${projectName}/pom.xml")
+    if(files.size()==1){
+        return true
+    }else{
+        return false
+    }
+}

@@ -1,3 +1,25 @@
+# shell
+* /bin/sh 是/bin/bash的符号链接
+```
+# ll /bin/sh
+lrwxrwxrwx 1 root root 4 Aug 24 19:06 /bin/sh -> bash
+
+# sh就是开启了POSIX标准的bash，遵循POSIX规范：“当某行代码出错时，不继续往下解释”。bash 就算出错，也会继续向下执行。
+```
+```
+双小括号(( ))： 整数扩展。这种扩展计算是整数型的计算，不支持浮点型 
+if (($i<5))
+
+[]和Test中可用的比较运算符只有==和!=，两者都是用于字符串比较的，不可用于整数比较，整数比较只能使用-eq，-gt这种形式。无论是字符串比较还是整数比较都不支持大于号小于号。
+if [ $i == "5" ]
+if [ $i != "abc" ]
+if [ $a -ne 1 -a $a != 2 ]  
+if [ $a -ne 1] && [ $a != 2 ]
+
+使用[[ ... ]]条件判断结构，而不是[ ... ]，能够防止脚本中的许多逻辑错误。比如，&&、||、<和> 操作符能够正常存在于[[ ]]条件判断结构中，但是如果出现在[ ]结构中的话，会报错。
+if [[ $a != 1 && $a != 2 ]]  
+```
+
 # 监控进程
 ```sh
 #!/bin/sh
@@ -32,6 +54,13 @@ while read line  
 do  
   echo $line;  
 done <test.txt 
+```
+```sh
+kubectl get roles --all-namespaces > k8s-pci/roles.txt
+kubectl get roles --all-namespaces |grep -v 'NAME' | awk '{print $1,$2}' |while read ns name
+do
+  kubectl describe role $name -n $ns >>k8s-pci/roles.txt
+done
 ```
 
 # set

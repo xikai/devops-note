@@ -169,3 +169,6 @@ kubectl create secret generic additional-scrape-configs --from-file=prometheus-a
 #查看secret for additional-scrape-configs
 kubectl get secret additional-scrape-configs -n monitoring -oyaml |yq e '.data ."prometheus-additional.yaml"' - |base64 -d
 ```
+
+# dashboard
+* https://grafana.com/grafana/dashboards/12776

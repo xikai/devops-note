@@ -21,11 +21,17 @@ node.data=true 表示此节点为数据节点，负责数据的存储和相关�
 * ingest节点
   - 我们可以将请求发送到 集群中的任何节点，并由该节点负责分发请求、收集结果等操作，而不需要主节点转发。这种节点可称之为协调节点，协调节点是不需要指定和配置的，集群中的任何节点都可以充当协调节点的角色。
   - 当发送请求的时候， 为了扩展负载，更好的做法是轮询集群中所有的节点
-
 ```
-# 如果某个节点既是数据节点又是主节点，那么可能会对主节点产生影响从而对整个集群的状态产生影响。我们应该对 Elasticsearch 集群中的节点做好角色上的划分和隔离。可以使用几个配置较低的机器群作为候选主节点群,且不为data节点
-node.master=true
-node.data=false
+# 如果某个节点既是数据节点又是主节点，那么可能会对主节点产生影响从而对整个集群的状态产生影响。我们应该对 Elasticsearch 集群中的节点做好角色上的划分和隔离。配置文件中给出了三种配置高性能集群拓扑结构的模式,如下： 
+1. 如果你想让节点从不选举为主节点,只用来存储数据,可作为负载器 
+node.master: false 
+node.data: true 
+2. 如果想让节点成为主节点,且不存储任何数据,并保有空闲资源,可作为协调器
+node.master: true
+node.data: false
+3. 如果想让节点既不称为主节点,又不成为数据节点,那么可将他作为搜索器,从节点中获取数据,生成搜索结果等 
+node.master: false 
+node.data: false
 ```
 
 ### 集群结构
@@ -173,3 +179,19 @@ curl -XGET 'localhost:9200/my_index?pretty'
 curl -XGET 'localhost:9200/my_index?_source=title,text
 ```
 
+# 分片管理
+* 手动迁移索引分片
+```
+curl -X POST "localhost:9200/_cluster/reroute?pretty" -H 'Content-Type: application/json' -d'
+{
+    "commands" : [
+        {
+          "allocate_replica" : {
+                "index" : "test", 
+                "shard" : 1,
+                "node" : "node3"
+          }
+        }
+    ]
+}'
+```

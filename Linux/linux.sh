@@ -54,4 +54,20 @@ curl -H "token: 8dbcc3fd-22f2-452e-b205-a2b268746219" -H "Content-Type: ap
 
 
 #yum下载相关依赖rpm包文件
-yum install --downloadonly --downloaddir=/test chrony libreswan aide
+yum install --downloadonly --downloaddir=./packages chrony libreswan aide
+
+
+# 手动释放系统内存
+# 在Linux系统下，我们一般不需要去释放内存，因为系统已经将内存管理的很好。但是凡事也有例外，有的时候内存会被缓存占用掉，导致系统使用SWAP空间影响性能，例如当你在linux下频繁存取文件后,物理内存会很快被用光,当程序结束后,内存不会被正常释放,而是一直作为caching。，此时就需要执行释放内存（清理缓存）的操作了。
+# Linux系统的缓存机制是相当先进的，他会针对dentry（用于VFS，加速文件路径名到inode的转换）、Buffer Cache（针对磁盘块的读写）和Page Cache（针对文件inode的读写）进行缓存操作。但是在进行了大量文件操作之后，缓存会把内存资源基本用光。但实际上我们文件操作已经完成，这部分缓存已经用不到了。这个时候，我们难道只能眼睁睁的看着缓存把内存空间占据掉吗？所以，我们还是有必要来手动进行Linux下释放内存的操作，其实也就是释放缓存的操作了。/proc是一个虚拟文件系统,我们可以通过对它的读写操作做为与kernel实体间进行通信的一种手段.也就是说可以通过修改/proc中的文件,来对当前kernel的行为做出调整.那么我们可以通过调整/proc/sys/vm/drop_caches来释放内存。
+
+cat /proc/sys/vm/drop_caches
+0  #0是系统默认值，默认情况下表示不释放内存，由操作系统自动管理
+
+1：释放页缓存
+2：释放dentries和inodes
+3：释放所有缓存
+
+手动执行sync命令（描述：sync 命令运行 sync 子例程。如果必须停止系统，则运行sync 命令以确保文件系统的完整性。sync 命令将所有未写的系统缓冲区写到磁盘中，包含已修改的 i-node、已延迟的块 I/O 和读写映射文件）
+sync
+echo 3 > /proc/sys/vm/drop_caches  #重启系统恢复默认值0

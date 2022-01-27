@@ -78,6 +78,7 @@ repl_backlog_histlen:812
 
 
 # redis-Sentinel配置
+>Sentinel必须部署奇数个，偶数个Sentinel会出现选举脑裂，导致无法执行故障切换（https://zhuanlan.zhihu.com/p/353156564）
 ```
 cp sentinel.conf /usr/local/redis/conf
 mkdir -p /data/redis/sentinel
@@ -105,7 +106,7 @@ sentinel auth-pass mymaster 123456
 ```
 ```
 # 当前Sentinel节点监控 172.22.0.29:6379 这个主节点
-# 2代表判断主节点失败至少需要2个Sentinel节点节点同意(不过要注意，无论你设置要多少个 Sentinel 同意才能判断一个服务器失效， 都需要一个Sentinel获得系统中多数（majority） Sentinel 的支持选举为leader， 才能发起一次自动故障迁移)
+# 2代表判断主节点失败至少需要2个Sentinel节点同意(不过要注意，无论你设置要多少个 Sentinel 同意才能判断一个服务器失效， 都需要一个Sentinel获得系统中多数（majority） Sentinel 的支持选举为leader， 才能发起一次自动故障迁移)
 # mymaster是主节点的别名
 sentinel monitor mymaster 172.22.0.29 6379 2
 
@@ -210,3 +211,5 @@ repl_backlog_size:1048576
 repl_backlog_first_byte_offset:2
 repl_backlog_histlen:4014
 ```
+
+* 客户端连接sentinel（ip+端口）

@@ -5,7 +5,7 @@
   - 每个分片是完整数据的一个子集，可以为每个分片部署一个复制集
   - mongodb在集合级别将数据分片,使用shard key
 * **mongos**
-  - mongos充当查询路由器，这客户端提供连接shard的接口
+  - mongos充当查询路由器，为客户端提供连接shard的接口
 * **config servers**
   - 配置服务器存储集群的元数据和配置设置。配置服务器必须被部署为一个复制集
 
@@ -59,7 +59,7 @@ sh.shardCollection( namespace, key )
         - shard3
 
 * Zone分片架构
-![image](http://www.mongoing.com/docs/_images/sharded-cluster-zones.png)
+![image](https://www.mongoing.com/docs/_images/sharded-cluster-zones.png)
 
 * balancer 
   - 均衡器试图在集群的每个一分片上，均匀的分布集合的chunk

@@ -77,6 +77,7 @@ cd /usr/local/redis-cluster/700x && redis-server ./redis.conf
 
 * 创建redis cluster(己源码安装)
 ```bash
+# --replicas 表示1个主节点对应几个从节点
 redis-trib.rb create --replicas 1 192.168.221.53:7000 192.168.221.53:7001 \
 192.168.221.53:7002 192.168.221.53:7003 192.168.221.53:7004 192.168.221.53:7005
 ```
