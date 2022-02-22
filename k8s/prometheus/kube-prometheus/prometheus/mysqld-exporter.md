@@ -26,8 +26,8 @@ flush privileges;
 * 下载mysqld-exporter
 ```
 wget https://github.com/prometheus/mysqld_exporter/releases/download/v0.13.0/mysqld_exporter-0.13.0.linux-amd64.tar.gz
-tar xvf mysqld_exporter-0.13.0.linux-amd64.tar.gz -C /usr/local
-mv mysqld_exporter-0.13.0.linux-amd64 mysqld_exporter
+tar xvf mysqld_exporter-0.13.0.linux-amd64.tar.gz
+mv mysqld_exporter-0.13.0.linux-amd64 /usr/local/mysqld_exporter
 ```
 * 编写systemd service 文件
 ```

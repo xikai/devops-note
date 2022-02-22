@@ -48,7 +48,7 @@ data:
 
     output.kafka:
       hosts: ["10.12.0.116:9092"]
-      topic: "k8s-%{[kubernetes][labels][app_kubernetes_io/name]}-%{[kubernetes][container][name]}"
+      topic: "k8s-%{[kubernetes][labels][app_kubernetes_io/name]}-%{[kubernetes][container][name]}-%{+YYYY.MM.dd}"
 
     # kafka <-input- logstash -output-> es
     # ref: Linux/ELK/docker-efk/elk/logstash/pipeline/logstash.conf

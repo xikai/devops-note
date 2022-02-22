@@ -16,6 +16,11 @@ mkdir -p /data/mongodb/logs
 chown -R mongo.mongo /data/mongodb
 chown -R mongo.mongo /usr/local/mongodb
 ```
+* 生成集群成员认证文件(所有节点共用keyfile)
+```
+openssl rand -base64 20 > /usr/local/mongodb/conf/keyfile
+chmod 400 /usr/local/mongodb/conf/keyfile
+```
 
 # [部署config servers复制集](https://docs.mongodb.com/manual/reference/configuration-options/)
 >vim /usr/local/mongodb/conf/configsvr.conf

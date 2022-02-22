@@ -1,19 +1,45 @@
 # 安装redis
 ```
-tar -xzf redis-3.0.7.tar.gz
-cd redis-3.0.7/
+wget http://download.redis.io/releases/redis-3.2.12.tar.gz
+tar -xzf redis-3.2.12.tar.gz
+cd redis-3.2.12/
 make
-make install PREFIX=/usr/local/redis
-mkdir -p /data/redis/{data,logs}
-mkdir -p /usr/local/redis/conf
-sysctl vm.overcommit_memory=1
-cp redis.conf /usr/local/redis/conf
-cd ..
+make install PREFIX=/usr/local/redis
+mkdir -p /data/redis/{data,logs}
+mkdir -p /usr/local/redis/conf
+sysctl vm.overcommit_memory=1
+cp redis.conf /usr/local/redis/conf
+```
+* 启动redis
+```
+cat > /usr/lib/systemd/system/redis.service << EOF
+[Unit]
+Description=Redis
+After=network.target
 
-#启动redis
-/usr/local/redis/bin/redis-server /usr/local/redis/conf/redis.conf
-#关闭redis
-/usr/local/redis/bin/redis-cli -p 6379 shutdown
+[Service]
+#Type=forking
+User=redis
+Group=redis
+PIDFile=/var/run/redis_6379.pid
+ExecStart=/usr/local/redis/bin/redis-server /usr/local/redis/conf/redis.conf
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+```
+groupadd redis
+useradd -g redis redis
+chown -R redis.redis /data/redis
+chown -R redis.redis /usr/local/redis
+```
+```
+systemctl start redis
+systemctl enable redis
 ```
 
 

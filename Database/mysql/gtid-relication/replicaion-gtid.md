@@ -64,7 +64,7 @@ systemctl start mysql
 * 创建复制用户
 ```
 mysql> CREATE USER 'repl'@'172.22.%.%' IDENTIFIED BY 'abc123';
-mysql> GRANT REPLICATION SLAVE ON *.* TO repl'@'172.22.%.%';
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'repl'@'172.22.%.%';
 mysql> flush privileges;
 ```
 
@@ -81,11 +81,16 @@ mysqldump >db.sql
 
 ### 从库
 * 配置开启gtid
-```
+```sh
 [mysqld]
 server_id = 2
 log-bin = mysql-bin
 binlog_format =row
+
+replicate-ignore-db=information_schema
+replicate-ignore-db=mysql  #忽略同步mysql，也会同步主库sql创建的用户
+replicate-ignore-db=performance_schema
+replicate-ignore-db=sys
 
 gtid_mode=ON
 enforce-gtid-consistency = ON

@@ -1,24 +1,13 @@
 * http://www.redis.cn/topics/sentinel.html
+* https://www.cnblogs.com/kevingrace/p/9004460.html
 * Redis Sentinel 是一个分布式系统， 你可以在一个架构中运行多个 Sentinel 进程（progress）， 这些进程使用流言协议（gossip protocols)来接收关于主服务器是否下线的信息， 并使用投票协议（agreement protocols）来决定是否执行自动故障迁移， 以及选择哪个从服务器作为新的主服务器。
 
-# 部署主从redis-server
-```
-wget http://download.redis.io/releases/redis-3.2.12.tar.gz
-tar -xzf redis-3.2.12.tar.gz
-cd redis-3.2.12/
-make
-make install PREFIX=/usr/local/redis
-mkdir -p /data/redis/{data,logs}
-mkdir -p /usr/local/redis/conf
-sysctl vm.overcommit_memory=1
-cp redis.conf /usr/local/redis/conf
-cd ..
-```
+# [部署主从redis-server](database/redis/redis.md)
 
 # redis-server主从配置
 * master
 ```
-daemonize yes
+daemonize no
 bind 0.0.0.0
 protected-mode yes    #当保护模式默认被开启yes时，必须配置bind监听IP或requirepass二者之一，否则将只允许来自本地lo网卡的访问
 logfile "/data/redis/logs/redis_6379.log" 
@@ -34,7 +23,7 @@ masterauth 123456    #由于使用sentinel，master也可能变成slave
 ```
 * slave
 ```
-daemonize yes
+daemonize no
 bind 0.0.0.0
 protected-mode yes
 logfile "/data/redis/logs/redis_6379.log" 
@@ -48,16 +37,12 @@ dbfilename dump_6379.rdb
 requirepass "123456"
 masterauth 123456
 
-slaveof 172.22.0.29 6379   #从属主节点,master_ip
+slaveof 172.22.0.29 6379   #指定主节点master_ip，（发生主从切换后，哨兵会删掉主节点上的slaveof配置，并在从节点启动后增加slaveof配置指向新的主）
 ```
 
 * 启动redis
 ```
-/usr/local/redis/bin/redis-server /usr/local/redis/conf/redis.conf
-```
-* 关闭redis
-```
-/usr/local/redis/bin/redis-cli -p 6379 shutdown
+systemctl start redis
 ```
 
 * 验证从节点的redis服务
@@ -78,7 +63,7 @@ repl_backlog_histlen:812
 
 
 # redis-Sentinel配置
->Sentinel必须部署奇数个，偶数个Sentinel会出现选举脑裂，导致无法执行故障切换（https://zhuanlan.zhihu.com/p/353156564）
+>Sentinel必须部署奇数个，偶数个Sentinel会出现选举脑裂，导致无法执行故障切换（https://zhuanlan.zhihu.com/p/353156564）,sentinel只要监控同一个redis master，启动的话自动连接成集群
 ```
 cp sentinel.conf /usr/local/redis/conf
 mkdir -p /data/redis/sentinel
@@ -86,16 +71,17 @@ mkdir -p /data/redis/sentinel
 ```
 * vim sentinel.conf
 ```
-daemonize yes
+daemonize no
 port 26379
 bind 0.0.0.0    #必须配置bind或protected-mode no,否则sentinel之间不能通讯
 dir "/data/redis/sentinel"
+pidfile "/var/run/redis_26379.pid"
 logfile "/data/redis/logs/sentine.log"
 
 sentinel monitor mymaster 172.22.0.29 6379 2
-sentinel down-after-milliseconds mymaster 30000
+sentinel down-after-milliseconds mymaster 3000
 sentinel parallel-syncs mymaster 1
-sentinel failover-timeout mymaster 180000
+sentinel failover-timeout mymaster 60000
 sentinel auth-pass mymaster 123456
 
 # sentinel monitor resque 192.168.1.3 6380 4
@@ -135,10 +121,27 @@ sentinel auth-pass mymaster 123456
 
 * 启动redis-sentinel
 ```
-/usr/local/redis/bin/redis-sentinel /usr/local/redis/conf/sentinel.conf
+cat > /usr/lib/systemd/system/redis-sentinel.service <<EOF
+[Unit]
+Description=Redis Sentinel Server
+After=network.target
 
-#or: 
-#redis-server /path/to/sentinel.conf --sentinel
+[Service]
+Type=simple
+User=redis
+Group=redis
+PIDFile=/var/run/redis_26379.pid
+ExecStart=/usr/local/redis/bin/redis-sentinel /usr/local/redis/conf/sentinel.conf
+ExecStop=/usr/local/redis/bin/redis-cli -p 26379 shutdown
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+```
+systemctl start redis-sentinel
+systemctl enable redis-sentinel
 ```
 
 * 查看哨兵是否成功通信
@@ -151,6 +154,14 @@ sentinel_running_scripts:0
 sentinel_scripts_queue_length:0
 sentinel_simulate_failure_flags:0
 master0:name=mymaster,status=ok,address=172.22.0.29:6379,slaves=2,sentinels=3
+```
+
+* 哨兵命令
+```sh
+# 手动触发主从切换
+/usr/local/redis/bin/redis-cli -p 26379 sentinel failover mymaster
+# 设置服务器下线检测时间
+/usr/local/redis/bin/redis-cli -p 26379 SENTINEL SET master6379 down-after-milliseconds 3000
 ```
 
 # redis高可用故障实验
@@ -169,7 +180,6 @@ repl_backlog_first_byte_offset:2
 repl_backlog_histlen:415213
 
 [root@test-host-2 ~]# /usr/local/redis/bin/redis-cli -p 6379 -a 123456 info replication
-# slave:
 # Replication
 role:slave
 master_host:172.22.0.29
@@ -212,4 +222,4 @@ repl_backlog_first_byte_offset:2
 repl_backlog_histlen:4014
 ```
 
-* 客户端连接sentinel（ip+端口）
+* 客户端连接sentinel（ip+端口,sentinel_name）

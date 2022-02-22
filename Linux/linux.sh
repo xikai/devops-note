@@ -2,6 +2,9 @@
 #统计当前tcp连接80端口的IP数
 netstat -antp|grep ESTABLISHED |awk -F'[ :]+' '{if($5==80) print $6}'|sort|uniq -c|sort -nr|wc -l
 
+#设置网卡mtu值
+ip link set dev eth0 mtu 1500
+#永久配置： /etc/sysconfig/network-scripts/ifcfg-eth0 添加MTU=1500
 
 日志分析
 #查看nginx状态404的访问日志(json)
@@ -38,13 +41,13 @@ ls |grep -v proc |xargs du -sh|sort -hr
 -mtime/-mmin : 指定时间曾被改动过的文件，意思是文件內容被更改过
 -ctime/-cmin : 指定时间曾被更改过的文件，意思是文件权限被更改过
 -atime/-amin : 指定时间曾被存取过的文件，意思是文件被读取过
-
 -mtime +10  10天以前修改过的
 -mtime -10  10天以内修改过的
 -mmin +10   10分钟以前修改过的
-
 #查找指定时间范围的文件
 find . -newermt '2015-03-02 00:00:00' ! -newermt '2015-03-03 14:00:00' -name "*@1c_1e_90Q*"
+#查找删除.开头的隐藏文件
+find . -type f -name .\* -exec rm {} \;
 
 #批量查找替换字符串
 grep -rl "rm-wz90448rzu9sd21h0.mysql.rds.aliyuncs.com" * |xargs perl -pi -e 's|rm-wz90448rzu9sd21h0.mysql.rds.aliyuncs.com|mydb01.dadi01.net|g'

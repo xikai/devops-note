@@ -195,3 +195,18 @@ curl -X POST "localhost:9200/_cluster/reroute?pretty" -H 'Content-Type: applicat
     ]
 }'
 ```
+```
+# 关闭分片平衡迁移
+curl -XPUT http://172.31.40.12:9200/_cluster/settings -d '{
+    "transient" : {
+        "cluster.routing.allocation.enable" : "none"
+    }
+}'
+
+# 开启分片平衡迁移
+curl -XPUT http://172.31.40.12:9200/_cluster/settings -d '{
+    "transient" : {
+        "cluster.routing.allocation.enable" : "all"
+    }
+}'
+```

@@ -110,7 +110,7 @@ iptables -t nat -L     #查看NAT规则
     内            eth1:192.168.0.254          外
 
 iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -j SNAT --to-source 192.168.0.254  #外网接口_ip:跳转到源地址转换，转换为外网接口地址(静态IP)
-iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -j MASQUERDE   #转换为动态分配的IP地址
+iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -j MASQUERADE #转换为动态分配的IP地址
 ```
 
 * DNAT:PREROUTING转换，允许从外网到内网
@@ -127,4 +127,18 @@ FORWARD限制NAT访问指定的目标
 eg:
 iptables -A FORWARD -s 10.0.0.0/24 -j ACCEPT      允许源地址(10.0.0.0/24)NAT出外网
 iptables -A FORWARD -d 10.0.0.0/24 -j ACCEPT      允许外网地址NAT转换为内网地址(10.0.0.0/24)
+```
+
+
+# 端口重定向
+```sh
+# 本机端口重定向
+iptables -t nat -A PREROUTING -p tcp --dport 16379 -j REDIRECT --to-port 6379
+
+# 跨主机端口重定向
+iptables -t nat -A PREROUTING -p tcp --dport 6379 -j DNAT --to-destination 172.31.21.29:6379
+iptables -t nat -A POSTROUTING -p tcp -d 172.31.21.29 --dport 6379 -j SNAT --to-source 172.31.36.121
+
+# 通过ssh隧道跨主机端口转发
+ssh -f -N -L :16379:172.31.21.29:6379 root@172.31.21.29
 ```

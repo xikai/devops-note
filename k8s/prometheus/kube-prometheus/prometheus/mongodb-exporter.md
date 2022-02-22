@@ -15,8 +15,8 @@ db.getSiblingDB("admin").createUser({
 # 二进制安装
 ```
 wget https://github.com/percona/mongodb_exporter/releases/download/v0.30.0/mongodb_exporter-0.30.0.linux-arm64.tar.gz
-tar xzf mongodb_exporter-0.30.0.linux-arm64.tar.gz -C /usr/local
-mv /usr/local/mongodb_exporter-0.30.0.linux-arm64  /usr/local/mongodb_exporter
+tar xzf mongodb_exporter-0.30.0.linux-arm64.tar.gz
+mv mongodb_exporter-0.30.0.linux-arm64  /usr/local/mongodb_exporter
 ```
 
 * 启动mongodb exporter
@@ -40,6 +40,11 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
+```
+```
+systemctl daemon-reload
+systemctl start mongodb_exporter
+systemctl enable mongodb_exporter
 ```
 
 * prometheus配置
