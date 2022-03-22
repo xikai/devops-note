@@ -70,3 +70,13 @@ rabbitmqctl set_permissions -p / rabbit ".*" ".*" ".*"
 ```
 http://server-ip:15672
 ```
+
+### 内存诊断
+```
+# 内存崩溃报告
+rabbitmq-diagnostics memory_breakdown
+
+# 内存状态
+rabbitmq-diagnostics status
+rabbitmq status
+```
