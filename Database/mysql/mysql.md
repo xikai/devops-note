@@ -94,3 +94,11 @@ interactive-timeout
 # reset password
 alter user 'root'@'localhost' identified by '123456';
 ```
+
+
+# show processlist
+* Command
+```
+Sleep 就是做完动作，还没有 timeout 的连接
+
+```

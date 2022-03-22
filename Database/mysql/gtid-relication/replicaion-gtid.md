@@ -71,11 +71,7 @@ mysql> flush privileges;
 * 在主库创建新的备份导入从库
 >启用gtid之前的备份无法在开启了gtid的实例上恢复
 ```
-# 需要将主库加"读锁定",阻止写操作,确保主从数据一致
-mysql> flush tables with read lock; 
-```
-```
-mysqldump >db.sql
+mysqldump --set-gtid-purged=OFF > db.sql
 ```
 
 
@@ -121,3 +117,53 @@ start slave;
 ```
 
 
+# 查看主从同步延时
+* master
+```sh
+mysql> show master status\G;
+*************************** 1. row ***************************
+File: ******-bin.001291    #主库当前binlog文件
+Position: 896711460        #主库当前Position
+Binlog_Do_DB: 
+Binlog_Ignore_DB: 
+1 row in set (0.00 sec)
+```
+* slave
+```sh
+mysql> show slave status\G;
+*************************** 1. row ***************************
+Slave_IO_State: Waiting for master to send event
+Master_Host: 10.69.6.163
+Master_User: replica
+Master_Port: 3801
+Connect_Retry: 60
+Master_Log_File: *****-bin.001211         #从库IO线程，当前读取的binlog文件
+Read_Master_Log_Pos: 278633662            #从库IO线程，当前读取的binlog位置
+Relay_Log_File: *****-relay-bin.002323    #从库SQL线程，当前执行的binlog文件
+Relay_Log_Pos: 161735853                  #从库SQL线程，当前执行的binlog位置
+Relay_Master_Log_File: *******-bin.001211 #从库SQL线程，最近执行的binlog文件
+Slave_IO_Running: Yes
+Slave_SQL_Running: Yes
+Replicate_Do_DB: 
+Replicate_Ignore_DB: 
+Replicate_Do_Table: 
+Replicate_Ignore_Table: 
+Replicate_Wild_Do_Table: 
+Replicate_Wild_Ignore_Table: 
+Last_Errno: 0
+Last_Error: 
+Skip_Counter: 0
+Exec_Master_Log_Pos: 278633662
+Relay_Log_Space: 161735853
+Until_Condition: None
+Until_Log_File: 
+Until_Log_Pos: 0
+Master_SSL_Allowed: No
+Master_SSL_CA_File: 
+Master_SSL_CA_Path: 
+Master_SSL_Cert: 
+Master_SSL_Cipher: 
+Master_SSL_Key: 
+Seconds_Behind_Master: 0    #网络正常情况下，从库与主库binlog位置的时间差（单位：秒）。本质上 是从库SQL线程和IO线程之间的时间差，当网络环境特别糟糕的情况下，这个值确会让我们产生幻觉，I/O thread同步很慢，每次同步过来，SQL thread就能立即执行，这样，我们看到的Seconds_Behind_Master是0，而真正的，slave已经落后master很多很多，需要查看主库上的binlog和Position来判断真实延时情况     
+1 row in set (0.00 sec)
+```

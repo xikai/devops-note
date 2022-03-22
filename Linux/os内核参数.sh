@@ -1,51 +1,61 @@
-net.core.rmem_max = 4194304 #最大的TCP数据接收缓冲
-net.core.wmem_max = 2097152 #最大的TCP数据发送缓冲
-net.core.wmem_default = 262144 #表示接收套接字缓冲区大小的缺省值(以字节为单位）
-net.core.rmem_default = 262144 #表示发送套接字缓冲区大小的缺省值(以字节为单位)
-kernel.shmmni = 4096 #这个内核参数用于设置系统范围内共享内存段的最大数量。该参数的默认值是 4096 。通常不需要更改
-kernel.sem = 250 32000 100 142
-kernel.shmall = 2097152 #该参数表示系统一次可以使用的共享内存总量(以页为单位)。缺省值就是2097152，通常不需要修改
-kernel.shmmax = 2147483648 #该参数定义了共享内存段的最大尺寸(以字节为单位)，此值默认为物理内存的一半 
-kernel.sysrq = 0 #如无需调试系统排查问题，这个必须为0
-fs.file-max = 6815744 #该参数表示文件句柄的最大数量。文件句柄设置表示在linux系统中可以打开的文件数量
+#表示系统同时保持TIME_WAIT套接字的最大数量，如果超过这个数字，TIME_WAIT套接字将立刻被清除并打印警告信息。默认为180000 
+net.ipv4.tcp_max_tw_buckets = 10000
+#它可以用来查找特定的遗失的数据报‐‐‐ 因此有助于快速恢复状态。
+net.ipv4.tcp_sack = 1
+#设置tcp/ip会话的滑动窗口大小是否可变。
+net.ipv4.tcp_window_scaling = 1
+#接收缓存设置同tcp_wmem
+net.ipv4.tcp_rmem = 4096 87380 4194304
+#socket预留用于发送缓冲的内存最小值。
+net.ipv4.tcp_wmem = 4096 16384 4194304
+#默认的发送窗口大小(以字节为单位)
+net.core.wmem_default = 67108864
+#默认的接收窗口大小(以字节为单位)
+net.core.rmem_default = 67108864
+#最大的TCP数据接收缓冲 
+net.core.rmem_max = 67108864
+#最大的TCP数据发送缓冲
+net.core.wmem_max = 67108864
+#每个网络接口接收数据包的速率比内核处理这些包的速率快时，允许送到队列的数据包的最大数目。
+net.core.netdev_max_backlog = 262144
+#用来限制监听(LISTEN)队列最大数据包的数量，超过这个数量就会导致链接超时或者触发重传机制。
+net.core.somaxconn = 65535
+#系统所能处理不属于任何进程的TCP sockets最大数量。
+net.ipv4.tcp_max_orphans = 3276800
+#时间戳，Timestamp会让它知道这是个 '旧封包',tcp_tw_recycle打开时这个要关闭。
+net.ipv4.tcp_timestamps = 0
+#对于远端的连接请求SYN，内核会发送SYN ＋ACK数据报，以确认收到上一个 SYN连接请求包。
+net.ipv4.tcp_synack_retries = 2
+#对于一个新建连接，内核要发送多少个SYN连接请求才决定放弃。
+net.ipv4.tcp_syn_retries = 2
+#打开快速 TIME‐WAIT sockets 回收。
+net.ipv4.tcp_tw_recycle = 1
+#表示是否允许重新应用处于TIME‐WAIT状态的socket用于新的TCP连接。
+net.ipv4.tcp_tw_reuse = 1
+#对于本端断开的socket连接，TCP保持在FIN‐WAIT‐2状态的时间。
+net.ipv4.tcp_fin_timeout = 2
+#TCP发送keepalive探测消息的间隔时间（秒），用于确认TCP连接是否有效。
+net.ipv4.tcp_keepalive_time = 600
+#表示用于向外连接的端口范围，默认比较小，这个范围同样会间接用于NAT表规模。
+net.ipv4.ip_local_port_range = 10240 65000
+#内存在使用到100‐5=95%的时候，就开始出现有交换分区的使用
+vm.swappiness = 5
+#值为0时表示可以从下一个zone找可用内存，非0表示在本地回收。
+vm.zone_reclaim_mode = 0
+#对于那些依然还未获得客户端确认的连接请求﹐需要保存在队列中最大数目。
+net.ipv4.tcp_max_syn_backlog = 262144
+#同步刷脏页，会阻塞应用程序 
+vm.dirty_ratio = 60
+#异步刷脏页，不会阻塞应用程序
+vm.dirty_background_ratio = 5
+# 禁用IPV6
+net.ipv6.conf.all.disable_ipv6 = 1
 
 
-#Network
-net.ipv4.tcp_syncookies = 1 #当出现SYN等待队列溢出时，启用cookies来处理，可防范少量SYN攻击，默认为0，表示关闭。
-net.ipv4.tcp_tw_reuse = 1 #允许将TIME-WAIT sockets重新用于新的TCP连接，默认为0，表示关闭
-net.ipv4.tcp_tw_recycle = 1 #TCP连接中TIME-WAIT sockets的快速回收，默认为0，表示关闭，注意如果是nat-nat网络，并与net.ipv4.tcp_timestamps = 1组合使用，则会出现时断时续的情况
-net.ipv4.tcp_fin_timeout = 30 #修改系統默认的 TIMEOUT 时间
-
-#避免服务器被大量的TIME_WAIT拖死
-net.ipv4.tcp_keepalive_time = 1200 #当keepalive起用的时候，TCP发送keepalive消息的频度。缺省是2小时，改为20分钟
-net.ipv4.ip_local_port_range = 9000 65000 #如果连接数本身就很多，可以再优化一下TCP的可使用端口范围，进一步提升服务器的并发能力，默认值是32768到61000
-net.ipv4.tcp_max_syn_backlog = 8192 #SYN队列的长度，默认为1024，加大队列长度为8192，可以容纳更多等待连接的网络连接数
-net.ipv4.tcp_max_tw_buckets = 5000 #系统同时保持TIME_WAIT的最大数量，如果超过这个数字，TIME_WAIT将立刻被清除并打印警告信息，默认为180000
-
-net.ipv4.conf.all.rp_filter = 0
-net.ipv4.conf.all.arp_filter = 0
-net.ipv4.conf.default.rp_filter = 0
-net.ipv4.conf.default.arp_filter = 0
-net.ipv4.conf.lo.rp_filter = 0
-net.ipv4.conf.lo.arp_filter = 0
-net.ipv4.conf.em1.rp_filter = 0
-net.ipv4.conf.em1.arp_filter = 0
-net.ipv4.conf.em2.rp_filter = 0
-net.ipv4.conf.em2.arp_filter = 0
+#centos 7 
+vim /etc/systemd/system.conf
+DefaultLimitCORE=infinity
+DefaultLimitNOFILE=102400
+DefaultLimitNPROC=102400
 
 
-#最大限度使用物理内存，然后才是swap空间(默认值60，表示物量内存剩余60%开始使用swap,建议改成10)
-vm.swappiness=0   
-
-
-#/etc/security/limits.conf
-apps soft nofile 131072        #如果文件多，MySQL打开的文件句柄很多的话，可适当调大
-apps hard memlock 128849018880 #可选，如需设置大内存页，根据系统内存而定
-apps soft memlock 128849018880
-apps soft core unlimited
-apps hard core unlimited
-apps hard nproc unlimited
-apps soft nproc unlimited
-apps hard nofile 131072         #如果文件多，MySQL打开的文件句柄很多的话，可适当调大
-apps hard stack unlimited
-apps soft stack unlimited

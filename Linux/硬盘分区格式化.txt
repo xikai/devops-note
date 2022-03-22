@@ -44,12 +44,24 @@ sysfs      /sys      sysfs   defaults         0 0
 /dev/xvdf2 /home     ext4    defaults         0 0
 /dev/xvdf3 /opt      ext4    defaults         0 0
 /dev/xvdf4 /data     ext4    defaults         0 0
-/dev/xvdf5  swap     swap    defaults         0 0
+/dev/xvdf5 swap      swap    defaults         0 0
 *****************************************************************
 
+device：指定加载的磁盘分区或移动文件系统，除了指定设备文件外，也可以使用UUID、LABEL来指定分区；
+dir：指定挂载点的路径；
+type：指定文件系统的类型，如ext3，ext4等；
+options：指定挂载的选项，默认为defaults，其他可用选项包括acl，noauto，ro等等；
+dump：表示该挂载后的文件系统能否被dump备份命令作用；0表示不能，1表示每天都进行dump备份，2表示不定期进行dump操作。
+pass：表示开机过程中是否校验扇区；0表示不要校验，1表示优先校验（一般为根目录），2表示为在1级别校验完后再进行校验；
 
+# 查看硬盘UUID
+blkid /dev/nvme1n1
+/dev/nvme1n1: UUID="ab310e98-85d4-4507-aaf1-44a6fa296058" TYPE="xfs"
 
-
+使用设备名和label及uuid作为标识的不同:
+1.使用设备名称（/dev/sda)来挂载分区时是被固定死的，一旦磁盘的插槽顺序发生了变化，就会出现名称不对应的问题。因为这个名称是会改变的。
+2.不过使用label挂载就不用担心插槽顺序方面的问题。不过要随时注意你的Label name。
+3.至于UUID，每个分区被格式化以后都会有一个UUID作为唯一的标识号。使用uuid挂载的话就不用担心会发生错乱的问题了。
 
 --------------------------------------------------------------------------------
 
@@ -76,4 +88,3 @@ dmesg |grep -i raid
 
 #查看硬盘信息
 hdparm -i /dev/sda
-

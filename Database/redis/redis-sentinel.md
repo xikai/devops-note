@@ -160,7 +160,7 @@ master0:name=mymaster,status=ok,address=172.22.0.29:6379,slaves=2,sentinels=3
 ```sh
 # 手动触发主从切换
 /usr/local/redis/bin/redis-cli -p 26379 sentinel failover mymaster
-# 设置服务器下线检测时间
+# 设置所有哨兵节点检测服务器下线的时间
 /usr/local/redis/bin/redis-cli -p 26379 SENTINEL SET master6379 down-after-milliseconds 3000
 ```
 

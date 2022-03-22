@@ -14,6 +14,22 @@ spec:
   groups:
   - name: node-exporter-addit.rules
     rules:
+    - alert: HostOutOfDiskSpace
+      expr: (node_filesystem_avail_bytes{job!="node-exporter",mountpoint="/"} or node_filesystem_avail_bytes{job!="node-exporter",mountpoint="/data"}) / (node_filesystem_size_bytes{job!="node-exporter",mountpoint="/"} or node_filesystem_size_bytes{job!="node-exporter",mountpoint="/data"}) * 100 < 20
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: Host out of disk space (instance {{ $labels.instance }})
+        description: "Disk is almost full (< 20% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+    - alert: HostOutOfInodes
+      expr: (node_filesystem_files_free{job!="node-exporter",mountpoint="/"} or node_filesystem_files_free{job!="node-exporter",mountpoint="/data"}) / (node_filesystem_files{job!="node-exporter",mountpoint="/"} or node_filesystem_files{job!="node-exporter",mountpoint="/data"}) * 100 < 10
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: Host out of inodes (instance {{ $labels.instance }})
+        description: "Disk is almost running out of available inodes (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
     - alert: HostOutOfMemory
       expr: node_memory_MemAvailable_bytes{instance !~ "ip-.*"} / node_memory_MemTotal_bytes{instance !~ "ip-.*"} * 100 < 10
       for: 2m

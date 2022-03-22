@@ -1,5 +1,6 @@
 * https://openvpn.net/community-resources/how-to/
 * http://blog.joylau.cn/2020/05/28/OpenVPN-Config/
+* https://community.openvpn.net/openvpn/wiki/RoutedLans#no1
 
 # 安装openvpn
 ```

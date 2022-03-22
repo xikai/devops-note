@@ -47,7 +47,7 @@ curl -XPUT 'http://localhost:9200/_snapshot/my_backup' -H 'Content-Type: applica
 
 # 使用s3作为快照仓库
 * 创建s3存储桶
-* [配置可以访问s3存储桶所需最小权限的IAM用户/角色策略](https://www.elastic.co/guide/en/elasticsearch/plugins/current/repository-s3-repository.html#repository-s3-permissions)
+* [配置可以访问s3存储桶所需最小权限的IAM用户/角色策略](https://www.elastic.co/guide/en/elasticsearch/reference/master/repository-s3.html#repository-s3-permissions)
 * [创建VPC终端节点到s3服务（同区域）](https://docs.amazonaws.cn/vpc/latest/privatelink/vpce-gateway.html)
 * [安装es s3插件(所有节点)](https://www.elastic.co/guide/en/elasticsearch/plugins/current/repository-s3.html)
 ```
