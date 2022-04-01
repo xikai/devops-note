@@ -4,7 +4,7 @@
 # author: xikai
 
 SERVER_IP=117.50.126.203
-VPN_SUBNET=10.77.0.0/24
+VPN_SUBNET=10.7.0.0/24
 
 mkdir -p /opt/openvpn/client
 
@@ -75,9 +75,12 @@ chmod +x /opt/openvpn/del_vpn_user.sh
 
 
 # 开启VPNSERVER后端子网路由
-# 推送路由信息到客户端，以允许客户端能够连接到服务器后的其他私有子网，即允许客户端访问VPN服务器可访问的其他局域网(需要在vpnserver添加一条路由让10.7.0.0网段的流量 从服务器LAN网卡eth0路由转发出去： iptables -t nat -A POSTROUTING -s 10.77.0.0/24 -o eth0 -j MASQUERADE)
+# 推送路由信息到客户端，允许客户端访问VPN服务器可访问的其他局域网
 # vim openvpn.conf添加：
 # push "route 172.22.0.0 255.255.240.0"
 # push "route 172.22.16.0 255.255.240.0"
 # push "route 172.22.32.0 255.255.240.0"
 # docker restart openvpn
+
+# 在vpnserver添加一条路由让10.7.0.0网段的流量 从服务器LAN网卡eth0路由转发出去
+# iptables -t nat -A POSTROUTING -s 10.7.0.0/24 -o eth0 -j MASQUERADE

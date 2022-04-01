@@ -71,7 +71,7 @@ mysql> flush privileges;
 * 在主库创建新的备份导入从库
 >启用gtid之前的备份无法在开启了gtid的实例上恢复
 ```
-mysqldump --set-gtid-purged=OFF > db.sql
+mysqldump > db.sql
 ```
 
 
@@ -96,6 +96,21 @@ enforce-gtid-consistency = ON
 ```
 /usr/local/mysql/bin/mysqld --defaults-file=/usr/local/mysql/my.cnf --user=mysql --skip-slave-start --daemonize
 ```
+
+* 导入主库备份文件（带GTID）
+```
+# gunzip -f < 10.10.26.114_220331030001.sql.gz |mysql -uroot -p
+ERROR 1840 (HY000) at line 24: @@GLOBAL.GTID_PURGED can only be set when @@GLOBAL.GTID_EXECUTED is empty.
+```
+* 清除master信息
+```
+mysql -uroot -p
+>reset master;
+```
+```
+gunzip -f < 10.10.26.114_220331030001.sql.gz |mysql -uroot -p
+```
+
 * 从库设置为使用基于 GTID 的自动定位,同步主库
 ```
 CHANGE MASTER TO
@@ -104,11 +119,6 @@ MASTER_PORT=3306,
 MASTER_USER='repl',
 MASTER_PASSWORD='abc123',
 MASTER_AUTO_POSITION=1;
-```
-
-* 导入主库备份
-```
-mysql < db.sql
 ```
 
 * 启动从库同步

@@ -42,3 +42,8 @@ mysqldump -uroot -p -d dbname table_name > dbname_table_name.sql
 ```
 mysqldump --help
 ```
+
+# 导入库
+```
+gunzip -f < 10.10.26.114_220331030001.sql.gz |mysql -uroot -p
+```
