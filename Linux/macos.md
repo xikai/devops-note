@@ -67,7 +67,7 @@ puttygen test.ppk -O private-openssh -o test.pem
 * 添加路由
 ```
 # route add -net 目标网段/子网长度 下一跳IP
-sudo route add -net 10.128.0.0/20 192.168.42.10
+sudo route add -net 10.128.0.0/20 192.168.42.1
 ```
 * 删除路由
 ```

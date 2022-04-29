@@ -1,0 +1,51 @@
+* https://spark.apache.org/docs/latest/
+* https://spark.apachecn.org/
+
+
+# 部署spark standalone
+```
+wget https://dlcdn.apache.org/spark/spark-3.2.1/spark-3.2.1-bin-hadoop3.2.tgz
+tar -xzf spark-3.2.1-bin-hadoop3.2.tgz
+ln -s spark-3.2.1-bin-hadoop3.2 spark
+cd spark
+```
+* 启动 
+```
+# 启动master server
+./sbin/start-master.sh 
+
+# 启动一个或多个 workers 
+./sbin/start-slave.sh spark://spark:7077
+```
+* spark web ui
+```
+http://spark_master_ip:8080
+```
+
+# spark shell
+* 在本地spark环境运行代码
+```
+# spark example
+./bin/run-example SparkPi 10 
+
+# spark shell指定master url 为 local 模式，使用 2 个线程在本地运行
+./bin/spark-shell --master local[2]
+./bin/pyspark --master local[2]
+```
+
+# spark submit
+* 提交到远程spark集群
+```
+./bin/spark-submit \
+  --class <main-class> \
+  --master <master-url> \
+  --deploy-mode <deploy-mode> \
+  --conf <key>=<value> \
+  ... # other options
+  <application-jar> \
+  [application-arguments]
+```
+* java应用示例
+```
+bin/spark-submit --class HelloWorld --master spark://spark:7077 --deploy-mode cluster http://spark.test.com/rs-scala-1.0.0.jar
+```

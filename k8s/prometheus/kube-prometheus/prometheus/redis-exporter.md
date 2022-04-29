@@ -155,7 +155,7 @@ kubectl apply -f manifests/prometheus-prometheus.yaml
       replacement: redis-exporter-svc:9121
 
 ## config for scraping the exporter itself
-- job_name: 'redis_exporter_itself'
+- job_name: 'redis_exporter'
   static_configs:
     - targets:
       - redis-exporter-svc:9121

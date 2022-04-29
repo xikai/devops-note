@@ -5,7 +5,7 @@ docker run -d -p 80:80 -v /root/htdocs:/usr/local/apache2/htdocs httpd
 
 * 数据卷容器
 ```
-#创建容器dbapp 并将数据卷/dbdata映射到宿主机 /var/lib/docker/volumes 中生成一个随机目录(通过docker inspect dbapp查看volumes相关字段)
+#创建容器dbapp 并将数据卷/var/lib/docker/volumes 中生成一个随机目录(通过docker inspect dbapp查看volumes相关字段) ，映射到容器/dbdata目录 
 docker run -d --name dbapp -v /dbdata centos
 ```
 

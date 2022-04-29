@@ -1,5 +1,4 @@
 * https://libreswan.org/
-* https://cshihong.github.io/2019/04/03/IPSec-VPN%E4%B9%8BIKE%E5%8D%8F%E8%AE%AE%E8%AF%A6%E8%A7%A3/
 
 # subnet to subnet vpn
 ```
@@ -34,7 +33,7 @@ openssl rand -base64 16
 ```
 config setup
     logfile=/var/log/pluto.log
-    virtual_private=%v4:192.168.0.0/16,%v4:10.0.8.0/24,%v4:172.31.0.0/16
+    virtual_private=%v4:192.168.0.0/16,%v4:10.0.8.0/24,%v4:172.31.0.0/16,%v4:172.30.0.0/24,%v4:172.30.10.0/24,%v4:172.30.20.0/23,%v4:172.30.30.0/24
     nat_traversal=yes
     protostack=netkey
 include /etc/ipsec.d/*.conf
@@ -47,27 +46,28 @@ conn vpn
     type=tunnel         # 指定模式类型为隧道模式|传输模式
     authby=secret       # 指定认证类型预共享秘钥
     keyexchange=ike
-    ike=aes128-sha1     # 指定ike算法
-    ikelifetime=28800s
+    ike=aes128-sha1;modp1536     # 指定ike算法
+    ikelifetime=86400s
+    ikev2=never
 
     ### phase 2 ###
     phase2=esp
-    phase2alg=aes128-sha1
+    phase2alg=aes128-sha1;modp1536
     salifetime=3600s
     #pfs=yes            # 指定是否加密
-    rekey=yes
-    keyingtries=%forever
     dpddelay=10
     dpdtimeout=60
     dpdaction=restart_by_peer
-    auto=start          # 指定连接添加类型。start 为开机自启，add为添加 不主动连接
+    auto=start          # 指定连接添加类型 start 为开机自启，add为添加 不主动连接
 
     left=%defaultroute
     leftid=52.89.28.84
     leftsubnet=172.31.0.0/16
     leftnexthop=%defaultroute
     right=43.242.141.182
-    rightsubnet=192.168.0.0/16
+    #rightsubnet=192.168.0.0/16
+    rightsubnets={ 172.30.0.0/24 172.30.10.0/24 172.30.20.0/23 172.30.30.0/24 }
+    rightnexthop=%defaultroute
 ```
 
 * vim /etc/ipsec.d/ipsec.secrets
@@ -87,7 +87,7 @@ systemctl start ipsec
 config setup
     logfile=/var/log/pluto.log
     dumpdir=/var/run/pluto/
-    virtual_private=%v4:192.168.0.0/16,%v4:10.0.8.0/24,%v4:172.31.0.0/16
+    virtual_private=%v4:192.168.0.0/16,%v4:10.0.8.0/24,%v4:172.31.0.0/16,%v4:172.30.0.0/24,%v4:172.30.10.0/24,%v4:172.30.20.0/23,%v4:172.30.30.0/24
     nat_traversal=yes
     protostack=netkey
 include /etc/ipsec.d/*.conf
@@ -96,29 +96,30 @@ include /etc/ipsec.d/*.conf
 * vim /etc/ipsec.d/hk_aws.conf
 ```
 conn vpn
-    type=tunnel
-    authby=secret
+    ### phase 1 ###
+    type=tunnel         # 指定模式类型为隧道模式|传输模式
+    authby=secret       # 指定认证类型预共享秘钥
     keyexchange=ike
-    ike=aes128-sha1
-    ikelifetime=28800s
+    ike=aes128-sha1;modp1536     # 指定ike算法
+    ikelifetime=86400s
+    ikev2=never
 
+    ### phase 2 ###
     phase2=esp
-    phase2alg=aes128-sha1
+    phase2alg=aes128-sha1;modp1536
     salifetime=3600s
-    #pfs=yes
-    rekey=yes
-    keyingtries=%forever
+    #pfs=yes            # 指定是否加密
     dpddelay=10
     dpdtimeout=60
     dpdaction=restart_by_peer
-    auto=start
+    auto=start          # 指定连接添加类型 start 为开机自启，add为添加 不主动连接
 
-    left=%defaultroute
-    leftid=43.242.141.182
-    leftnexthop=%defaultroute
+    left=43.242.141.182
     leftsubnet=192.168.0.0/16
+    leftnexthop=%defaultroute
     right=52.89.28.84
     rightsubnet=172.31.0.0/16
+    rightnexthop=%defaultroute
 ```
 
 * vim /etc/ipsec.d/ipsec.secrets
@@ -146,7 +147,12 @@ ipsec auto --status
 针对 IKE NAT-Traversal的 UDP 端口 4500
 ```
 
-
+# 添加iptables转发规则
+```
+我们的VPN已经可以拨号了，但是还不能访问vpnserver后面的子网。最后一步就是添加iptables转发规则了，输入下面的指令：
+iptables -t nat -A POSTROUTING -s 172.30.0.0/16 -o eth0 -j MASQUERADE
+###iptables -t nat -A POSTROUTING -s 192.168.221.0/24 ! -d 172.31.0.0/16 -o enp3s0 -j SNAT --to-source 43.242.141.182
+```
 
 
 

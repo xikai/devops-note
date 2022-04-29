@@ -4,16 +4,16 @@
 
 >zookeeper是一个开源的分布式协调服务，主要用于解决分布式场景下数据一致性问题
 
-# 部署zookeeper
+# 部署单机zookeeper
 ```
 yum install java-1.8.0-openjdk -y
 systemctl stop iptables
 ```
 ```
 wget https://dlcdn.apache.org/zookeeper/zookeeper-3.6.3/apache-zookeeper-3.6.3-bin.tar.gz
-tar -xzf apache-zookeeper-3.6.3-bin.tar.gz
-mv apache-zookeeper-3.6.3-bin zookeeper
-cd zookeeper
+tar -xzf apache-zookeeper-3.6.3-bin.tar.gz -C /usr/local/
+ln -s  /usr/local/apache-zookeeper-3.6.3-bin /usr/local/zookeeper
+cd /usr/local/zookeeper
 cp conf/zoo_sample.cfg conf/zoo.cfg
 ```
 * 配置文件
@@ -74,19 +74,38 @@ echo 2 > /data/zookeeper/data/myid
 # zoo3
 echo 3 > /data/zookeeper/data/myid
 ```
-* 启动zookeeper
+* 配置用户目录权限
 ```
-mkdir -p /data/zookeeper/data
-bin/zkServer.sh start
+mkdir -p /data/zookeeper/{data,logs}
+useradd zookeeper
+chown -R zookeeper.zookeeper /data/zookeeper
+chown -R zookeeper.zookeeper /usr/local/zookeeper/
 ```
-* 要看server status
+
+* systemd启动zookeeper
 ```
-[root@zk_soa01 zookeeper]# bin/zkServer.sh status
-/usr/bin/java
-ZooKeeper JMX enabled by default
-Using config: /usr/local/zookeeper/bin/../conf/zoo.cfg
-Client port found: 2181. Client address: localhost.
-Mode: follower
+cat > /usr/lib/systemd/system/zookeeper.service <<EOF
+[Unit]
+Description=Apache Zookeeper server
+Documentation=http://zookeeper.apache.org
+Requires=network.target remote-fs.target
+After=network.target remote-fs.target
+
+[Service]
+Type=forking
+User=zookeeper
+Group=zookeeper
+ExecStart=/usr/local/zookeeper/bin/zkServer.sh start
+ExecReload=/usr/local/zookeeper/bin/zkServer.sh restart
+ExecStop=/usr/local/zookeeper/bin/zkServer.sh stop
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+```
+systemctl start zookeeper
+systemctl enable zookeeper
 ```
 
 # 日志解析

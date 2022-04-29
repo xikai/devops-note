@@ -1,6 +1,6 @@
 * https://docs.aws.amazon.com/zh_cn/opensearch-service/latest/developerguide/managedomains-snapshots.html
 
-# 创建对s3快照桶的策略
+# 创建IAM角色对s3快照桶的策略
 * opensearch-snapshot-logs
 ```
 {
@@ -82,7 +82,7 @@ credentials = boto3.Session().get_credentials()
 awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
 # Register repository
 
-path = '_snapshot/audit-logs' # the OpenSearch API endpoint
+path = '_snapshot/s3_backup' # the OpenSearch API endpoint
 url = host + path
 
 payload = {
@@ -155,33 +155,140 @@ $ python register-repo.py
 200
 {"acknowledged":true}
 ```
+
+* 删除快照仓库
 ```
-$ curl https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/audit-logs?pretty
+curl -XDELETE https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup
+```
+
+* 查询快照仓库
+```
+# 查询所有快照仓库
+curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot?pretty
+# 查询指定快照仓库
+curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup?pretty
+```
+
+
+# 创建快照
+* vim create-snap.py
+```py
+import boto3
+import requests
+from requests_aws4auth import AWS4Auth
+
+host = 'https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/' # include https:// and trailing /
+region = 'us-west-2' # e.g. us-west-1
+service = 'es'
+credentials = boto3.Session().get_credentials()
+awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
+
+# Take snapshot
+
+path = '_snapshot/s3_backup/snapshot-test'
+url = host + path
+payload = {
+  "indices": "index1,index2"
+}
+
+r = requests.put(url, auth=awsauth)
+print(r.text)
+```
+```
+$ python create-snap.py
+200
+{"acknowledged":true}
+```
+
+* 删除快照
+```
+curl -XDELETE https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup/snapshot-test
+```
+
+* 查询快照
+```
+# 查询所有快照
+curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup/_all?pretty
+# 查询指定快照
+curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup/snapshot-test?pretty
+curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup/snapshot-*?pretty
+
+# 查询快照状态
+curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup/snapshot-test/_status?pretty
+```
+
+
+# [使用索引状态管理自动执行快照](https://docs.aws.amazon.com/zh_cn/opensearch-service/latest/developerguide/ism.html#ism-example)
+* https://opensearch.org/docs/latest/im-plugin/ism/policies/#snapshot
+* https://opensearch.org/docs/latest/im-plugin/ism/policies/#example-policy
+```json
+curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_plugins/_ism/add/del-index-7d-snapshot
 {
-  "audit-logs" : {
-    "type" : "s3",
-    "settings" : {
-      "bucket" : "opensearch-snapshot-logs",
-      "region" : "us-west-2",
-      "role_arn" : "arn:aws:iam::123456789012:role/opensearch-snapshot-logs"
+  "policy": {
+    "description": "Snapshot index that are age than 1 days and Delete index that are age than 7 days",
+    "schema_version": 1,
+    "default_state": "hot",
+    "states": [
+      {
+        "name": "hot",
+        "actions": [],
+        "transitions": [
+          {
+            "state_name": "snapshot",
+            "conditions": {
+              "min_index_age": "1d"
+            }
+          }
+        ]
+      },
+      {
+        "name": "snapshot",
+        "actions": [
+          {
+            "snapshot": {
+              "repository": "s3_backup",
+              "snapshot": "pci-pay-logs"     //快照名称被作为前缀，创建日期自动被添加到它应该具有的名称之后
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "state_name": "delete",
+            "conditions": {
+              "min_index_age": "7d"
+            }
+          }
+        ]
+      },
+      {
+        "name": "delete",
+        "actions": [
+          {
+            "delete": {}
+          }
+        ],
+        "transitions": []
+      }
+    ],
+    "ism_template": {
+      "index_patterns": ["pay-*"],
+      "priority": 100     //值越高，优先级越高
     }
   }
 }
 ```
 
-* 创建快照
+
+# aws opensearch默认自动快照仓库
 ```
-curl -XPUT 'https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/audit-logs/snapshot-test' -H 'Content-Type: application/json' -d '{
-   "indices": "movies,opendistro-sample-http-responses",
-   "ignore_unavailable": true,
-   "include_global_state": false
-}'
+curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot?pretty
+{
+  "cs-automated-enc" : {
+    "type" : "s3"
+  }
+}
 ```
-* 查询快照
+* 查询cs-automated-enc仓库，快照名包含2022-04-08的快照
 ```
-curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/audit-logs/snapshot-test?pretty
-```
-* 查询快照状态
-```
-curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/audit-logs/snapshot-test/_status?pretty
+curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/cs-automated-enc/2022-04-08*?pretty
 ```

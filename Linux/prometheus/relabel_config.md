@@ -3,15 +3,32 @@
 * https://www.modb.pro/db/50726
 
 # Target的初始Label
+* 示例配置
+```
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+```
+* prometheus -> status -> targets
+```
+Endpoint: 
+ http://localhost:9090/metrics
+Labels: 
+ instance="localhost:9090"
+ job="prometheus"
+```
 * Prometheus 加载 Targets 后，这些 Targets 会自动包含一些默认的标签，Target 以 __ 作为前置的标签是在系统内部使用的，这些标签不会被写入到样本数据中。
 * 默认每次增加 Target 时会自动增加一个 instance 标签，而 instance 标签的内容刚好对应 Target 实例的 __address__ 值，这是因为实际上 Prometheus 内部做了一次标签重写处理
 * 对于静态配置的Target，最开始的时候，Target固定会有这几个标签：
   ```
+  job：对应配置里面job_name
   __address__：当前Target实例的访问地址<host>:<port>
   __scheme__：采集目标服务访问地址的HTTP Scheme，HTTP或者HTTPS
   __metrics_path__：采集目标服务访问地址的访问路径
   __param_<name>：采集任务目标服务的中包含的请求参数
   ```
+
 
 # 服务发现的Target
 >可以从promtheus -> Status -> Service Discovery页面看到初始标签（Discoverd Labels）及最后的标签（Target Labels）
@@ -35,7 +52,7 @@ __meta_：在重新标记阶段可以使用以 _meta_ 为前缀的附加标签�
  [ action: <relabel_action> | default = replace ]
 ```
 ```
-• replace：根据 regex 的配置匹配 source_labels 标签的值（注意：多个 source_label 的值会按照 separator 进行拼接），并且将匹配到的值写入到 target_label 当中。
+• replace：根据 regex 的配置匹配 source_labels 标签的值（注意：多个 source_label 的值会按照 separator 进行拼接），并且将匹配到的值写入到 target_label 中，并在prometheus的Target Labels中展示。
            如果有多个匹配组，则可以使用 ${1}, ${2} 确定写入的内容。如果没匹配到任何内容则不对 target_label 进行替换， 默认为 replace。
 • keep：丢弃 source_labels 的值中没有匹配到 regex 正则表达式内容的 Target 实例
 • drop：丢弃 source_labels 的值中匹配到 regex 正则表达式内容的 Target 实例
@@ -44,6 +61,7 @@ __meta_：在重新标记阶段可以使用以 _meta_ 为前缀的附加标签�
 • labeldrop：对 Target 标签进行过滤，会移除匹配过滤条件的所有标签
 • labelkeep：对 Target 标签进行过滤，会移除不匹配过滤条件的所有标签
 ```
+
 
 # 示例
 ### 默认初始标签

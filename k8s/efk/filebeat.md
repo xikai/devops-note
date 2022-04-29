@@ -38,6 +38,16 @@ data:
       fields:
         service: "hotel-rights"
 
+    - type: log
+      paths:
+        - /fdata/email-api/**/*.log*
+      fields:
+        website: "email-api"
+      multiline.type: pattern
+      multiline.pattern: '^\[[0-9]{4}-[0-9]{2}-[0-9]{2}'
+      multiline.negate: true
+      multiline.match: after
+
     processors:
       # - add_cloud_metadata:
       # - add_host_metadata:
@@ -74,6 +84,9 @@ data:
         - index: "hotel-rights-%{+YYYY.MM.dd}"
           when.equals:
             fields.service: "hotel-rights"
+        - index: "email-api-%{+YYYY.MM.dd}"
+          when.equals:
+            fields.website: "email-api"
 ---
 apiVersion: apps/v1
 kind: DaemonSet

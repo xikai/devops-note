@@ -23,3 +23,6 @@ Maven Integration plugin
 #备份jenkins (jobs config)
 rsync -avz --delete --partial --exclude='workspace/' --exclude='jobs/*/builds/*/' -e 'ssh -p 1022' /data/jenkins/ root@172.31.40.180:/data/jenkins_bak
 rsync -avz --delete --partial --exclude='workspace/' --exclude='jobs/*/builds/*/' -e 'ssh -i /root/.ssh/aws-ec2.pem -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no' /data/jenkins/ root@172.31.40.180:/data/jenkins_bak
+
+#清理jenkins历史构建数据
+rm -rf jobs/*/builds/*/

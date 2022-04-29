@@ -18,6 +18,7 @@ chmod 755 /etc/sysconfig/modules/ip_gre.modules
 ```
 
 # Host1
+> public_ip:4.3.2.1 , private_subnet: 10.30.0.0/16
 ```
 cat > /etc/sysconfig/network-scripts/ifcfg-grevpn <<EOF
 DEVICE=grevpn
@@ -45,10 +46,12 @@ ifup grevpn
 
 * 添加路由，指定到对端内网走隧道
 ```
+# 重启网卡会恢复路由表
 route add -net 172.16.0.0/24 dev grevpn
 ```
 
 # Host2
+> public_ip:1.2.3.4 , private_subnet: 172.16.0.0/24
 ```
 cat > /etc/sysconfig/network-scripts/ifcfg-grevpn <<EOF
 DEVICE=grevpn

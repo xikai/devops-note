@@ -15,27 +15,32 @@ curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_plugins/_ism/ad
     "description": "Delete index that are age than 7 days",
     "schema_version": 1,
     "default_state": "hot",
-    "states": [{
+    "states": [
+      {
         "name": "hot",
         "actions": [],
-        "transitions": [{
-          "state_name": "delete",
-          "conditions": {
-            "min_index_age": "7d"
+        "transitions": [
+          {
+            "state_name": "delete",
+            "conditions": {
+              "min_index_age": "7d"
+            }
           }
-        }]
+        ]
       },
       {
         "name": "delete",
-        "actions": [{
-          "delete": {}
-        }],
+        "actions": [
+          {
+            "delete": {}
+          }
+        ],
         "transitions": []
       }
     ],
     "ism_template": { //在策略中设置 ism_template 字段，当您创建与模板模式匹配的索引时，策略会自动附加到该索引。在此示例中，以 "log" 开头的名称创建的任何索引都会自动匹配 ISM 策略 
       "index_patterns": ["log*"],
-      "priority": 100
+      "priority": 100   //值越高，优先级越高
     }
   }
 }

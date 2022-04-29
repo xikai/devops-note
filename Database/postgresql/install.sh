@@ -1,27 +1,10 @@
-yum install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-yum install postgresql10
-yum install postgresql10-server
+* https://www.postgresql.org/download/linux/redhat/
+* http://www.postgres.cn/v2/document
 
-/usr/pgsql-10/bin/postgresql-10-setup initdb
-systemctl enable postgresql-10
-systemctl start postgresql-10
-
-#或自定义数据目录
-mkdir /data/pgsql/data
-chown -R postgres.postgres /data/pgsql
-su - postgres
-/usr/pgsql-10/bin/initdb -D /data/pgsql/data
-pg_ctl -D /data/pgsql/data start
-
-#第一次登陆(空密码，postgres用户登陆）
-sudo su - postgres -c "psql"
-
-
--------------------------------------------------------------------------
 ##源码安装
 mkdir -p /data/pgsql/data
-useradd postgres -d /data/pgsql/data
-chown -R postgres.postgres /data/pgsql
+useradd -d /data/pgsql/data postgres
+chown -R postgres.postgres /data/pgsql
 
 wget https://ftp.postgresql.org/pub/source/v9.4.5/postgresql-9.4.5.tar.gz
 tar -xzf postgresql-9.4.5.tar.gz

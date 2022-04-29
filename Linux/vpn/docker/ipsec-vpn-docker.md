@@ -78,12 +78,11 @@ VPN_L2TP_POOL=192.168.42.100-192.168.42.250
 docker restart ipsec-vpn-server
 ```
 
-
 # 添加路由
 * 客户端如果要访问vpnserver后面的子网，需要在客户端本地添加路由
 ```
 # route add -net 目标网段/子网长度 下一跳IP（获取的vpn客户端IP）
-sudo route add -net 10.128.0.0/20 192.168.42.10
+sudo route add -net 10.128.0.0/20 192.168.42.1
 ```
 * 删除路由
 ```

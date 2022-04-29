@@ -34,8 +34,8 @@ git status
 git log                        #显示版本日志
 git reflog                    #列出所有操作记录
 
-git checkout -- readme.txt    #将工作区指定文件回到最近一次git commit或git add时的状态
-git reset HEAD readme.txt     #将暂存区指定文件重新撤回工作区
+git checkout -- readme.txt    #将工作区指定文件回到最近一次git commit或git add时的状态
+git reset HEAD readme.txt     #将暂存区指定文件重新撤回工作区
 
 #工作区临时回退到指定commit版本(pull后回到最新版本)
 git reset --hard HEAD^        #回退到上一个版本

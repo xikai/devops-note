@@ -68,20 +68,18 @@ cat << EOF > /etc/docker/daemon.json
 EOF
 
 #当Docker网络的MTU比docker host machine网卡MTU大的时候可能会发生：容器外出通信失败影响网络性能所以将Docker网络MTU设置成和host machine网卡保持一致就行了 "mtu": 1450
-```
 
 #容器通过宿主机访问外网，宿主要需要开启转发
 net.ipv4.ip_forward=1
+```
 
 
-
-
-#创建自定义网络
+# 创建自定义网络
 ```
 docker network create --driver bridge isolated_nw
 ```
 
-#查看自定义网络
+* 查看自定义网络
 >docker network ls
 ```
 NETWORK ID          NAME                DRIVER
@@ -105,11 +103,4 @@ docker network disconnect isolated_nw container3 
 * 将正在运行的容器加入指定网络
 ```
 docker network connect my-bridge-network container3 
-```
-
-* swarm多宿主机节点的容器之间通过overlay网络通迅
-```
-swarm manager:
-docker network create --driver overlay --subnet 10.0.9.0/24 my-multi-host-network
-docker service create --replicas 2 --network my-multi-host-network --name my-web nginx
 ```

@@ -58,14 +58,13 @@ systemctl enable mysqld_exporter
 # vim prometheus.yaml
 scrapy_confings:
 ···
-- job_name: 'mysql_base_targets'
+- job_name: 'mysql_targets'
   static_configs: 
-  - targets: ['10.10.13.79:9104','10.10.13.79:9100'] # mysql_exporter和node_exporter的metrics一起采集，加相同label便于匹配
+  - targets:
+    - 10.10.13.79:9104
+    - 10.10.13.79:9100
     labels:
-      instance: mysql_base_master
-  - targets: ['10.10.26.114:9104','10.10.26.114:9100']
-    labels:
-      instance: mysql_base_slave
+      group: base
 ```
 ```
 systemctl restart prometheus
