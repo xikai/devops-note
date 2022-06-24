@@ -164,6 +164,11 @@ curl -X DELETE "localhost:9200//index_one,index_two"
 curl -X DELETE "localhost:9200/index_*"
 ```
 
+* 列出索引
+```
+curl -XGET "localhost:9200/_cat/indices"
+```
+
 * 调整分片副本数
 ```
 curl -XPUT 'localhost:9200/my_index/_settings?pretty'  -H 'Content-Type: application/json' -d'

@@ -6,7 +6,7 @@
 
 # 部署单机zookeeper
 ```
-yum install java-1.8.0-openjdk -y
+yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel -y
 systemctl stop iptables
 ```
 ```
@@ -52,6 +52,15 @@ bin/zkCli.sh -server 127.0.0.1:2181
 172.22.0.37   zoo2
 172.22.0.9   zoo3
 ```
+
+* 配置用户目录权限
+```
+mkdir -p /data/zookeeper/{data,logs}
+useradd zookeeper
+chown -R zookeeper.zookeeper /data/zookeeper
+chown -R zookeeper.zookeeper /usr/local/zookeeper/
+```
+
 * vim conf/zoo.cfg
 ```
 tickTime=2000
@@ -60,26 +69,20 @@ syncLimit=5
 dataDir=/data/zookeeper/data
 dataLogDir=/data/zookeeper/logs
 clientPort=2181
-server.1=zoo1:2888:3888     # 1表示myid为1的zookeeper，端口2888用来节点间通讯,端口3888用来选举leader
+# 1表示myid为1的zookeeper，端口2888用来节点间通讯,端口3888用来选举leader
+server.1=zoo1:2888:3888
 server.2=zoo2:2888:3888
-server.3=zoo3:2888:3888  
-
+server.3=zoo3:2888:3888
 ```
+
 * 配置myid
 ```
 # zoo1
-echo 1 > /data/zookeeper/data/myid
+echo 1 >/data/zookeeper/data/myid
 # zoo2
-echo 2 > /data/zookeeper/data/myid
+echo 2 >/data/zookeeper/data/myid
 # zoo3
-echo 3 > /data/zookeeper/data/myid
-```
-* 配置用户目录权限
-```
-mkdir -p /data/zookeeper/{data,logs}
-useradd zookeeper
-chown -R zookeeper.zookeeper /data/zookeeper
-chown -R zookeeper.zookeeper /usr/local/zookeeper/
+echo 3 >/data/zookeeper/data/myid
 ```
 
 * systemd启动zookeeper

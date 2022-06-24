@@ -74,7 +74,7 @@ xik	*	tomtop@tt	*
 
 # 添加iptables转发规则。
 我们的VPN已经可以拨号了，但是还不能访问任何网页。最后一步就是添加iptables转发规则了，输入下面的指令：
-iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o eth0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 192.168.221.0/24 -o eth0 -j MASQUERADE
 ###iptables -t nat -A POSTROUTING -s 192.168.221.0/24 ! -d 172.31.0.0/16 -o enp3s0 -j SNAT --to-source 43.242.141.182
 ```
 

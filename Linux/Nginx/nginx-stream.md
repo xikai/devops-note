@@ -1,5 +1,7 @@
 * http://nginx.org/en/docs/stream/ngx_stream_core_module.html
 
+* nginx tcp/udp代理
+
 # 添加stream模块
 ```
 ./configure --with-stream
@@ -11,7 +13,11 @@
 error_log /var/log/nginx/error.log info;
 
 events {
-    worker_connections  1024;
+    worker_connections  65535;
+}
+
+http {
+    ……
 }
 
 stream {

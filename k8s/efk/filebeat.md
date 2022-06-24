@@ -48,6 +48,15 @@ data:
       multiline.negate: true
       multiline.match: after
 
+    - type: log
+      paths:
+        - /fdata/openresty/access.*.log
+      fields:
+        website: "openresty-access"
+      json.keys_under_root: true   #默认情况下，解码后的JSON被放置在一个以"json"为key的输出文档中。如果你启用这个设置，那么这个key在文档中被复制为顶级。默认是false。
+      json.overwrite_keys: true    #如果keys_under_root被启用，那么在key冲突的情况下，解码后的JSON对象将覆盖Filebeat正常的字段
+      json.message_key: http_x_forwarded_for  #(可选配置)，指定一个JSON key,用于应用行过滤和多行设置。key必须位于JSON对象的顶层，与key相关的值必须是字符串，否则不会发生过滤或多行聚合
+    
     processors:
       # - add_cloud_metadata:
       # - add_host_metadata:
@@ -87,6 +96,9 @@ data:
         - index: "email-api-%{+YYYY.MM.dd}"
           when.equals:
             fields.website: "email-api"
+        - index: "openresty-access-%{+YYYY.MM.dd}"
+          when.equals:
+            fields.website: "openresty-access"
 ---
 apiVersion: apps/v1
 kind: DaemonSet

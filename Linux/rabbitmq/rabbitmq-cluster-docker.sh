@@ -37,3 +37,10 @@ docker run -d --name rabbitmq \
 
 # 设置镜像模式
 [root@rabbitmq02 ~]# docker exec -it rabbitmq rabbitmqctl set_policy ha-all "^" '{"ha-mode":"all","ha-sync-mode":"automatic"}'
+
+
+# 安装延时exchange插件
+wget https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/v3.8.0/rabbitmq_delayed_message_exchange-3.8.0.ez
+docker cp rabbitmq_delayed_message_exchange-3.8.0.ez rabbitmq:/opt/rabbitmq/plugins
+docker exec -it rabbitmq rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+docker exec -it rabbitmq rabbitmq-plugins list

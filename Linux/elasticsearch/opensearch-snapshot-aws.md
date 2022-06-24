@@ -288,7 +288,16 @@ curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws
   }
 }
 ```
-* 查询cs-automated-enc仓库，快照名包含2022-04-08的快照
+* 查询cs-automated-enc仓库，快照名包含2022-06-10的快照
 ```
-curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/cs-automated-enc/2022-04-08*?pretty
+curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/cs-automated-enc/2022-06-10*?pretty
+```
+* 恢复快照
+```
+curl -XPOST 'https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/cs-automated-enc/2022-06-10t23-41-15.707514a0-3bfd-4d82-b177-d23615f9e4c2/_restore' -H 'Content-Type: application/json' -d '
+{
+  "indices": ".kibana_1",
+  "rename_pattern": ".kibana_1",
+  "rename_replacement": ".kibana_1_old"
+}'
 ```

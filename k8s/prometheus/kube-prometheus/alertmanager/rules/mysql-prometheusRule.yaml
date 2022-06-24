@@ -64,7 +64,7 @@ spec:
         description: "MySQL replication lag on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
     - alert: MysqlSlowQueries
       expr: increase(mysql_global_status_slow_queries[5m]) > 0
-      for: 2m
+      for: 15m
       labels:
         severity: warning
       annotations:

@@ -3,9 +3,10 @@
 
 
 # 部署spark standalone
+* 下载：https://spark.apache.org/downloads.html
 ```
 wget https://dlcdn.apache.org/spark/spark-3.2.1/spark-3.2.1-bin-hadoop3.2.tgz
-tar -xzf spark-3.2.1-bin-hadoop3.2.tgz
+tar -xzf spark-3.2.1-bin-hadoop3.2.tgz -C /opt
 ln -s spark-3.2.1-bin-hadoop3.2 spark
 cd spark
 ```

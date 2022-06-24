@@ -1,5 +1,5 @@
 # 建立vpn连接
-* ipsec vpn \ gre vpn
+* ipsec vpn / vpc对等连接
 ```
 subnetA(不能访问googleapi) --- 172.31.36.155 --- internel(vpn tunnel) --- 172.16.0.1 --- subnetB(能访问googleapi)
 ```
@@ -52,3 +52,13 @@ if __name__=='__main__':
 ```
 
 * 添加路由
+```
+https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/create-route-table.html
+https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/delete-route-table.html
+https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/create-route.html
+https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/delete-route.html
+```
+```
+aws ec2 create-route --route-table-id rtb-22574640 --destination-cidr-block 0.0.0.0/0 --gateway-id igw-c0a643a9
+aws ec2 create-route --route-table-id rtb-g8ff4ea2 --destination-cidr-block 10.0.0.0/16 --vpc-peering-connection-id pcx-1a2b3c4d
+```

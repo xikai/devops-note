@@ -4,6 +4,12 @@
 alias proxy='export all_proxy=socks5://127.0.0.1:7070'
 alias unproxy='unset all_proxy'
 ```
+* 通过SOCKS代理服务器 启动Chrome浏览器
+```
+"/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome" \
+    --proxy-server="socks5://localhost:${PORT}" \
+    --user-data-dir=/tmp/${HOSTNAME}
+```
 
 * iterm2反空闲
 ```

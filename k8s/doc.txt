@@ -7,3 +7,7 @@ http://blog.itpub.net/28624388/
 
 
 https://www.k8stech.net/
+
+监控指标参考：
+https://help.aliyun.com/document_detail/167380.html
+https://help.aliyun.com/document_detail/176180.html

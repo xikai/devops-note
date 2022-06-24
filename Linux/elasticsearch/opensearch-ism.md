@@ -9,7 +9,7 @@
 * [创建ISM策略 (删除age大于7天的索引)](https://opensearch.org/docs/latest/im-plugin/ism/policies/)
 >在 OpenSearch 控制面板中，选择 Index Management（索引管理）选项卡，然后为 rollover 操作创建一个 ISM 策略. (Index Management -> Policy managed indices)
 ```json
-curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_plugins/_ism/add/del-index-7d
+curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_plugins/_ism/add/del-index-7d -d '
 {
   "policy": {
     "description": "Delete index that are age than 7 days",
@@ -43,9 +43,8 @@ curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_plugins/_ism/ad
       "priority": 100   //值越高，优先级越高
     }
   }
-}
+}'
 ```
-
 
 * 将策略附加到索引
 要将 ISM 策略附加到索引，请执行以下步骤：
@@ -54,3 +53,39 @@ curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_plugins/_ism/ad
 3. 选择要将 ISM 策略附加到的索引（例如："test-index-000001"）。
 4. 选择 Apply policy（应用策略）。
 5. （可选）如果您的策略指定了需要别名的任何操作，请提供别名，然后选择 Apply（应用）。您的索引在 Managed Indices（管理索引）列表下显示。
+
+# [创索引索模板](https://opensearch.org/docs/1.2/opensearch/index-templates/)
+>_index_template用于设置索引属性
+```json
+curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_index_template/shards-2 -d '
+{
+  "index_patterns": [
+    "log*"
+  ],
+  "priority": 100, //值越高，优先级越高
+  "template": {
+    "aliases": { //为匹配的index设置alias
+      "my_logs": {}
+    },
+    "settings": {
+      "number_of_shards": 2,
+      "number_of_replicas": 1
+    }
+  }
+}'
+```
+
+* 查看索引模板
+```
+curl "http://log.vevor-inner.com/_index_template/index-shards-2?pretty"
+```
+
+* 删除索引模板
+```
+curl -XDELETE http://$IP:9200/_index_template/shards-2
+```
+
+* 列出所有索引模板
+```
+curl "http://log.vevor-inner.com/_cat/templates"
+```

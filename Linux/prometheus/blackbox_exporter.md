@@ -24,7 +24,7 @@ docker run -d \
 
 * 访问测试
 ```
-http://202.10.76.12/:9115/probe?module=http_2xx&target=baidu.com
+http://docker-ip:9115/probe?module=http_2xx&target=baidu.com
 ```
 ```
 # HELP probe_dns_lookup_time_seconds Returns the time taken for probe dns lookup in seconds

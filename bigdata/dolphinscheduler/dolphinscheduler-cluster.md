@@ -8,7 +8,7 @@ yum install java-1.8.0-openjdk
 ```
 ```
 #which java 找到java路径
-echo "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64/jre" >>/etc/profile
+echo "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64" >>/etc/profile
 source /etc/profile
 ```
 
@@ -83,6 +83,11 @@ sed -i 's/Defaults    requirett/#Defaults    requirett/g' /etc/sudoers
 10.10.126.148 dolphinscheduler03
 ```
 ```
+hostnamectl --static set-hostname dolphinscheduler01
+hostnamectl --static set-hostname dolphinscheduler02
+hostnamectl --static set-hostname dolphinscheduler03
+```
+```
 # 由于安装的时候需要向不同机器发送资源，所以要求各台机器间能实现SSH免密登陆。配置免密登陆的步骤如下
 su dolphinscheduler
 
@@ -140,7 +145,7 @@ dataBasedirPath="/data/dolphinscheduler"
 # DolphinScheduler ENV
 # ---------------------------------------------------------
 # JAVA_HOME 的路径，是在 **前置准备工作** 安装的JDK中 JAVA_HOME 所在的位置.
-javaHome="/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64/jre"
+javaHome="/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64"
 
 # ---------------------------------------------------------
 # Database
@@ -163,6 +168,13 @@ SPRING_DATASOURCE_PASSWORD="dolphinscheduler"
 # ---------------------------------------------------------
 # 注册中心地址，zookeeper服务的地址
 registryServers="dolphinscheduler01:2181,dolphinscheduler02:2181,dolphinscheduler03:2181"
+
+# 上传资源文件到s3
+#resourceStorageType="S3"
+#defaultFS="s3a://dolphinscheduler"
+#s3Endpoint="https://s3.us-west-2.amazonaws.com"
+#s3AccessKey="xxxxxxxxxx"
+#s3SecretKey="xxxxxxxxxx"
 ```
 
 * 多租户配置
@@ -185,15 +197,9 @@ sh install.sh
 
 * 启停服务
 ```
-# 一键停止集群所有服务
-sh ./bin/stop-all.sh
-
-# 一键开启集群所有服务
-sh ./bin/start-all.sh
-
 # 启停 Master
-sh ./bin/dolphinscheduler-daemon.sh stop master-server
 sh ./bin/dolphinscheduler-daemon.sh start master-server
+sh ./bin/dolphinscheduler-daemon.sh stop master-server
 
 # 启停 Worker
 sh ./bin/dolphinscheduler-daemon.sh start worker-server
@@ -207,6 +213,13 @@ sh ./bin/dolphinscheduler-daemon.sh stop api-server
 sh ./bin/dolphinscheduler-daemon.sh start alert-server
 sh ./bin/dolphinscheduler-daemon.sh stop alert-server
 ```
+```
+# 一键停止集群所有节点所有服务 (只需要在任一节点执行)
+sh ./bin/stop-all.sh
+
+# 一键开启集群所有节点所有服务 (只需要在任一节点执行)
+sh ./bin/start-all.sh
+```
 
 # 登录 DolphinScheduler
 ```
@@ -218,4 +231,14 @@ sh ./bin/dolphinscheduler-daemon.sh stop alert-server
 MasterServer 5678            # 非通信端口，只需本机端口不冲突即可
 WorkerServer 1234            # 非通信端口，只需本机端口不冲突即可
 ApiApplicationServer 12345   # 提供后端通信端口
+```
+
+# 上传资源文件到s3
+* conf/common.properties
+```
+resource.storage.type=S3
+fs.defaultFS=s3a://dolphinscheduler-resource
+fs.s3a.endpoint=https://s3.us-west-2.amazonaws.com
+fs.s3a.access.key=xxxxxxxxxx
+fs.s3a.secret.key=xxxxxxxxxx
 ```

@@ -104,3 +104,25 @@ rewrite ^/product$ /product123$query_string?
 #rewrite参数超过9个使用名称捕获，用 $n0 代替 $10(nginx会将$10解释为"$1和0")
 rewrite ^/page-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(?<n0>\w+)\.html$      /page-$1-$2-$3-$4-$5-$6-$7-$8-$9-$n0.html$
 ```
+
+# [map](http://nginx.org/en/docs/http/ngx_http_map_module.html#map)
+* https://www.cnblogs.com/cangqinglang/p/12174407.html
+### 场景： 匹配请求 url 的参数，如果参数是 debug 则设置 $foo = 1 ，默认设置 $foo = 0
+* $args 是nginx内置变量，就是获取的请求 url 的参数。 如果 $args 匹配到 debug 那么 $foo 的值会被设为 1 ，如果 $args 一个都匹配不到 $foo 就是default 定义的值，在这里就是 0
+```
+map $args $foo {
+    default 0;
+    debug   1;
+}
+```
+
+### map语法
+```
+map $var1 $var2 {...}
+```
+* map 的 $var1 为源变量，通常可以是 nginx 的内置变量，$var2 是自定义变量。 $var2 的值取决于 $var1 在对应表达式的匹配情况。 如果一个都匹配不到则 $var2 就是 default 对应的值。
+  * 源变量可以为字符串或正则(~区分大小写，~*不区分大小写)
+  * default ： 指定源变量匹配不到任何表达式时将使用的默认值。当没有设置 default，将会用一个空的字符串作为默认的结果。
+  * hostnames ：指明source的值是主机名，主机名可包含前缀或后缀(*.example.com或 www.example.* )
+  * include ： 包含一个或多个含有映射值的文件。
+  * volatile 指明变量不可缓存
