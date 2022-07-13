@@ -35,9 +35,10 @@ sed -n '/^abc/!p' a.txt 
 #正则表达式 \w\+ 匹配每一个单词，使用 [&] 替换它，& 对应于之前所匹配到的单词
 echo this is a test line | sed 's/\w\+/[&]/g' 
 [this] [is] [a] [test] [line]
+
 #如果test被匹配，则移动到匹配行的下一行，替换这一行的aa，变为bb
 sed '/test/n;s/aa/bb/' file
-
+grep -rl profile jobs/*/config.xml |xargs sed -i '/profile/n;s/test/dev/'
 
 
 --------------------------------------------------------------------------------

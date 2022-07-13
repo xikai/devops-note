@@ -144,3 +144,23 @@ topk(3, sum by (app, proc) (rate(instance_cpu_time_ns[5m])))
 取时间范围内的lastValue和lastBeforeValue = (lastValue - 1)；
 变化率 = (lastValue - lastBeforeValue) / Range；
 ```
+
+* increase() 计算counter类型过去时间的增量
+* round()函数进行取整
+
+### [label_replace](https://prometheus.io/docs/prometheus/latest/querying/functions/#label_replace)
+>将src_label按照正则表达式切分，然后取其中的一段，作为新的标签加入到指标中
+```
+label_replace(v instant-vector, dst_label string, replacement string, src_label string, regex string)
+```
+* 新增host标签内容为instance的ipaddr
+```
+原始series:  up{instance="localhost:8080",job="cadvisor"} 1
+```
+```
+label_replace(up, "host", "$1", "instance", "(.*):.*")
+#对src_label instance正则表达式匹配，如果匹配不到，则无变化，如果匹配到了，那么就将host=$1(正则匹配的第一个串，这里是localhost)加入到label中,在本例中，也就是会增加host=localhost这个标签
+```
+```
+改造后series:  up{host="localhost",instance="localhost:8080",job="cadvisor"} 1
+```

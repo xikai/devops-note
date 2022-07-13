@@ -2,7 +2,7 @@
 ```
 wget http://download.redis.io/releases/redis-3.2.12.tar.gz
 tar -xzf redis-3.2.12.tar.gz
-cd redis-3.2.12/
+cd redis-3.2.12
 make
 make install PREFIX=/usr/local/redis
 mkdir -p /data/redis/{data,logs}
@@ -18,14 +18,14 @@ Description=Redis
 After=network.target
 
 [Service]
-#Type=forking
+Type=simple
 User=redis
 Group=redis
-PIDFile=/var/run/redis_6379.pid
+#PIDFile=/var/run/redis_6379.pid
 ExecStart=/usr/local/redis/bin/redis-server /usr/local/redis/conf/redis.conf
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s QUIT $MAINPID
-Restart=on-failure
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target

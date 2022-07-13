@@ -1,4 +1,4 @@
-* http://www.redis.cn/topics/sentinel.html
+* http://www.redis.com.cn/topics/sentinel.html
 * https://www.cnblogs.com/kevingrace/p/9004460.html
 * Redis Sentinel 是一个分布式系统， 你可以在一个架构中运行多个 Sentinel 进程（progress）， 这些进程使用流言协议（gossip protocols)来接收关于主服务器是否下线的信息， 并使用投票协议（agreement protocols）来决定是否执行自动故障迁移， 以及选择哪个从服务器作为新的主服务器。
 
@@ -133,7 +133,6 @@ Group=redis
 PIDFile=/var/run/redis_26379.pid
 ExecStart=/usr/local/redis/bin/redis-sentinel /usr/local/redis/conf/sentinel.conf
 ExecStop=/usr/local/redis/bin/redis-cli -p 26379 shutdown
-Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
@@ -158,10 +157,14 @@ master0:name=mymaster,status=ok,address=172.22.0.29:6379,slaves=2,sentinels=3
 
 * 哨兵命令
 ```sh
-# 手动触发主从切换
-/usr/local/redis/bin/redis-cli -p 26379 sentinel failover mymaster
-# 设置所有哨兵节点检测服务器下线的时间
-/usr/local/redis/bin/redis-cli -p 26379 SENTINEL SET master6379 down-after-milliseconds 3000
+/usr/local/redis/bin/redis-cli -p 26379 
+> SENTINEL failover mymaster                            #手动触发主从切换
+> SENTINEL set master6379 down-after-milliseconds 3000  #设置所有哨兵节点检测服务器下线的时间
+> SENTINEL reset *                                      #刷新从master\slave\sentinel获取的信息
+> SENTINEL masters                                      #返回被sentinel监视的所有master的状态信息
+> SENTINEL master <master_name>                         #返回被sentinel监视的指定master的状态信息
+> SENTINEL slaves                                       #返回所有slave状态信息
+> SENTINEL sentinels                                    #返回所有sentinel状态信息
 ```
 
 # redis高可用故障实验

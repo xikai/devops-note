@@ -1,5 +1,4 @@
 参考文档：
-https://imroc.io/
 https://github.com/yangpeng14/DevOps/tree/master/kubernetes
 https://www.qikqiak.com/
 

@@ -4,7 +4,7 @@
 # 准备工作
 ### 安装依赖
 ```
-yum install java-1.8.0-openjdk
+yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel
 ```
 ```
 #which java 找到java路径
