@@ -2,7 +2,7 @@
 
 ### 安装依赖
 ```
-yum install java-1.8.0-openjdk
+yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel 
 ```
 ```
 #which java 找到java路径
@@ -17,6 +17,7 @@ export HADOOP_CONF_DIR=/opt/soft/hadoop/etc/hadoop
 export SPARK_HOME2=/usr/lib/spark
 export JAVA_HOME=${JAVA_HOME:-/usr/lib/jvm/temurin-8-jdk-amd64}
 ```
+
 * vim conf/config/install_config.conf
 > DS集群的自动安装、启动&关闭 会加载install_config.conf
 ```
@@ -51,9 +52,16 @@ SPRING_DATASOURCE_PASSWORD="root"
 registryServers="172.31.40.12:2181"
 ```
 
+* vim conf/registry.properties
+```
+registry.plugin.name=zookeeper
+registry.servers=52.83.20.115:2181
+registry.namespace=dolphinscheduler
+```
+
 # 启动worker
 ```
-sh ./bin/dolphinscheduler-daemon.sh start worker-server
-sh ./bin/dolphinscheduler-daemon.sh stop worker-server
+bash ./bin/dolphinscheduler-daemon.sh start worker-server
+bash ./bin/dolphinscheduler-daemon.sh stop worker-server
 ```
 

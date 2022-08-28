@@ -278,6 +278,28 @@ curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_plugins/_ism/ad
 }
 ```
 
+# 恢复快照
+* 查询2022.07.27快照的数据
+```
+curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup/pci-pay-logs-2022.07.28-*?pretty
+```
+* 不能将索引的快照还原到已包含同名索引的 OpenSearch 群集
+```
+#删除opensearch中同名索引
+curl -XDELETE 'https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/index-name'
+```
+* 恢复快照
+```
+curl -XPOST 'https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup/pci-pay-logs-2022.07.28-05:32:16.953/_restore'
+
+#恢复快照中指定的索引
+curl -XPOST 'domain-endpoint/_snapshot/cs-automated/2020-snapshot/_restore' -d '{"indices": "my-index"}' -H 'Content-Type: application/json'
+#恢复快照中除指定索引以外的所有索引
+curl -XPOST 'domain-endpoint/_snapshot/cs-automated/2020-snapshot/_restore' -d '{"indices": "-.kibana*,-.opendistro*"}' -H 'Content-Type: application/json'
+
+```
+
+
 
 # aws opensearch默认自动快照仓库
 ```
@@ -292,12 +314,12 @@ curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws
 ```
 curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/cs-automated-enc/2022-06-10*?pretty
 ```
-* 恢复快照
+* [恢复快照](https://opensearch.org/docs/latest/opensearch/snapshots/snapshot-restore/#restore-snapshots)
 ```
 curl -XPOST 'https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/cs-automated-enc/2022-06-10t23-41-15.707514a0-3bfd-4d82-b177-d23615f9e4c2/_restore' -H 'Content-Type: application/json' -d '
 {
   "indices": ".kibana_1",
-  "rename_pattern": ".kibana_1",
-  "rename_replacement": ".kibana_1_old"
+  "rename_pattern": ".kibana_1",        #匹配需要重命名的索引组
+  "rename_replacement": ".kibana_1_old" #替换匹配的索引名
 }'
 ```

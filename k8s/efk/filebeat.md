@@ -1,4 +1,3 @@
-* https://zhuanlan.zhihu.com/p/114510384
 * https://www.elastic.co/guide/en/beats/filebeat/current/running-on-kubernetes.html
 * https://arch-long.cn/articles/elasticsearch/FileBeat.html
 * https://www.cnblogs.com/cjsblog/p/9495024.html
@@ -33,12 +32,14 @@ data:
       fields:
         service: "hotel-members"
     - type: container
+      harvester_buffer_size: 1638400   #harvester读取文件的缓冲大小
       paths:
         - /var/log/containers/*hotel-rights*.log
       fields:
         service: "hotel-rights"
 
     - type: log
+      harvester_buffer_size: 1638400   #harvester读取文件的缓冲大小
       paths:
         - /fdata/email-api/**/*.log*
       fields:
@@ -83,6 +84,8 @@ data:
       #index: "k8s-%{[kubernetes][labels][app_kubernetes_io/name]}-%{+YYYY.MM.dd}"
       #username: ${ELASTICSEARCH_USERNAME}
       #password: ${ELASTICSEARCH_PASSWORD}
+      bulk_max_size: 1000      #向es一次输出的日志量
+      worker: 3                #根据elasticsearch节点数来设置
       indices:
         - index: "hardware-middleware-%{+YYYY.MM.dd}"
           when.equals:

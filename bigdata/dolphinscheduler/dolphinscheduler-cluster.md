@@ -71,7 +71,6 @@ mysql> flush privileges;
 >如果发现 /etc/sudoers 文件中有 "Defaults requirett" 这行，也请注释掉
 ```
 useradd dolphinscheduler
-echo "dolphinscheduler" | passwd --stdin dolphinscheduler
 sed -i '$adolphinscheduler  ALL=(ALL)  NOPASSWD: NOPASSWD: ALL' /etc/sudoers
 sed -i 's/Defaults    requirett/#Defaults    requirett/g' /etc/sudoers
 ```

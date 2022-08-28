@@ -26,3 +26,14 @@ rsync -avz --delete --partial --exclude='workspace/' --exclude='jobs/*/builds/*
 
 #清理jenkins历史构建数据
 rm -rf jobs/*/builds/*/
+
+
+#关闭basic-msoa-goods正在构建的ID为255以下的job
+def jobName = "basic-msoa-goods"
+def maxNumber = 255
+  
+Jenkins.instance.getItemByFullName(jobName).builds.findAll {
+  it.number <= maxNumber
+}.each {
+  it.delete()
+}

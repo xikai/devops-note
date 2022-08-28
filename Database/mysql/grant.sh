@@ -3,3 +3,5 @@ GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE VIEW, SHOW VI
 GRANT SELECT ON *.* TO 'dadi_read'@'%' IDENTIFIED BY 'xxxxxx'; 
 
 DROP USER 'dadi01'@'172.19.%.%';
+
+show grants for 'dadi01'@'172.19.%.%';

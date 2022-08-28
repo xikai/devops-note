@@ -134,3 +134,8 @@ admin
 ```
 
 
+# [注册到指定的eureka](https://www.apolloconfig.com/#/zh/deployment/distributed-deployment-guide?id=_142-%e6%8c%87%e5%ae%9a%e8%a6%81%e6%b3%a8%e5%86%8c%e7%9a%84ip)
+* {configservice,adminservice}/scripts/startup.sh
+```
+export JAVA_OPTS="$JAVA_OPTS -Deureka.instance.ipAddress="172.31.87.191"
+```

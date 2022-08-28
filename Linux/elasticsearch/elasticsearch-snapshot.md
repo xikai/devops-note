@@ -1,51 +1,31 @@
 * https://www.elastic.co/guide/en/elasticsearch/reference/7.15/snapshot-restore.html
-# snapshot原理
-* 对运行中的es集群索引进行增量备份
 
-# es snapshot
-* 在es中注册快照存储仓库
+# 文件系统作为快照仓库
 ```
-curl -XPUT 'http://localhost:9200/_snapshot/my_backup' -H 'Content-Type: application/json' -d '{
-  "type": "fs",
-  "settings": {
-        ... repository specific settings ...
-  }
-}
+mkdir -p /data/elasticsearch/{backups,longterm_backups}
+chown -R elasticsearch.elasticsearch /data/elasticsearch/{backups,longterm_backups}
 ```
-
-* 获取快照存储仓库信息
 ```
-curl -XGET localhost:9200/_snapshot/my_backup
-
-# 获取多个快照存储仓库信息（用逗号隔开 可以用通配符匹配）
-curl -XGET localhost:9200/_snapshot/repo*,*backup*
-
-# 返回当前注册的所有存储仓库
-curl -XGET localhost:9200/_snapshot
-curl -XGET localhost:9200/_snapshot/_all
-```
-
-# 挂载共享文件系统作为快照仓库
-```
+# setting on all master and data nodes.
 vim elasticsearch.yml
-path.repo: ["/mount/backups", "/mount/longterm_backups"]
+path.repo: ["/data/elasticsearch/backups", "/data/elasticsearch/longterm_backups"]
 ```
 ```
 systemctl restart elasticsearch
 ```
 
-* 创建共享文件系统仓库
+* 注册快照仓库
 ```
 curl -XPUT 'http://localhost:9200/_snapshot/my_backup' -H 'Content-Type: application/json' -d '{
     "type": "fs",
     "settings": {
-        "location": "/mount/backups/my_backup",
+        "location": "/data/elasticsearch/backups/my_backup",
         "compress": true
     }
 }'
 ```
 
-# 使用s3作为快照仓库
+# s3作为快照仓库
 * 创建s3存储桶
 * [配置可以访问s3存储桶所需最小权限的IAM用户/角色策略](https://www.elastic.co/guide/en/elasticsearch/reference/master/repository-s3.html#repository-s3-permissions)
 * [创建VPC终端节点到s3服务（同区域）](https://docs.amazonaws.cn/vpc/latest/privatelink/vpce-gateway.html)
@@ -64,7 +44,7 @@ bin/elasticsearch-keystore add s3.client.default.secret_key
 #重启所有节点
 systemctl restart elasticsearch  
 ```
-* 创建s3快照存储仓库
+* 注册快照仓库
 * https://github.com/elastic/elasticsearch/blob/master/docs/plugins/repository-s3.asciidoc
 * https://www.elastic.co/guide/en/elasticsearch/plugins/current/repository-s3-repository.html#repository-s3-permissions
 ```
@@ -84,6 +64,19 @@ curl -XPOST http://localhost:9200/_snapshot/s3_backup/_verify?pretty
 
 #查看创建的存储仓库
 curl -XGET localhost:9200/_snapshot/s3_backup?pretty
+```
+
+
+# 获取快照存储仓库信息
+```
+curl -XGET localhost:9200/_snapshot/my_backup
+
+# 获取多个快照存储仓库信息（用逗号隔开 可以用通配符匹配）
+curl -XGET localhost:9200/_snapshot/repo*,*backup*
+
+# 返回当前注册的所有存储仓库
+curl -XGET localhost:9200/_snapshot
+curl -XGET localhost:9200/_snapshot/_all
 ```
 
 # 创建快照

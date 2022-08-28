@@ -215,3 +215,31 @@ curl -XPUT http://172.31.40.12:9200/_cluster/settings -d '{
     }
 }'
 ```
+
+# [慢日志](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-slowlog.html)
+```
+curl -XPUT http:/localhost:9200/my-index-000001/_settings -d '{
+  "index.search.slowlog.threshold.query.warn": "10s",
+  "index.search.slowlog.threshold.query.info": "5s",
+  "index.search.slowlog.threshold.query.debug": "2s",
+  "index.search.slowlog.threshold.query.trace": "500ms",
+  "index.search.slowlog.threshold.fetch.warn": "1s",
+  "index.search.slowlog.threshold.fetch.info": "800ms",
+  "index.search.slowlog.threshold.fetch.debug": "500ms",
+  "index.search.slowlog.threshold.fetch.trace": "200ms",
+  "index.search.slowlog.level": "info"
+}'
+```
+```
+curl -XPUT http:/localhost:9200/my-index-000001/_settings -d '{
+  "index.indexing.slowlog.threshold.index.warn": "10s",
+  "index.indexing.slowlog.threshold.index.info": "5s",
+  "index.indexing.slowlog.threshold.index.debug": "2s",
+  "index.indexing.slowlog.threshold.index.trace": "500ms",
+  "index.indexing.slowlog.level": "info",
+  "index.indexing.slowlog.source": "1000"
+}'
+```
+```
+curl -XGET  http:/localhost:9200/my-index-000001/_settings?pretty
+```
