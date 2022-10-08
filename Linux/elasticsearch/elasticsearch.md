@@ -134,57 +134,43 @@ systemctl daemon-reload
 systemctl start elasticsearch
 ```
 
+# 集群管理
 * 检查集群健康状态
 ```
-curl localhost:9200/_cluster/health
+curl localhost:9200/_cluster/health?pretty
+
+#查看集群指定索引健康状态
+curl localhost:9200/_cluster/health/test1,test2?pretty
 ```
 
-# [索引管理](https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-management.html)
+* 查询集群节点信息、状态
 ```
-PUT /{index}/{type}/{id}
-{
-  "field": "value",
-  ...
-}
-```
-* 创建索引
-```
-curl -XPUT 'localhost:9200/my_index?pretty'  -H 'Content-Type: application/json' -d'
-{
-   "settings" : {
-      "number_of_shards" : 3,
-      "number_of_replicas" : 1
-   }
-}'
-```
-* 删除索引
-```
-curl -X DELETE "localhost:9200/my_index?pretty"
-curl -X DELETE "localhost:9200//index_one,index_two"
-curl -X DELETE "localhost:9200/index_*"
+curl -XGET 'http://localhost:9200/_nodes?pretty'
+curl -XGET 'http://localhost:9200/_nodes/nodeId1,nodeId2?pretty'
+
+curl -XGET 'http://localhost:9200/_nodes/stats?pretty'
+curl -XGET 'http://localhost:9200/_nodes/nodeId1,nodeId2/stats?pretty'
+
+# 获取集群节点的热线程
+curl -XGET 'localhost:9200/_nodes/hot_threads'
+curl -XGET 'localhost:9200/_nodes/nodeId1,nodeId2/hot_threads'
 ```
 
-* 列出索引
+* 列出集群索引
 ```
 curl -XGET "localhost:9200/_cat/indices"
 ```
 
-* 调整分片副本数
+* 查看集群挂起的任务(e.g. create index, update mapping, allocate or fail shard)
 ```
-curl -XPUT 'localhost:9200/my_index/_settings?pretty'  -H 'Content-Type: application/json' -d'
-{
-   "number_of_replicas" : 2
-}'
-```
-* 获取索引
-```
-curl -XGET 'localhost:9200/my_index?pretty'
-
-# 只读取索引titlet和text字段
-curl -XGET 'localhost:9200/my_index?_source=title,text
+curl -XGET 'http://localhost:9200/_cluster/pending_tasks'
 ```
 
-# 分片管理
+* 查看线程池
+```
+curl -XGET 'localhost:9200/_cat/thread_pool'
+```
+
 * 手动迁移索引分片
 ```
 curl -X POST "localhost:9200/_cluster/reroute?pretty" -H 'Content-Type: application/json' -d'
@@ -202,19 +188,88 @@ curl -X POST "localhost:9200/_cluster/reroute?pretty" -H 'Content-Type: applicat
 ```
 ```
 # 关闭分片平衡迁移
-curl -XPUT http://172.31.40.12:9200/_cluster/settings -d '{
+curl -XPUT http://localhost:9200/_cluster/settings -d '{
     "transient" : {
         "cluster.routing.allocation.enable" : "none"
     }
 }'
 
 # 开启分片平衡迁移
-curl -XPUT http://172.31.40.12:9200/_cluster/settings -d '{
+curl -XPUT http://localhost:9200/_cluster/settings -d '{
     "transient" : {
         "cluster.routing.allocation.enable" : "all"
     }
 }'
+
+# 设置不分配分片到指定IP的节点
+curl -XPUT "http://localhost:9200/_cluster/settings" -d '{
+  "transient" : {
+    "cluster.routing.allocation.exclude._ip" : "172.31.27.38,172.31.19.50,172.31.19.67"
+  }
+}'
+
+curl -XPUT "http://localhost:9200/_cluster/settings" -d '{
+  "transient" : {
+    "cluster.routing.allocation.exclude._ip" : null
+  }
+}'
+
+# 查看设置是否配置成功
+curl http://localhost:9200/_cluster/settings?pretty
 ```
+
+* 查询索引分片信息
+```
+curl http://localhost:9200/_cat/shards/my_index?v
+```
+
+* 查询索引中分片的segments
+```
+#查看所有索引分片的段
+curl -XGET 'localhost:9200/_cat/segments'
+#查看指定索引分片的段
+curl -XGET 'localhost:9200/_cat/segments/my_index1,myindex2'
+```
+
+# [索引管理](https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-management.html)
+* 获取索引信息
+```
+curl -XGET 'localhost:9200/my_index?pretty'
+```
+
+* 创建索引
+```
+curl -XPUT 'localhost:9200/my_index?pretty'  -H 'Content-Type: application/json' -d'
+{
+   "settings" : {
+      "number_of_shards" : 3,
+      "number_of_replicas" : 1
+   }
+}'
+```
+
+* 删除索引
+```
+curl -X DELETE "localhost:9200/my_index?pretty"
+curl -X DELETE "localhost:9200//index_one,index_two"
+curl -X DELETE "localhost:9200/index_*"
+```
+
+* 查询索引
+```
+curl -XGET 'localhost:9200/my_index/_search?pretty'
+```
+
+* 更新索引设置
+```
+#调整索引分片副本数
+curl -XPUT 'localhost:9200/my_index/_settings?pretty'  -H 'Content-Type: application/json' -d'
+{
+   "number_of_replicas" : 2
+}'
+```
+
+
 
 # [慢日志](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-slowlog.html)
 ```

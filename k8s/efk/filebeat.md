@@ -44,10 +44,11 @@ data:
         - /fdata/email-api/**/*.log*
       fields:
         website: "email-api"
+      # 将不匹配的行添加到匹配的行后面
       multiline.type: pattern
       multiline.pattern: '^\[[0-9]{4}-[0-9]{2}-[0-9]{2}'
-      multiline.negate: true
-      multiline.match: after
+      multiline.negate: true  #true表示对上面的pattern取反（即不匹配上面pattern的日志行）
+      multiline.match: after  #添加到匹配日志行的后面
 
     - type: log
       paths:

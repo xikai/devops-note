@@ -157,6 +157,9 @@ push "route 172.22.16.0 255.255.240.0"
 push "route 172.22.32.0 255.255.240.0"
 
 #push "redirect-gateway def1 bypass-dhcp" # 如果启用该行指令，所有客户端的默认网关都将重定向到VPN
+#向windows客户端推送DNS服务器地址
+#push "dhcp-option DNS 208.67.222.222"
+#push "dhcp-option DNS 208.67.220.220"
 compress lzo
 duplicate-cn
 keepalive 10 120
@@ -275,6 +278,8 @@ mute-replay-warnings
 #部分网段通过openvpn网卡走
 #route-nopull
 #route 192.168.4.0 255.255.255.0 vpn_gateway
+#vpn客户端指定DNS服务器
+#dhcp-option DNS 103.24.176.20
 ```
 * 拷贝客户端证书
 ```

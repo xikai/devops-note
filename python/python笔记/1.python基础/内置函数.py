@@ -125,7 +125,7 @@ iter()              #将对象转换为迭代器
 len()               #返回字符串长度
 sum()               #求和
 cmp()               #比较两个对象大小，返回正数或负数 相等返回0
-all(iterable )      #判断可迭代参数 iterable 中的所有元素是否不为 0、''、False 或空返回 True，否则返回 False。
+all(iterable)       #判断可迭代参数 iterable 中的所有元素是否不为 0、''、False 或空返回 True，否则返回 False。
 round()             #返回浮点数x的四舍六入值round(100.23456,2) 返回100.23
 range(0,5)          #返回[0 1 2 3 4]
 input()             #接受一个标准输入数据，返回为 string 类型。

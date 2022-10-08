@@ -25,7 +25,7 @@
         * column
 
 # [数据分布](https://cassandra.apache.org/doc/3.11/cassandra/architecture/dynamo.html)
-* Cassandra通过使用散列函数对存储在系统中的所有数据进行分区来实现水平可伸缩性。每个分区被复制到多个物理节点，通常跨故障域(如机架甚至数据中心)
+* Cassandra通过使用hash函数对存储在系统中的所有数据进行分区来实现水平可伸缩性。每个分区被复制到多个物理节点，通常跨故障域(如机架甚至数据中心)
 * [一致性哈希](http://t.zoukankan.com/dyf6372-p-3529511.html): 数据是通过表组织起来的，表中每行数据由primary key标识，集群中每个节点拥有一个或多个hash值区间 这样便可根据primary key对应的hash值将该条数据放在包含该hash值的hash值区间对应的节点中,就是说主键决定了数据存储在哪个节点。
   * vnodes虚拟节点：把数据分配到物理机器节点,指定数据与物理节点的所属关系
   * Partitioner分区器：在整个集群中对数据进行分区
@@ -81,6 +81,8 @@ data_file_directories:
 commitlog_directory: /data/cassandra/commitlog      #commitlog目录
 saved_caches_directory: /data/cassandra/saved_caches    #缓存目录
 hints_directory: /data/cassandra/hints
+
+#authenticator: PasswordAuthenticator  #设置为用密码认证，默认允许所有人登录
 ```
 
 * 修改日志目录 ,conf/cassandra-env.sh
@@ -114,15 +116,22 @@ bin/nodetool status
 ```
 
 
-# 连接cassandra
+# cqlsh
 ```
 bin/cqlsh 172.16.0.212
+cqlsh> describe keyspaces;
+cqlsh> describe tables;
+```
+* 创建用户
+```
+bin/cqlsh 172.16.0.212 -ucassandra -pcassandra
+cqlsh> CREATE USER myusername WITH PASSWORD 'mypassword' SUPERUSER;
 ```
 
 * 创建keyspace,并选择
 ```
-cassandra@cqlsh> create keyspace castest with replication = {'class':'SimpleStrategy','replication_factor':3} and durable_writes = true;
-cassandra@cqlsh> use castest;
+cqlsh> create keyspace castest with replication = {'class':'SimpleStrategy','replication_factor':3} and durable_writes = true;
+cqlsh> use castest;
 ```
 * 创建表，写入数据
 ```
@@ -131,5 +140,6 @@ INSERT INTO user_info (id,user_name) VALUES (1,'user01');
 ```
 * 查询数据
 ```
-select * from user_info ;
+select * from user_info;
 ```
+

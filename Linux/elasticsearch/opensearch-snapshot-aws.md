@@ -271,7 +271,10 @@ curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_plugins/_ism/ad
       }
     ],
     "ism_template": {
-      "index_patterns": ["pay-*"],
+      "index_patterns": [
+        "pay-*",
+        "ads-*"
+      ],
       "priority": 100     //值越高，优先级越高
     }
   }
@@ -302,6 +305,7 @@ curl -XPOST 'domain-endpoint/_snapshot/cs-automated/2020-snapshot/_restore' -d '
 
 
 # aws opensearch默认自动快照仓库
+* 列出快照仓库
 ```
 curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot?pretty
 {

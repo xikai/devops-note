@@ -43,7 +43,7 @@ done
 
 # 按行循环读入文件
 ```sh
-echo " cat file whiel read line"
+echo " cat file while read line"
 cat test.txt |while read line  
 do  
   echo $line;  

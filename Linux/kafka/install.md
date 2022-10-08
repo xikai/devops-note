@@ -1,0 +1,217 @@
+* https://kafka.apache.org/
+* https://kafka.apachecn.org/
+
+# 系统内核
+* vim /etc/sysctl.conf
+```
+# SYNcookie就是将连接信息编码在ISN(initialsequencenumber)中返回给客户端，这时server不需要将半连接保存在队列中，而是利用客户端随后发来的ACK带回的ISN还原连接信息，以完成连接的建立，避免了半连接队列被攻击SYN包填满
+net.ipv4.tcp_syncookies = 1
+# 设置tcp半连接(SYN_RECV队列)最大数
+net.ipv4.tcp_max_syn_backlog = 32768
+# 设置socket最大连接数
+net.core.somaxconn = 32768
+```
+* 查看系统tcp全连接队列溢出情况
+```
+# 多次执行，查看是否持续增长
+date;netstat -s |grep overflowed
+```
+* 查看系统tcp半连接队列溢出情况
+```
+# 多次执行，查看是否持续增长
+date;netstat -s |grep "SYNs TO LISTEN"
+
+# 查看tcp半连接队列数
+netstat -antp |grep SYN_RECV |wc -l
+```
+
+
+# 安装kafka
+* 配置hosts
+```
+your_node01_ip kafka01
+your_node02_ip kafka02
+your_node03_ip kafka03
+```
+
+```
+wget http://www-us.apache.org/dist/kafka/0.11.0.1/kafka_2.11-0.11.0.1.tgz
+tar -xzf kafka_2.11-0.11.0.1.tgz -C /opt
+mv  kafka_2.11-0.11.0.1 kafka
+cd /opt/kafka
+```
+* 查看kafka版本号
+```
+# lib文件名包含版本信息
+ls kafka/libs
+```
+```
+useradd kafka
+mkdir -p /data/zookeeper/{data,logs}
+mkdir -p /data/kafka/{kafka-logs,logs}
+chown -R kafka:kafka /opt/kafka
+chown -R kafka:kafka /data/kafka
+chown -R kafka:kafka /data/zookeeper
+```
+
+
+### 配置zookeeper
+* vim config/zookeeper.properties
+```
+dataDir=/data/zookeeper/data
+dataLogDir=/data/zookeeper/logs
+# the port at which the clients will connect
+clientPort=2181
+# disable the per-ip limit on the number of connections since this is a non-production config
+maxClientCnxns=0
+# Disable the adminserver by default to avoid port conflicts.
+# Set the port to something non-conflicting if choosing to enable this
+admin.enableServer=false
+# admin.serverPort=8080
+initLimit=5
+syncLimit=2
+server.1=kafka01:2888:3888
+server.2=kafka02:2888:3888
+server.3=kafka03:2888:3888
+```
+* 创建myid文件（已主机kafka01为例，集群内每台机器都需要在相应目录下创建该文件，且id不同）
+```
+echo 1 > /data/zookeeper/data/myid
+```
+* 启动zookeeper
+```
+cat > /usr/lib/systemd/system/kafka-zookeeper.service <<EOF
+[Unit]
+Description=Apache kafka-zookeeper server (Kafka)
+Documentation=http://zookeeper.apache.org
+Requires=network.target remote-fs.target
+After=network.target remote-fs.target
+
+[Service]
+Type=simple
+User=kafka
+Group=kafka
+#Environment=JAVA_HOME=/usr/java/jdk1.8.0_103
+ExecStart=/usr/local/kafka/bin/zookeeper-server-start.sh /usr/local/kafka/config/zookeeper.properties
+ExecStop=/usr/local/kafka/bin/zookeeper-server-stop.sh
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+```
+systemctl start kafka-zookeeper
+```
+
+### [配置kafka broker](https://kafka.apache.org/documentation/#configuration)
+* https://www.cnblogs.com/bayu/articles/14510148.html
+* vim config/server.properties
+```
+broker.id = 1  # 每个节点id必须唯一
+listeners = PLAINTEXT://:9092
+log.dirs = /data/kafka/kafka-logs
+zookeeper.connect=kafka01:2181,kafka02:2181,kafka03:2181
+```
+```
+num.network.threads=3  #线程数基于cpu核数，默认为3
+num.partitions=1    #分区数（基于消费组的消费者数量、broker节点数、业务特点等）, 默认为1
+offsets.topic.replication.factor=3    #副本数，默认为3
+#socket.listen.backlog.size=500    #可以挂起的最大socket连接数，默认50；需要配置 `somaxconn` and `tcp_max_syn_backlog` 内核参数
+
+# 启用删除策略
+log.cleanup.policy=delete
+# 直接删除，删除后的消息不可恢复。可配置以下两个策略：
+# 清理超过指定时间清理 默认168小时： 
+log.retention.hours=168
+# 超过指定大小后，删除旧的消息，默认-1：
+log.retention.bytes=1073741824
+```
+* 修改服务日志目录，bin/kafka-run-class.sh
+```
+# Log directory to use
+if [ "x$LOG_DIR" = "x" ]; then
+  #LOG_DIR="$base_dir/logs"
+  LOG_DIR="/data/kafka/logs"
+fi
+```
+* 修改jvm堆栈，bin/kafka-run-class.sh
+```
+if [ "x$KAFKA_HEAP_OPTS" = "x" ]; then
+    KAFKA_HEAP_OPTS="-Xmx1G -Xms1G -XX:+UnlockExperimentalVMOptions"
+fi
+```
+* 启动kafka
+```
+cat > /usr/lib/systemd/system/kafka.service <<EOF
+[Unit]
+Description=Apache Kafka server (broker)
+Documentation=http://kafka.apache.org/documentation.html
+Requires=network.target remote-fs.target
+After=network.target remote-fs.target kafka-zookeeper.service
+
+[Service]
+Type=simple
+User=kafka
+Group=kafka
+#Environment=JAVA_HOME=/usr/java/jdk1.8.0_102
+ExecStart=/usr/local/kafka/bin/kafka-server-start.sh /usr/local/kafka/config/server.properties
+ExecStop=/usr/local/kafka/bin/kafka-server-stop.sh
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+```
+systemctl start kafka
+```
+
+# topic 
+```
+# 查看主题列表
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+
+# 创建主题
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic my-topic \
+  --partitions 1 --replication-factor 1
+# 创建主题时修改配置
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic my-topic \
+--partitions 1 --replication-factor 1 --config max.message.bytes=5242940 --config flush.messages=1
+
+# 查看主题配置
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --topic my-topic --describe
+
+# 修改主题
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --alter --topic my_topic_name \
+  --partitions 3
+
+# 删除主题
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --delete --topic my_topic_name
+```
+```
+# 增加主题配置项
+bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name my-topic \
+  --alter --add-config max.message.bytes=5242940
+
+# 删除覆盖配置项
+bin/kafka-configs.sh --bootstrap-server localhost:9092  --entity-type topics --entity-name my-topic \
+  --alter --delete-config max.message.bytes
+
+# 检查主题配置项
+bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name my-topic --describe
+```
+
+# producer 
+```
+# 通过kafka命令行客户端生产消息
+> bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
+This is a message
+This is another message
+```
+
+# consumer 
+```
+# 通过kafka命令行客户端消费消息
+> bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
+This is a message
+This is another message
+```

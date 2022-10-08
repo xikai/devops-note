@@ -75,3 +75,9 @@ docker rm 4273769dae71
 docker rm -f 4273769dae71   # 强行删除正在运行的容器
 docker rm $(docker ps -a -q)    # 删除所有己经停止的容器
 ```
+
+
+* 查看所有容器对应的pid,name,workDir
+```
+docker ps -q | xargs docker inspect --format '{{.State.Pid}}, {{.Name}}, {{.GraphDriver.Data.WorkDir}}' 
+```

@@ -1,6 +1,7 @@
 * https://zookeeper.apache.org/doc/current/zookeeperAdmin.html#ch_deployment
 * https://segmentfault.com/a/1190000014642288
 * https://segmentfault.com/a/1190000014642335
+* http://www.ryanxin.live/2021/10/06/zookeeper-02/
 
 >zookeeper是一个开源的分布式协调服务，主要用于解决分布式场景下数据一致性问题
 

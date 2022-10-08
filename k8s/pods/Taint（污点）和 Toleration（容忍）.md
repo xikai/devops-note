@@ -1,4 +1,4 @@
-https://k8smeetup.github.io/docs/concepts/configuration/taint-and-toleration/
+* https://kubernetes.io/zh-cn/docs/concepts/scheduling-eviction/taint-and-toleration/
 
 ### Taint（污点）和 Toleration（容忍）
 * Taint（污点）和 Toleration（容忍）可以作用于 node 和 pod 上，其目的是优化 pod 在集群间的调度，这跟节点亲和性类似，只不过它们作用的方式相反，具有 taint 的 node 和 pod 是互斥关系，而具有节点亲和性关系的 node 和 pod 是相吸的

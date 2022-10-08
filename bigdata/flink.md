@@ -51,13 +51,20 @@ flinkworker02
 flinkmaster:8081
 ```
 
-# 启动集群
+# 启动停止集群
 ```
 bin/jobmanager.sh start
 bin/taskmanager.sh start
 
 # 一键启动集群所有节点（ssh免密）
 # ./bin/start-cluster.sh
+```
+```
+bin/jobmanager.sh stop
+bin/taskmanager.sh stop
+
+# 一键停止集群所有节点（ssh免密）
+# ./bin/stop-cluster.sh
 ```
 
 # 提交作业（Job）
@@ -76,13 +83,8 @@ $ tail log/flink-*-taskexecutor-*.out
   (remember,1)
   (d,4)
 ```
-* flink web ui: http://localhost:8081
 
-# 停止集群
+# webUI
 ```
-bin/jobmanager.sh stop
-bin/taskmanager.sh stop
-
-# 一键停止集群所有节点（ssh免密）
-# ./bin/stop-cluster.sh
+http://localhost:8081
 ```
