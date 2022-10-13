@@ -9,7 +9,7 @@
 * [创建ISM策略 (删除age大于7天的索引)](https://opensearch.org/docs/latest/im-plugin/ism/policies/)
 >在 OpenSearch 控制面板中，选择 Index Management（索引管理）选项卡，然后为 rollover 操作创建一个 ISM 策略. (Index Management -> Policy managed indices)
 ```json
-curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_plugins/_ism/add/del-index-7d -d '
+curl -XPOST -H 'Content-Type: application/json' http://localhost:9200/_plugins/_ism/add/del-index-7d -d '
 {
   "policy": {
     "description": "Delete index that are age than 7 days",
@@ -57,7 +57,7 @@ curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_plugins/_ism/ad
 # [创索引索模板](https://opensearch.org/docs/1.2/opensearch/index-templates/)
 >_index_template用于设置索引属性
 ```json
-curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_index_template/shards-2 -d '
+curl -XPOST -H 'Content-Type: application/json' http://localhost:9200/_index_template/shards-2 -d '
 {
   "index_patterns": [
     "log*"
@@ -77,15 +77,15 @@ curl -XPOST -H 'Content-Type: application/json' http://$IP:9200/_index_template/
 
 * 查看索引模板
 ```
-curl "http://log.vevor-inner.com/_index_template/index-shards-2?pretty"
+curl "http://localhost:9200/_index_template/index-shards-2?pretty"
 ```
 
 * 删除索引模板
 ```
-curl -XDELETE http://$IP:9200/_index_template/shards-2
+curl -XDELETE http://localhost:9200/_index_template/shards-2
 ```
 
 * 列出所有索引模板
 ```
-curl "http://log.vevor-inner.com/_cat/templates"
+curl "http://localhost:9200/_cat/templates"
 ```

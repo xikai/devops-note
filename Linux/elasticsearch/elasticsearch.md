@@ -272,6 +272,8 @@ curl -XPUT 'localhost:9200/my_index/_settings?pretty'  -H 'Content-Type: applica
 
 
 # [慢日志](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-slowlog.html)
+>为每个索引动态设置
+* 设置搜索(查询阶段和获取阶段)慢日志阀值
 ```
 curl -XPUT http:/localhost:9200/my-index-000001/_settings -d '{
   "index.search.slowlog.threshold.query.warn": "10s",
@@ -285,6 +287,7 @@ curl -XPUT http:/localhost:9200/my-index-000001/_settings -d '{
   "index.search.slowlog.level": "info"
 }'
 ```
+* 设置索引阶段慢日志阀值
 ```
 curl -XPUT http:/localhost:9200/my-index-000001/_settings -d '{
   "index.indexing.slowlog.threshold.index.warn": "10s",
@@ -295,6 +298,7 @@ curl -XPUT http:/localhost:9200/my-index-000001/_settings -d '{
   "index.indexing.slowlog.source": "1000"
 }'
 ```
+* 查看索引慢日志设置
 ```
 curl -XGET  http:/localhost:9200/my-index-000001/_settings?pretty
 ```

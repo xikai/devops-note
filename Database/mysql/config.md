@@ -14,10 +14,10 @@ mysql> SHOW STATUS WHERE Variable_name='InnoDB_buffer_pool_resize_status';
 ```
 
 # [innodb_flush_log_at_trx_commit](https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_flush_log_at_trx_commit)
-> 控制事务刷新到redo日志的频率，未刷新日志的事务可能在崩溃时丢失
-* innodb_flush_log_at_trx_commit=1（默认值）：在每次事务提交时，将redo日志缓存区的数据写入日志文件中，并且刷新到磁盘中
-* innodb_flush_log_at_trx_commit=0：每隔一秒将日志缓存区写到redo日志文件中，并且将redo日志文件的数据刷新到磁盘中
-* innodb_flush_log_at_trx_commit=2：在每次事务提交时，将redo日志缓存区的数据写入日志文件中，但并不会同时刷新到磁盘中，而是由MySQL会每秒执行一次刷新磁盘操作
+> 控制MySQL服务器将事务日志ib_logfile:(记录的是redo log和undo log的信息)刷新到磁盘的频率
+* innodb_flush_log_at_trx_commit=1（默认值：为了完全符合ACID[原子性、一致性、隔离性和持久性的缩写]）：每次事务提交的时候，都把log buffer刷到文件系统中(os buffer)去，并且调用文件系统的“flush”操作将缓存刷新到磁盘上去
+* innodb_flush_log_at_trx_commit=0：表示每隔一秒把log buffer刷到文件系统中(os buffer)去，并且调用文件系统的“flush”操作将缓存刷新到磁盘上去。也就是说一秒之前的日志都保存在日志缓冲区，也就是内存上，如果机器宕掉，可能丢失1秒的事务数据
+* innodb_flush_log_at_trx_commit=2：每次事务提交的时候会把log buffer刷到文件系统中去，但并不会立即刷写到磁盘，如果只是MySQL数据库挂掉了，由于文件系统没有问题，那么对应的事务数据并没有丢失。只有在数据库所在的主机操作系统损坏或者突然掉电的情况下，数据库的事务数据可能丢失1秒之类的事务数据
 
 
 # [sync_binlog](https://dev.mysql.com/doc/refman/5.7/en/replication-options-binary-log.html#sysvar_sync_binlog)
