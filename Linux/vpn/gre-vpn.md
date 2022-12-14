@@ -150,3 +150,8 @@ ifup grevpn
 ```
 iptables -t nat -A POSTROUTING -s 172.16.0.0/23 -d 10.40.0.0/16 -o eth0 -j MASQUERADE
 ```
+
+* gre隧道协议
+```
+自定义协议名：47
+```

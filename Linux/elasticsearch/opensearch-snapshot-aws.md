@@ -75,7 +75,7 @@ import boto3
 import requests
 from requests_aws4auth import AWS4Auth
 
-host = 'https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/' # include https:// and trailing /
+host = 'https://xxxxxxxxxxxxxxxxxxxxx.us-west-2.es.amazonaws.com/' # include https:// and trailing /
 region = 'us-west-2' # e.g. us-west-1
 service = 'es'
 credentials = boto3.Session().get_credentials()
@@ -158,15 +158,15 @@ $ python register-repo.py
 
 * 删除快照仓库
 ```
-curl -XDELETE https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup
+curl -XDELETE https://xxxxxxxxxxxxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/s3_backup
 ```
 
 * 查询快照仓库
 ```
 # 查询所有快照仓库
-curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot?pretty
+curl -XGET https://xxxxxxxxxxxxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot?pretty
 # 查询指定快照仓库
-curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup?pretty
+curl -XGET https://xxxxxxxxxxxxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/s3_backup?pretty
 ```
 
 
@@ -177,7 +177,7 @@ import boto3
 import requests
 from requests_aws4auth import AWS4Auth
 
-host = 'https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/' # include https:// and trailing /
+host = 'https://xxxxxxxxxxxxxxxxxxxxx.us-west-2.es.amazonaws.com/' # include https:// and trailing /
 region = 'us-west-2' # e.g. us-west-1
 service = 'es'
 credentials = boto3.Session().get_credentials()
@@ -202,19 +202,19 @@ $ python create-snap.py
 
 * 删除快照
 ```
-curl -XDELETE https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup/snapshot-test
+curl -XDELETE https://xxxxxxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/s3_backup/snapshot-test
 ```
 
 * 查询快照
 ```
 # 查询所有快照
-curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup/_all?pretty
+curl -XGET https://xxxxxxxxxxxxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/s3_backup/_all?pretty
 # 查询指定快照
-curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup/snapshot-test?pretty
-curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup/snapshot-*?pretty
+curl -XGET https://xxxxxxxxxxxxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/s3_backup/snapshot-test?pretty
+curl -XGET https://xxxxxxxxxxxxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/s3_backup/snapshot-*?pretty
 
 # 查询快照状态
-curl -XGET https://vpc-product-lpwn33dxg5ym2iv3vubselslve.us-west-2.es.amazonaws.com/_snapshot/s3_backup/snapshot-test/_status?pretty
+curl -XGET https://xxxxxxxxxxxxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/s3_backup/snapshot-test/_status?pretty
 ```
 
 

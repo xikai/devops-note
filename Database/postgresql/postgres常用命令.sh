@@ -1,6 +1,8 @@
-\d                               列出表结构                 
-\d{t|i|s|v|S} [模式]        列出表/索引/序列/视图/系统表 (加 "+" 获取更多信息)
-
+\l                          列出库(加 "+" 获取更多信息)
+\c                          切换库
+\d[t|i|s]                   列出表/索引/序列
+\d                          列出表结构
+\du                         列出用户 
 \x  在行或列扩展输出之间切换 (类似mysql  \G)
 \a 在非对齐和对齐的输出模式之间切换
 
@@ -18,7 +20,7 @@ select * from pg_stat_activity;
 
 
 
-查看主从复制状态：SELECT * from pg_stat_replication ; 
+查看主从复制状态：SELECT * from pg_stat_replication; 
 查看主从状态：SELECT * from pg_is_in_recovery();
 暂停/恢复主从复制：
 pg_xlog_replay_pause()；

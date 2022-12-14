@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ds-worker
+  namespace: test
+  labels:
+    name: ds-worker
+spec:
+  selector:
+    matchLabels:
+      name: ds-worker
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: ds-worker
+    spec:
+      nodeSelector:
+        name: test86
+      #nodeSelector:
+      #  name: reasoning
+      #tolerations:
+      #  - key: "reasoning"
+      #    operator: "Equal"
+      #    value: "true"
+      #    effect: "NoSchedule"
+      volumes:
+        - name: efs-log
+          persistentVolumeClaim:
+            claimName: efs-claim
+        - name: boot-config
+          configMap:
+            name: boot-properties
+      containers:
+        - name: ds-worker
+          image: 475810397983.dkr.ecr.cn-northwest-1.amazonaws.com.cn/ds-worker:2.0.5
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: TZ
+            value: "Asia/Shanghai"
+          - name: DATABASE_TYPE
+            value: "postgresql"
+          - name: DATABASE_DRIVER
+            value: "org.postgresql.Driver"
+          - name: DATABASE_HOST
+            value: "172.31.14.200"
+          - name: DATABASE_PORT
+            value: "5432"
+          - name: DATABASE_DATABASE
+            value: "dolphinscheduler"
+          - name: DATABASE_USERNAME
+            value: "root"
+          - name: DATABASE_PASSWORD
+            value: "root"
+          - name: REGISTRY_PLUGIN_NAME
+            value: "zookeeper"
+          - name: REGISTRY_SERVERS
+            value: "172.31.14.200:2181"
+          - name: WORKER_GROUPS
+            value: "default,training-gpu"
+          - name: WORKER_SERVER_OPTS
+            value: "-Xms4g -Xmx4g -Xmn2g"
+          - name: DOLPHINSCHEDULER_OPTS
+            value: "-Ddolphin.scheduler.network.interface.preferred=eth0"
+          # 不使用pod hostname注册zk
+          - name: KUBERNETES_SERVICE_HOST
+            value: ""
+          - name: KUBERNETES_SERVICE_PORT
+            value: ""
+          ports:
+            - name: worker-server
+              containerPort: 1234
+          readinessProbe:
+            exec:
+              command: ["bash", "/root/checkpoint.sh", "WorkerServer"]
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          volumeMounts:
+            - name: efs-log
+              mountPath: /data/logs
+            - name: boot-config
+              mountPath: /root/.vevor/boot.properties
+              subPath: boot.properties

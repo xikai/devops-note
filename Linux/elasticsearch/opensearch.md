@@ -25,3 +25,30 @@ curl -XPUT "http://log.example.com/_cluster/settings" -H 'Content-Type: applicat
 ```
 curl "http://log.example.com/_cluster/settings?pretty" |jq .persistent.cluster.max_shards_per_node
 ```
+
+
+# nginx auth_basic代理aws opensearch
+```
+yum install httpd -y
+htpasswd -c /usr/local/openresty/nginx/conf/htpasswd_log username
+New password:
+```
+```
+server {
+  listen 80;
+  server_name log.example.com;
+
+  location / {
+     auth_basic  "HTTP Basic Authentication";
+     auth_basic_user_file /usr/local/openresty/nginx/conf/htpasswd_log;
+     proxy_set_header Authorization "";
+     proxy_hide_header Authorization;
+
+     proxy_pass https://vpc-product-xxxxxxxxxxxxxxxxxxx.us-west-2.es.amazonaws.com;
+     proxy_redirect https://vpc-product-xxxxxxxxxxxxxxxxxxx.us-west-2.es.amazonaws.com/ http://log.example.com/;
+     proxy_set_header Host $host;
+     proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+
+}
+```

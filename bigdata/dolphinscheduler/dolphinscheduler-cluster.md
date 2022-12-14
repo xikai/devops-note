@@ -1,5 +1,6 @@
 * https://dolphinscheduler.apache.org/zh-cn/docs/latest/user_doc/guide/installation/pseudo-cluster.html
 * https://dolphinscheduler.apache.org/zh-cn/docs/latest/user_doc/guide/installation/cluster.html
+* https://developer.aliyun.com/article/1060716
 
 # 准备工作
 ### 安装依赖
@@ -47,13 +48,12 @@ postgres=# dolphinscheduler=# GRANT ALL ON ALL TABLES IN SCHEMA public TO dolphi
 ```
 
 ### 安装MySQL (5.7+)，推荐
-* 安装***
-* 初始化mysql
+* 安装初始化mysql
 ```
 mysql -uroot -p
 
 mysql> CREATE DATABASE dolphinscheduler DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-mysql> GRANT ALL PRIVILEGES ON dolphinscheduler.* TO 'dolphinscheduler'@'%' IDENTIFIED BY 'dolphinscheduler';
+mysql> GRANT ALL PRIVILEGES ON dolphinscheduler.* TO 'dolphinscheduler'@'10.%.%.%' IDENTIFIED BY 'dolphinscheduler';
 mysql> GRANT ALL PRIVILEGES ON dolphinscheduler.* TO 'dolphinscheduler'@'localhost' IDENTIFIED BY 'dolphinscheduler';
 
 mysql> flush privileges;
@@ -175,6 +175,20 @@ registryServers="dolphinscheduler01:2181,dolphinscheduler02:2181,dolphinschedule
 #s3AccessKey="xxxxxxxxxx"
 #s3SecretKey="xxxxxxxxxx"
 ```
+```
+#使用mysql数据库需要下载mysql-connector-java 驱动 (8.0.16) 并移动到 DolphinScheduler 的 lib目录下
+wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.28/mysql-connector-java-8.0.28.jar
+mv mysql-connector-java-8.0.28.jar apache-dolphinscheduler-2.0.5-bin/lib/
+```
+
+* 启动参数配置，bin/dolphinscheduler-daemon.sh
+```
+# 修改日志文件路径
+export DOLPHINSCHEDULER_LOG_DIR=/data/dolphinscheduler/logs
+
+# JVM堆栈大小
+HEAP_OPTS="-Xms1g -Xmx1g -Xmn512m"
+```
 
 * 多租户配置
 >租户对应的是 Linux 的用户，用于 worker 提交作业所使用的用户。如果 linux 没有这个用户，则会导致任务运行失败。你可以通过修改 worker.properties 配置文件中参数 worker.tenant.auto.create=true 实现当 linux 用户不存在时自动创建该用户。worker.tenant.auto.create=true 参数会要求 worker 可以免密运行 sudo 命令
@@ -187,7 +201,7 @@ worker.tenant.auto.create=true
 ```
 su dolphinscheduler
 
-# 初始化数据库
+# 初始化数据库,创建表
 sh script/create-dolphinscheduler.sh
 
 # 启动DolphinScheduler 
@@ -222,7 +236,8 @@ sh ./bin/start-all.sh
 
 # 登录 DolphinScheduler
 ```
-浏览器访问地址 http://apiServers:12345/dolphinscheduler 即可登录系统UI。默认的用户名和密码是 admin/dolphinscheduler123
+浏览器访问地址 http://apiServers:12345/dolphinscheduler 即可登录系统UI。
+默认的用户名和密码是 admin/dolphinscheduler123
 ```
 
 # DolphinScheduler正常运行提供如下的网络端口配置：

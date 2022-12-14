@@ -1,9 +1,10 @@
 * https://www.elastic.co/guide/cn/elasticsearch/guide/current/distributed-cluster.html
 * https://mp.weixin.qq.com/s/y8DNnj4fjiS3Gqz2DFik8w?spm=a2c6h.12873639.0.0.135365aeF1zJoB
+* https://www.zhihu.com/question/327209680
 
 # es集群
 * 集群是由一个或者多个拥有相同 cluster.name 配置的节点组成， 它们共同承担数据和负载的压力。当有节点加入集群中或者从集群中移除节点时，集群将会重新平均分布所有的数据。Elasticsearch 默认被配置为使用单播发现，以防止节点无意中加入集群。
-* Zen Discovery 是 Elasticsearch 的内置默认发现模块（发现模块的职责是发现集群中的节点以及选举 Master 节点）。Zen Discovery 与其他模块集成，例如，节点之间的所有通信都使用 Transport 模块完成。节点使用发现机制通过 Ping 的方式查找其他节点。
+* [Zen Discovery](https://www.elastic.co/guide/en/elasticsearch/reference/5.6/modules-discovery-zen.html) 是 Elasticsearch 的内置默认发现模块（发现模块的职责是发现集群中的节点以及选举 Master 节点）。Zen Discovery 与其他模块集成，例如，节点之间的所有通信都使用 Transport 模块完成。节点使用发现机制通过 Ping 的方式查找其他节点。Elasticsearch 默认被配置为使用单播发现，以防止节点无意中加入集群。
 * 选举，先从各节点认为的 Master 中选，按照 ID 的字典序排序，取第一个。如果各节点都没有认为的 Master ，则从所有节点中选择，规则同上。discovery.zen.minimum_master_nodes ，如果节点数达不到最小值的限制，则循环上述过程，直到节点数足够可以开始选举
 * 脑裂: 同时如果由于网络或其他原因导致集群中选举出多个 Master 节点，使得数据更新时出现不一致，这种现象称之为脑裂，即集群中不同的节点对于 Master 的选择出现了分歧，出现了多个 Master 竞争。
 
@@ -11,7 +12,7 @@
 * master节点
 ```
 node.master=true 表示此节点具有被选举为主节点的资格。默认true候选主节点
-主节点负责创建索引、删除索引、跟踪哪些节点是群集的一部分，并决定哪些分片分配给相关的节点、更新集群状态等，稳定的主节点对集群的健康是非常重要的。
+主节点负责创建索引、删除索引、跟踪哪些节点是群集的一部分，并决定哪些分片分配给哪些节点、更新集群状态等，稳定的主节点对集群的健康是非常重要的。
 而主节点并不需要涉及到文档级别的变更和搜索等操作，所以当集群只拥有一个主节点的情况下，即使流量的增加它也不会成为瓶颈。
 ```
 * data节点
@@ -298,7 +299,45 @@ curl -XPUT http:/localhost:9200/my-index-000001/_settings -d '{
   "index.indexing.slowlog.source": "1000"
 }'
 ```
+
+* 示例
+```
+curl -XPUT http:/localhost:9200/my-index-000001/_settings -d '{
+  "index.search.slowlog.threshold.query.warn": "250ms",
+  "index.search.slowlog.threshold.fetch.warn": "250ms",
+  "index.indexing.slowlog.threshold.index.warn": "250ms",
+  "index.indexing.slowlog.level": "warn",
+  "index.indexing.slowlog.source": "1000"
+}'
+```
+
 * 查看索引慢日志设置
 ```
 curl -XGET  http:/localhost:9200/my-index-000001/_settings?pretty
+```
+
+
+# GC log
+* vim jvm.options
+```
+## GC logging
+
+-XX:+PrintGCDetails
+-XX:+PrintGCTimeStamps
+-XX:+PrintGCDateStamps
+
+-Xloggc:/data/elasticsearch/logs/gc.log
+```
+
+# [elasticsearch-head](https://github.com/mobz/elasticsearch-head) 
+
+```
+docker run -d --name elasticsearch-head -p 9100:9100 mobz/elasticsearch-head:5
+```
+
+* 修改es配置(elasticsearch.yml)，允许跨域访问
+```
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+http.cors.allow-headers: Authorization
 ```

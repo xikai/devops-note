@@ -25,6 +25,7 @@ docker-compose up -d --scale dolphinscheduler-worker=3 dolphinscheduler-worker
 ```
 
 # 在其它主机启动worker容器
+* postgresql
 ```
 docker run -d --name dolphinscheduler-worker \
 --net=host \
@@ -33,6 +34,20 @@ docker run -d --name dolphinscheduler-worker \
 -e REGISTRY_PLUGIN_NAME=zookeeper \
 -e REGISTRY_SERVERS=172.31.40.12:2181 \
 apache/dolphinscheduler:latest worker-server
+```
+* mysql
+```
+docker run -d --name dolphinscheduler-worker \
+--net=host \
+-e DATABASE_TYPE=mysql \
+-e DATABASE_DRIVER="com.mysql.jdbc.Driver" \
+-e DATABASE_HOST="172.31.40.12" -e DATABASE_PORT="3306" -e DATABASE_DATABASE="dolphinscheduler" -e DATABASE_PARAMS="useUnicode=true&characterEncoding=UTF-8" \
+-e DATABASE_USERNAME="dolphinscheduler" -e DATABASE_PASSWORD="123456" \
+-e REGISTRY_PLUGIN_NAME=zookeeper \
+-e REGISTRY_SERVERS="zk_mid01:2181,zk_mid02:2181,zk_mid03:2181" \
+-e WORKER_SERVER_OPTS="-Dworker.listen.port=1235" \
+-e WORKER_GROUPS="default,rsearch-training" \
+apache/dolphinscheduler:2.0.5-bab-lr worker-server
 ```
 
 # worker环境部署

@@ -141,7 +141,7 @@ tailf /var/log/pluto.log
 ipsec auto --status
 ```
 
-### 防火墙策略开发udp500 和 udp4500端口
+### 防火墙策略开放ipsec端口（udp500 和 udp4500）
 ```
 针对 Internet Key Exchange (IKE) 协议的 UDP 端口 500
 针对 IKE NAT-Traversal的 UDP 端口 4500

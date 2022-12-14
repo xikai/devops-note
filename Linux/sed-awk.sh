@@ -43,6 +43,8 @@ grep -rl profile jobs/*/config.xml |xargs sed -i '/profile/n;s/test/dev/'
 
 --------------------------------------------------------------------------------
 https://www.cnblogs.com/emanlee/p/3327576.html
+https://mp.weixin.qq.com/s/OFjy_EIJKCLwF7rwAaeOFw
+
 awk内置变量
 NR             已经读出的记录数
 FNR            当前输入的记录号

@@ -1,3 +1,7 @@
+* 查看指定节点的标签
+```
+kubectl get nodes --show-labels -l name=front-b
+```
 ```
 kubectl -n prod run -it busybox --image=busybox
 ```

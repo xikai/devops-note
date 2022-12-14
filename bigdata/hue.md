@@ -1,6 +1,8 @@
 * https://docs.gethue.com/quickstart/
 * https://www.freesion.com/article/8216110109/
 
+* Hue(Hadoop User Experience)是一个开源的Apache Hadoop UI系统
+
 # Dependencies
 * Python 2.7
 * MySQL / MariaDB

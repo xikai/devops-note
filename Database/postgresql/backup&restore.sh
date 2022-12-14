@@ -1,14 +1,14 @@
 #一般备份恢复(pg_dump)
-pg_dump product > product_20151229.dmp  
-psql product < product_20151229.dmp >/dev/null
+pg_dump product > product_20151229.sql
+psql product < product_20151229.sql >/dev/null
 
 #gzip压缩备份大数据
-pg_dump product |gzip > product.dmp.gz
-gunzip -c product.dmp.gz |psql product >/dev/null
+pg_dump product |gzip > product.sql.gz
+gunzip -c product.sql.gz |psql product >/dev/null
 
 #备份恢复所有数据库
-pg_dumpall |gzip > all_20160524.dmp.gz
-gunzip -c all_20160524.dmp.gz |psql >/dev/null
+pg_dumpall |gzip > all_20160524.sql.gz
+gunzip -c all_20160524.sql.gz |psql >/dev/null
 
 #恢复指定库
 pg_dump -h 202.10.76.7 -U kong kong |psql -h 172.22.0.20 -U kong kong
@@ -18,11 +18,11 @@ pg_dump -F t product product.tgz        #tar归档格式转储的不
 pg_restore -d product product.tgz
 
 #备份表
-pg_dump -U tomtop image -t t_file_route > t_file_route.dmp
-pg_dump -U tomtop image -t t1 -t t2 > ts.dmp
+pg_dump -U tomtop image -t t_file_route > t_file_route.sql
+pg_dump -U tomtop image -t t1 -t t2 > ts.sql
 
 #执行SQL文件
-psql -d order -f aa.dmp
+psql -d order -f aa.sql
 
 
 #冷备份恢复(关闭postgres数据库服务，拷贝系统数据文件)

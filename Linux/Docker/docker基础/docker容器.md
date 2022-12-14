@@ -6,9 +6,12 @@ docker run -i -t centos /bin/bash
 docker run -d --name container_name centos
 ```
 
-* 查看所有状态的容器
+* 查看容器
 ```
+#列出所有容器
 docker ps -a
+#列出exited状态的容器
+docker ps -a -f status=exited 
 ```
 
 * 启动、重启容器
@@ -72,8 +75,9 @@ docker import test_for_run.tgz centos:7
 * 删除容器
 ```
 docker rm 4273769dae71
-docker rm -f 4273769dae71   # 强行删除正在运行的容器
-docker rm $(docker ps -a -q)    # 删除所有己经停止的容器
+docker rm -f 4273769dae71                       # 强行删除正在运行的容器
+docker rm $(docker ps -a -q -f status=exited)   # 删除exited状态的容器
+docker rm $(docker ps -a -q)                    # 删除所有的容器
 ```
 
 
