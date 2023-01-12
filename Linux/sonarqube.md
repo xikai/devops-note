@@ -289,7 +289,6 @@ import hashlib
 import base64
 import urllib.parse
 import requests
-from jsonpath import jsonpath
 
 # 获取命令行参数
 parser = argparse.ArgumentParser(description='manual to this script')
