@@ -1,3 +1,6 @@
+* https://manpages.debian.org/testing/logrotate/logrotate.8.en.html
+* https://www.redhat.com/sysadmin/setting-logrotate
+* https://linux.cn/article-4126-1.html
 * https://blog.csdn.net/forthemyth/article/details/44062529
 
 * nginx日志切割配置

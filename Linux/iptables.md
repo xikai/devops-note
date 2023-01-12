@@ -19,6 +19,17 @@
 - DROP - 拒绝
 - ACCEPT - 允许
 - REJECT - 拒绝,丢弃包的同时给发送者发送没有接受的通知
+  ```
+  REJECT动作的常用选项为--reject-with,使用--reject-with选项，可以设置提示信息，当对方被拒绝时，会提示对方为什么被拒绝。可用值如下:
+  当不设置任何值时，默认值为icmp-port-unreachable。
+  icmp-net-unreachable
+  icmp-host-unreachable
+  icmp-port-unreachable
+  icmp-proto-unreachable
+  icmp-net-prohibited
+  icmp-host-pro-hibited
+  icmp-admin-prohibited
+  ```
 - LOG - 日志记录
 
 ### 表链关系匹配顺序
@@ -75,8 +86,9 @@ RELATED                和己经建立连接相关的连接数数包
 INVALID                与任何已知的流或连接都不相关联,它可能包含错误的数据或头.
 
 eg:
+添加一条规则 只允许本机22号端口的响应包
 iptables -A INPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
-添加一条规则为只允许响应对方请求22号端口
+
 
 
 # 日志记录

@@ -212,17 +212,26 @@ docker run \
 
 
 # [webhook通知](https://docs.sonarqube.org/latest/project-administration/webhooks/)
+>当项目分析完成时，Webhooks 会通知外部服务。一个包含JSON负载的HTTP POST请求会发送给每个设置的URL。
 * sonarqube -> 配置 -> 网络调用
 ```
-名称	      URL
-jenkins	  http://[jenkins_server_ip:port]/sonarqube-webhook/
+名称: jenkins	  
+URL: http://[jenkins_server_ip:port]/sonarqube-webhook/
+密码: abc123    #如果提供了密码，会用来生成16进制（小写）HMAC摘要，对应值会包含在'X-Sonar-Webhook-HMAC-SHA256'头部
 ```
 
+* SonarQube代码扫描阈值设定
+```
+SonarQube > 质量阈
+```
+
+# Jenkins python通知
 ```groovy
 pipeline {
     agent any
     environment {
         scannerHome = tool 'sonarScanner4.7';
+        def BRANCH_NAME = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
     }
     
     stages {
@@ -237,8 +246,8 @@ pipeline {
                 withSonarQubeEnv('sonarqube138') {
                     sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=${JOB_NAME}"
                 }
-                timeout(time: 5, unit: 'MINUTES') {
-                    script {
+                timeout(time: 5, unit: 'MINUTES') {  //设置超时时间5分钟，如果Sonar Webhook失败，不会出现一直卡在检查状态
+                    script { //利用Sonar webhook功能通知pipeline代码检测结果，未通过质量阈，jenkins pipeline将会failed
                         def qg = waitForQualityGate('sonarqube138')
                         if (qg.status != 'OK') {
                             error "未通过Sonarqube的代码质量阈检查，请及时修改！failure: ${qg.status}"
@@ -248,5 +257,149 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            script {
+                echo 'Dingtalk Notification' 
+                def BUILD_STATUS = "${currentBuild.currentResult}"
+                sh "python3 /data/jenkins/workspace/front-k8s-config/script/dingtalk-notification.py --branch_name=${BRANCH_NAME} --build_status=${BUILD_STATUS}"
+            }
+        }
+        failure {
+            script {
+                echo 'Dingtalk Notification' 
+                def BUILD_STATUS = "${currentBuild.currentResult}"
+                sh "python3 /data/jenkins/workspace/front-k8s-config/script/dingtalk-notification.py --branch_name=${BRANCH_NAME} --build_status=${BUILD_STATUS}"
+            }
+        }
+    }
 }
+```
+
+* dingtalk-notification.py
+```py
+# coding=utf-8
+import os
+import argparse
+import json
+import time
+import hmac
+import hashlib
+import base64
+import urllib.parse
+import requests
+from jsonpath import jsonpath
+
+# 获取命令行参数
+parser = argparse.ArgumentParser(description='manual to this script')
+parser.add_argument('--branch_name', type=str, default=None)
+parser.add_argument('--build_status', type=str, default=None)
+args = parser.parse_args()
+
+# 获取Jenkins变量
+JOB_NAME = str(os.getenv("JOB_NAME"))
+BUILD_URL = str(os.getenv("BUILD_URL")) + "console"
+BUILD_NUMBER = str(os.getenv("BUILD_NUMBER"))
+BRANCH_NAME = args.branch_name
+BUILD_STATUS = args.build_status
+
+
+def notification():
+    bugs = ''
+    vulnerabilities = ''
+    code_smells = ''
+    coverage = ''
+    duplicated_lines_density = ''
+    alert_status = ''
+    dingMsg = ''
+    SonarQube_URL = 'http://172.31.195.138:9000/dashboard?id=' + JOB_NAME
+
+    # sonar API
+    sonar_Url = 'http://172.31.195.138:9000/api/measures/search?projectKeys=' + JOB_NAME + \
+ '&metricKeys=alert_status%2Cbugs%2Creliability_rating%2Cvulnerabilities%2Csecurity_rating%2Ccode_smells%2Csqale_rating%2Cduplicated_lines_density%2Ccoverage%2Cncloc%2Cncloc_language_distribution'
+ 
+    # 获取sonar指定项目结果
+    response = requests.get(sonar_Url,auth=('admin', '123456')).text
+    print(response)
+    
+    # 转换成josn
+    result = json.loads(response)
+
+    # 解析sonar json结果
+    for item in result['measures']:
+        if item['metric'] == "bugs":
+            bugs = item['value']
+        elif item['metric'] == "vulnerabilities":
+            vulnerabilities = item['value']
+        elif item['metric'] == 'code_smells':
+            code_smells = item['value']
+        elif item['metric'] == 'coverage':
+            coverage = item['value']
+        elif item['metric'] == 'duplicated_lines_density':
+            duplicated_lines_density = item['value']
+        elif item['metric'] == 'alert_status':
+            alert_status = item['value']
+        else:
+            pass
+
+
+    # 判断构建状态
+    if BUILD_STATUS == 'SUCCESS':
+        title = '<font color="green" face="黑体">构建成功</front>'
+    elif BUILD_STATUS == 'FAILURE':
+        title = '<font color="red" face="黑体">构建失败</front>'
+
+    dingMsg = '# ' + title + '\n' + \
+              '> ##### 项目名:' + JOB_NAME + '\n' + \
+              '> ##### 分支: ' + BRANCH_NAME + '\n' + \
+              '> ##### 构建号: ' + BUILD_NUMBER + '\n' + \
+              '> ##### Jenkins:  [查看详情](' + BUILD_URL + ') \n' + \
+              '---' + '\n' + \
+              '### 代码分析报告:' + '\n' + \
+              '> ##### 新代码质量: ' + alert_status + '\n' + \
+              '> ##### Bug数: ' + bugs + '个 \n' + \
+              '> ##### 漏洞数: ' + vulnerabilities + '个 \n' + \
+              '> ##### 代码异味: ' + code_smells + '行 \n' + \
+              '> ##### 覆盖率: ' + coverage + '% \n' + \
+              '> ##### 重复率: ' + duplicated_lines_density + '% \n' + \
+              '> ##### SonarQube:  [查看详情](' + SonarQube_URL + ') \n'
+
+    send_msg(title,dingMsg)
+
+
+def send_msg(title,msg):
+    timestamp = str(round(time.time() * 1000))
+    secret = 'SECxxxxxxxxxxxxxx'
+    secret_enc = secret.encode('utf-8')
+    string_to_sign = '{}\n{}'.format(timestamp, secret)
+    string_to_sign_enc = string_to_sign.encode('utf-8')
+    hmac_code = hmac.new(secret_enc, string_to_sign_enc, digestmod=hashlib.sha256).digest()
+    sign = urllib.parse.quote_plus(base64.b64encode(hmac_code))
+    # print(timestamp)
+    # print(sign)
+    prefix = 'https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxxxxxxx'
+    url = f'{prefix}&timestamp={timestamp}&sign={sign}'
+    headers = {'Content-Type': 'application/json', "Charset": "UTF-8"}
+    data = {
+        "msgtype": "markdown",
+        "markdown": {
+            "title":str(title),
+            "text": str(msg)
+        },
+         "at": {
+            #"atMobiles": [
+            #    "150XXXXXXXX"
+            #],
+            #"atUserIds": [
+            #    "user123"
+            #],
+            "isAtAll": "true"
+        }
+    }
+    return requests.post(url=url, data=json.dumps(data), headers=headers)
+
+if __name__ == "__main__":
+    print(JOB_NAME + "\n" + BUILD_URL + "\n" + BRANCH_NAME + "\n" + BUILD_NUMBER + "\n" + BUILD_STATUS)
+    notification()
 ```

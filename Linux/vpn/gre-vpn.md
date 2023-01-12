@@ -65,7 +65,8 @@ ifup grevpn
 route add -net 172.16.0.0/24 dev grevpn
 ```
 
-# host_office
+----------------------------------------------------------------
+# host_office（office）
 > public_ip:103.50.252.2 , private_subnet: 172.16.0.0/24
 ```
 cat > /etc/sysconfig/network-scripts/ifcfg-grevpn <<EOF

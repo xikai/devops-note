@@ -32,6 +32,11 @@ curl "http://log.example.com/_cluster/settings?pretty" |jq .persistent.cluster.m
 yum install httpd -y
 htpasswd -c /usr/local/openresty/nginx/conf/htpasswd_log username
 New password:
+
+# 生成用户到密码文件（非交互式）
+htpasswd -bc /usr/local/openresty/nginx/conf/htpasswd_log username password
+# 新增用户
+htpasswd -b /usr/local/openresty/nginx/conf/htpasswd_log username2 password2
 ```
 ```
 server {

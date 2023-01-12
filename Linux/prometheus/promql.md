@@ -130,6 +130,30 @@ count by (app) (instance_cpu_time_ns)
 topk(3, sum by (app, proc) (rate(instance_cpu_time_ns[5m])))
 ```
 
+* \<aggregation\>_over_time() 时序范围内的取值
+>kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff", job="kube-state-metrics"}[5m]
+```
+kube_pod_container_status_waiting_reason{container="filebeat", instance="10.20.22.154:8443", job="kube-state-metrics", namespace="logs", pod="filebeat-p9bxc", reason="CrashLoopBackOff", uid="04b1fffe-ecac-435a-8025-58556f6b02d2"}
+1 @1672717347.934
+1 @1672717377.934
+1 @1672717407.934
+1 @1672717437.934
+1 @1672717467.934
+1 @1672717497.934
+1 @1672717527.934
+1 @1672717557.934
+1 @1672717587.934
+1 @1672717617.934
+```
+```
+# 取5分钟内所有时序点的最大值
+max_over_time(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff", job="kube-state-metrics"}[5m])   # 返回1
+
+min_over_time(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff", job="kube-state-metrics"}[5m])   # 返回1
+avg_over_time(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff", job="kube-state-metrics"}[5m])   # 返回1
+sum_over_time(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff", job="kube-state-metrics"}[5m])   # 返回10
+```
+
 # [内置函数](https://prometheus.io/docs/prometheus/latest/querying/functions/)
 * https://www.bookstack.cn/read/prometheus-manual/prometheus-querying-functions.md
 ### [rate / irate](https://segmentfault.com/a/1190000040783147)

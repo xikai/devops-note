@@ -155,23 +155,23 @@ server 10.7.0.0 255.255.255.0
 push "route 172.22.0.0 255.255.240.0"
 push "route 172.22.16.0 255.255.240.0"
 push "route 172.22.32.0 255.255.240.0"
-
-#push "redirect-gateway def1 bypass-dhcp" # 如果启用该行指令，所有客户端的默认网关都将重定向到VPN
+#push "redirect-gateway def1 bypass-dhcp"   #推送网关及DHCP配置到客户端，让客户端所有流量都通过VPN代理转发
 #向windows客户端推送DNS服务器地址
 #push "dhcp-option DNS 208.67.222.222"
 #push "dhcp-option DNS 208.67.220.220"
-compress lzo
-duplicate-cn
-keepalive 10 120
-comp-lzo
-persist-key
+compress lzo       
+duplicate-cn       #允许同一个客户端证书多次登录
+keepalive 10 120   #每10秒ping一次，连接超时时间设为120秒
+comp-lzo           #使用lzo压缩的通讯,服务端和客户端都必须配置
+#重启时仍保留一些状态
+persist-key       
 persist-tun
 user openvpn
 group openvpn
 log         /var/log/openvpn/openvpn.log
 log-append  /var/log/openvpn/openvpn.log
 status /var/log/openvpn/openvpn-status.log
-verb 3
+verb 3          #指定日志文件的记录详细级别，可选0-9，等级越高日志内容越详细 
 explicit-exit-notify 1
 ```
 
@@ -189,6 +189,19 @@ sysctl -p
 mkdir /var/log/openvpn
 chown openvpn.openvpn /var/log/openvpn
 openvpn --daemon --config server.conf
+```
+```
+[Unit]
+Description=OpenVPN Robust And Highly Flexible Tunneling Application On %I
+After=network.target
+
+[Service]
+Type=simple
+PrivateTmp=true
+ExecStart=/usr/sbin/openvpn --cd /etc/openvpn/ --config %i.conf
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 # 配置openvpn client
