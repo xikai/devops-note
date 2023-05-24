@@ -157,13 +157,13 @@ sum_over_time(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"
 # [内置函数](https://prometheus.io/docs/prometheus/latest/querying/functions/)
 * https://www.bookstack.cn/read/prometheus-manual/prometheus-querying-functions.md
 ### [rate / irate](https://segmentfault.com/a/1190000040783147)
-* rate 计算指定时间范围内数据缓慢变化率
+* rate 计算时间范围内抓取的所有度量指标数据缓慢变化率
 ```
 取时间范围内的firstValue和lastValue；
 变化率 = (lastValue - firstValue) / Range；
 ```
 
-* irate 计算指定时间范围内数据快速变化率
+* irate 计算时间范围内抓取的所有度量指标数据快速变化率
 ```
 取时间范围内的lastValue和lastBeforeValue = (lastValue - 1)；
 变化率 = (lastValue - lastBeforeValue) / Range；

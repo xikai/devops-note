@@ -16,10 +16,13 @@ kubectl get events -n test --watch
 # k8s资源使用情况
 * 查看节点资源使用情况
 ```
-kubectl top node
+kubectl top nodes
+kubectl top nodes --selector="name=front-c"
 ```
-* 按pod内存使用大小排序
+* 按pod cpu内存使用大小排序
 ```
+kubectl top nodes --sort-by=cpu
+kubectl top nodes --sort-by=memory
 kubectl top pod --all-namespaces |sort -k 4 -nr
 ```
 * 查看指定工作节点己使用的资源

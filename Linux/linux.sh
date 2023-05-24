@@ -1,3 +1,6 @@
+重定向
+2>&1 将 stderr 重定向到 stdout，错误消息被发送到与标准输出相同的地方
+
 网络连接
 #统计当前tcp连接80端口的IP数
 netstat -antp|grep ESTABLISHED |awk -F'[ :]+' '{if($5==80) print $6}'|sort|uniq -c|sort -nr|wc -l
@@ -55,7 +58,8 @@ grep -rl "rm-wz90448rzu9sd21h0.mysql.rds.aliyuncs.com" * |xargs perl -pi -e 's|r
 #curl带头部参数的post请求
 curl -H "token: 8dbcc3fd-22f2-452e-b205-a2b268746219" -H "Content-Type: application/json" -X POST -d '{"from":"chicuu@chicuu.com","toEmail":"2853635728@qq.com","title":"test111","content":"0000000000content test11"}' http://email.api.tomtop.com/email/send
 #curl proxy访问
-curl --proxy 1.1.1.1:7070 https://www.google.com
+curl -U [username:password] --proxy 1.1.1.1:7070 https://www.google.com
+
 
 #yum下载相关依赖rpm包文件
 yum install --downloadonly --downloaddir=./packages chrony libreswan aide

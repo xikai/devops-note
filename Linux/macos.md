@@ -83,3 +83,6 @@ sudo route delete -net 10.128.0.0/20
 ```
 netstat -nr
 ```
+
+# [iterm2 color](https://iterm2colorschemes.com/)
+* [github dark](https://raw.githubusercontent.com/mbadolato/iTerm2-Color-Schemes/master/schemes/GitHub%20Dark.itermcolors)

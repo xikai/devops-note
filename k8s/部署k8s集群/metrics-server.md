@@ -1,8 +1,15 @@
+* https://github.com/kubernetes-sigs/metrics-server
+* https://docs.aws.amazon.com/zh_cn/eks/latest/userguide/metrics-server.html
+
 ### 部署 Metrics Server
 * 下载资源清单文件
 ```
 wget https://github.com/kubernetes-sigs/metrics-server/releases/download/latest/components.yaml -O metrics-server.yaml
+
+# High Availability
+wget https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/high-availability-1.21+.yaml -O metrics-server-ha-1.21+.yaml
 ```
+
 * 修改清单
 ```yml
 apiVersion: apps/v1

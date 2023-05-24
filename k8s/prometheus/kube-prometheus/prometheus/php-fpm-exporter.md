@@ -1,4 +1,5 @@
 * https://github.com/hipages/php-fpm_exporter
+* https://github.com/bakins/php-fpm-exporter
 * https://www.cnblogs.com/91donkey/p/14035441.html
 * https://www.jianshu.com/p/0d0439e03e08
 
@@ -6,6 +7,7 @@
 ### 开启php-fpm status页面
 * vim php-fpm.conf
 ```
+listen = /run/php/php7-fpm.sock
 pm.status_path = /php-status
 ping.path = /ping
 ```
@@ -16,6 +18,9 @@ apiVersion: apps/v1
 kind: Deployment
 ……
     spec:
+      volumes:
+        - name: phpsock
+          emptyDir: {}
       containers:
       - name: phpfpm-exporter
         image: hipages/php-fpm_exporter
@@ -33,6 +38,14 @@ kind: Deployment
             mountPath: /run/php
             subPath: phpsock
 ```
+* 获取phpfpm status信息
+```
+# 默认请求（PHP_FPM_SCRAPE_URI）
+php-fpm_exporter get
+
+# 指定获取地址
+php-fpm_exporter get --phpfpm.scrape-uri tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status
+```
 
 
 # k8s 自动发现php pod
@@ -40,20 +53,10 @@ kind: Deployment
 ```yml
 apiVersion: apps/v1
 kind: Deployment
-metadata:
-  name: web
-  namespace: front
-  labels:
-    name: web
+……
 spec:
-  selector:
-    matchLabels:
-      name: web
-  replicas: 2
   template:
     metadata:
-      labels:
-        name: web
       annotations:
         prometheus.io/scrape: php-fpm
 ```
@@ -88,7 +91,7 @@ spec:
 kubectl create secret generic additional-scrape-configs --from-file=prometheus-additional.yaml --dry-run -oyaml |kubectl apply -n monitoring -f -
 
 #查看secret for additional-scrape-configs
-kubectl get secret additional-scrape-configs -n monitoring -oyaml |yq e '.data ."prometheus-additional.yaml"' - |base64 -d
+kubectl get secret additional-scrape-configs -n monitoring -oyaml |yq '.data ."prometheus-additional.yaml"' - |base64 -di
 ```
 
 

@@ -68,8 +68,8 @@ iptables [-t table] <-A|I|D|R> chain[规则编号] -p 协议 -s/-d 源/目标IP(
 # 增删改查：
 iptables -P INPUT/OUTPUT/FORWORD DROP        将防火墙默认规则设为默认拒绝所有
 iptables -L -n --line-numbers                显示行号，便于插入规则
-iptables -D chain 编号                       删除链中指定的规则
-iptables -I chain [编号]                     将规则插入第n条,不写编号时默认插入第一条
+iptables -D chain 编号|规则                    删除链中指定的规则
+iptables -I chain [编号]                      将规则插入第n条,不写编号时默认插入第一条
 
 保存制定的规则到/etc/sysconfig/iptables文件中，下次重启系统时默认添加被保存的规则：
 services iptables save  或  iptables-save >/etc/sysconfig/iptables
@@ -116,22 +116,24 @@ iptables -A RH-Firewall-1-INPUT -j DROP
 iptables -t nat -L     #查看NAT规则
 ```
 
-* SNAT:POSTROUTING转换，只允许内网到外网
-```bash
-10.0.0.241------->eth0:10.0.0.254 -------->192.168.0.1
-    内            eth1:192.168.0.254          外
+* SNAT:从内网到外网，POSTROUTING源地址转换
+```bash             iptables-server
+10.0.0.241---内---> eth0:10.0.0.254 
+                    eth1:202.103.96.1 ----外----> 202.103.96.112       
 
-iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -j SNAT --to-source 192.168.0.254  #外网接口_ip:跳转到源地址转换，转换为外网接口地址(静态IP)
-iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -j MASQUERADE #转换为动态分配的IP地址
+# 允许内网10.0.0.0/24 通过SNAT转换IP为202.103.96.1 去访问外网
+iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -j SNAT --to-source 202.103.96.1
+# 假如当前系统用的是ADSL/3G/4G动态拨号方式，那么每次拨号，出口IP都会改变，SNAT就会有局限性（重点在MASQUERADE这个设定值就是IP伪装成为封包出去(-o)的那块网卡上的IP，不管现在eth0的出口获得了怎样的动态ip，MASQUERADE会自动读取eth0现在的ip地址然后做SNAT出去，这样就实现了很好的动态SNAT地址转换。）
+iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o eth0 -j MASQUERADE #MASQUERADE转换为动态分配的IP地址（如果-o被忽略将匹配所有网卡）
 ```
 
-* DNAT:PREROUTING转换，允许从外网到内网
-```bash
-10.0.0.241 <-------eth0:10.0.0.254 <--------192.168.0.1
-   内(webserver)   eth1:192.168.0.254            外
+* DNAT:从外网到内网，PREROUTING目的地址转换
+```bash            iptables-server
+10.0.0.241 <------ eth0:10.0.0.254 
+内部(webserver)     eth1:202.103.96.1 <----外网---- 202.103.96.112         
 
-# 将外网关的地址转换为内网WEB服务器地址(在防火墙上发布WEB服务器，让外网用户访问)
-iptables -t nat -A PREGOUTING -d 192.168.0.254 -p tcp --dport 80 -j DNAT --to-destination 10.0.0.241
+# 在iptables-server上DNAT映射webserver让外网用户访问 ，将访问202.103.96.1的数据转发到10.0.0.241（将目地地址10.0.0.241转换为202.103.96.1）
+iptables -t nat -A PREROUTING -p tcp -d 202.103.96.1 --dport 80 -j DNAT --to-destination 10.0.0.241
 ```
 
 ```bash
@@ -148,8 +150,8 @@ iptables -A FORWARD -d 10.0.0.0/24 -j ACCEPT      允许外网地址NAT转换为
 iptables -t nat -A PREROUTING -p tcp --dport 16379 -j REDIRECT --to-port 6379
 
 # 跨主机端口重定向
-iptables -t nat -A PREROUTING -p tcp --dport 6379 -j DNAT --to-destination 172.31.21.29:6379
-iptables -t nat -A POSTROUTING -p tcp -d 172.31.21.29 --dport 6379 -j SNAT --to-source 172.31.36.121
+iptables -t nat -A PREROUTING -p tcp -d 172.31.36.155 --dport 6379 -j DNAT --to-destination 172.31.21.29:6379
+iptables -t nat -A POSTROUTING -p tcp -d 172.31.21.29 --dport 6379 -j SNAT --to-source 172.31.36.155
 
 # 通过ssh隧道跨主机端口转发
 ssh -f -N -L :16379:172.31.21.29:6379 root@172.31.21.29

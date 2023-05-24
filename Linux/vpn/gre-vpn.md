@@ -100,7 +100,6 @@ route add -net 10.30.0.0/16 dev grevpn
 
 
 # [cisco router（office）](https://image.ruijie.com.cn/Upload/Article/bc0fae82-6898-457d-ae7c-3a7113c1fc94/%E8%B7%AF%E7%94%B1%E4%BA%A7%E5%93%81/%E8%B7%AF%E7%94%B1%E4%BA%A7%E5%93%81/2018092015001400267.html)
-* https://image.ruijie.com.cn/Upload/Article/bc0fae82-6898-457d-ae7c-3a7113c1fc94/%E8%B7%AF%E7%94%B1%E4%BA%A7%E5%93%81/%E8%B7%AF%E7%94%B1%E4%BA%A7%E5%93%81/
 ```
 19:14 $ telnet 172.16.0.1
 Trying 172.16.0.1...

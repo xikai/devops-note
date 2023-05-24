@@ -16,3 +16,7 @@ Environment="ALL_PROXY=socks5://127.0.0.1:1080"
 systemctl daemon-reload
 systemctl restart docker
 ```
+
+### 国内公共docker镜像站
+* https://github.com/DaoCloud/public-image-mirror
+* quay.io 改成 quay.mirrors.ustc.edu.cn

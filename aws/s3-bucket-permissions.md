@@ -28,7 +28,7 @@
 > Amazon S3 > 存储桶 > s3_bucket > 编辑存储桶策略
 1, [向匿名用户授予只读权限](https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/example-bucket-policies.html#example-bucket-policies-use-case-2)
 * 必须先禁用“阻止公有访问”
-```
+```json
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -42,7 +42,15 @@
             ],
             "Resource": [
                 "arn:aws:s3:::DOC-EXAMPLE-BUCKET/*"
-            ]
+            ]/*,
+            "Condition": {
+                "IpAddress": {
+                    "aws:SourceIp": [
+                        "58.33.106.130/32",
+                        "205.198.107.33/32"
+                    ]
+                }
+            }*/
         }
     ]
 }

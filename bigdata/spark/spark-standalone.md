@@ -1,6 +1,8 @@
+* https://zhuanlan.zhihu.com/p/583049605
 * https://spark.apache.org/docs/latest/
 * https://spark.apachecn.org/
 
+>Spark 保持了 MapReduce 的可扩展、分布式、容错处理框架的优势，同时使其更高效、更易于使用；Spark作为Hadoop MapReduce的替代方案，大部分应用场景中，它还要依赖于 HDFS 和 HBase 来存储数据，依赖于 YARN 来管理集群和资源
 
 # 部署spark standalone
 * 下载：https://spark.apache.org/downloads.html

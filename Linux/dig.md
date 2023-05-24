@@ -8,11 +8,6 @@
 dig www.examples.com @dns_server
 ```
 
-# +short简短查询
-```
-dig www.sysgeek.cn +short
-```
-
 # dig 命令的输出：
 * 第一行会打印出已安装的 dig 版本，以及查询的域名；第二行显示全局选项（默认情况下，仅有 cmd）
 ```
@@ -47,4 +42,26 @@ www.vevor.es.		600	IN	CNAME	d2rppkpbg5vd3z.cloudfront.net.
 ;; SERVER: 173.201.69.32#53(173.201.69.32)
 ;; WHEN: Sat Nov 05 00:55:00 CST 2022
 ;; MSG SIZE  rcvd: 84
+```
+
+# +short简短查询
+* 只输出value
+```
+dig www.sysgeek.cn +short
+```
+
+# 过滤SECTION
+>dig -h 查看所有参数
+* 不输出指定内容，如状态信息
+```
+dig www.sysgeek.cn +nostats
+```
+* 只输出answer部分
+```
+dig www.sysgeek.cn +noall +answer
+```
+
+# +trace跟踪整个查询过程
+```
+dig www.sysgeek.cn +trace
 ```

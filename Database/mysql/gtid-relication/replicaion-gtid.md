@@ -84,7 +84,7 @@ log-bin = mysql-bin
 binlog_format =row
 
 replicate-ignore-db=information_schema
-replicate-ignore-db=mysql  #忽略同步mysql，也会同步主库sql创建的用户
+replicate-ignore-db=mysql  #忽略同步mysql，也会同步主库DDL sql创建的用户
 replicate-ignore-db=performance_schema
 replicate-ignore-db=sys
 

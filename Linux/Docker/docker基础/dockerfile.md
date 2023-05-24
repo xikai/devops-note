@@ -1,20 +1,38 @@
-* https://yeasy.gitbook.io/docker_practice/image/dockerfile/entrypoint
+* https://docs.docker.com/engine/reference/builder/#cmd
+* https://docs.docker.com/engine/reference/builder/#entrypoint
 
-# CMD && ENTRYPOINT
-### ENTRYPOINT、CMD同时存在时,CMD作为ENTRYPOINT指定参数
+# 指令格式
+* CMD指令三种格式：
+```sh
+# exec form, this is the preferred form
+CMD ["executable","param1","param2"]
+# shell form
+CMD command param1 param2
+# as default parameters to ENTRYPOINT
+CMD ["param1","param2"]
+```
+* ENTRYPOINT、CMD同时存在时,CMD作为ENTRYPOINT指定参数
 ```
 ENTRYPOINT ["/bin/echo"] 
 CMD ["this is a test"]
 docker run -it imageecho 输出"this is a test"（执行/bin/echo "this is a test"）
 ```
 
-### 覆盖
-* docker run的参数会覆盖CMD
+* ENTRYPOINT指令两种格式:
+```sh
+# exec form, this is the preferred form
+ENTRYPOINT ["executable", "param1", "param2"]
+# shell form
+ENTRYPOINT command param1 param2
+```
+
+# 覆盖（docker run的参数会覆盖CMD）
 ```
 # demo
 FROM ubuntu:trusty
 CMD ping localhost
 ```
+* docker run无参数
 ```
 $ docker run -t demo
 PING localhost (127.0.0.1) 56(84) bytes of data.
@@ -25,6 +43,7 @@ PING localhost (127.0.0.1) 56(84) bytes of data.
 2 packets transmitted, 2 received, 0% packet loss, time 999ms
 rtt min/avg/max/mdev = 0.026/0.032/0.039/0.008 ms
 ```
+* docker run加参数
 ```
 $ docker run demo hostname
 6c1573c0d4c0
@@ -41,7 +60,26 @@ $ docker run --entrypoint hostname demo
 075a2fa95ab7
 ```
 
-### Shell vs. Exec (ENTRYPOINT和CMD指令支持2种不同的写法)
+* 追加docker run 参数到ENTRYPOINT，并覆盖CMD
+```
+# demo
+FROM busybox
+ENTRYPOINT ["/bin/ping"]
+CMD ["localhost"]
+```
+```
+$ docker run -t --name demo ping:latest baidu.com
+PING baidu.com (220.181.38.148): 56 data bytes
+64 bytes from 220.181.38.148: seq=0 ttl=37 time=46.358 ms
+64 bytes from 220.181.38.148: seq=1 ttl=37 time=53.020 ms
+64 bytes from 220.181.38.148: seq=2 ttl=37 time=44.262 ms
+^C
+--- baidu.com ping statistics ---
+3 packets transmitted, 3 packets received, 0% packet loss
+round-trip min/avg/max = 44.262/47.880/53.020 ms
+```
+
+# Shell格式
 * shell form, 命令作为sh程序的子程序运行
 ```
 ENTRYPOINT ping localhost
@@ -64,23 +102,3 @@ root 9 1 0 20:14 ? 00:00:00 ping localhost
 root 49 0 0 20:15 ? 00:00:00 ps -f
 ```
 * 在上面的ping的例子中, 如果用了shell形式的CMD, 用户按ctrl-c也不能停止ping命令, 因为ctrl-c的信号没有被转发给ping命令
-
-
-* exec form
-```
-FROM busybox
-ENTRYPOINT ["/bin/ping"]
-CMD ["localhost"]
-```
-```
-# 追加docker run 参数到ENTRYPOINT，并覆盖CMD
-$ docker run -t --name demo ping:latest baidu.com
-PING baidu.com (220.181.38.148): 56 data bytes
-64 bytes from 220.181.38.148: seq=0 ttl=37 time=46.358 ms
-64 bytes from 220.181.38.148: seq=1 ttl=37 time=53.020 ms
-64 bytes from 220.181.38.148: seq=2 ttl=37 time=44.262 ms
-^C
---- baidu.com ping statistics ---
-3 packets transmitted, 3 packets received, 0% packet loss
-round-trip min/avg/max = 44.262/47.880/53.020 ms
-```

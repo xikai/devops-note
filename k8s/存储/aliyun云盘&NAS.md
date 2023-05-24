@@ -20,7 +20,7 @@
 ### 创建阿里云NAS动态存储卷
 * 创建ServiceAccount
 > vi admin-role.yaml
-```
+```yml
 apiVersion: v1
 kind: ServiceAccount
 metadata:

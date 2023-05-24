@@ -15,6 +15,7 @@ systemctl restart elasticsearch
 ```
 
 * 注册快照仓库
+>快照数据会生成到master节点
 ```
 curl -XPUT 'http://localhost:9200/_snapshot/my_backup' -H 'Content-Type: application/json' -d '{
     "type": "fs",

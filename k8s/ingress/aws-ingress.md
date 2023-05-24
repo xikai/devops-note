@@ -18,7 +18,7 @@ metadata:
     alb.ingress.kubernetes.io/target-type: ip
     #alb.ingress.kubernetes.io/target-type: (ip|instance)       # 目标为Instance，这种类型需配置service为nodePort方式；
     alb.ingress.kubernetes.io/subnets: subnet-87717ccd,subnet-3f129e56,subnet-a7b716dc
-    #alb.ingress.kubernetes.io/group.name: test            # 多个Ingress resource配置相同的Ingress (group.name和load-balancer-name),则可以共用同一个ALB负载均衡器,控制器将自动合并同一Ingress group中所有ingress的ingress规则,在ingress上定义的大多数注释仅适用于由该入口定义的路径
+    #alb.ingress.kubernetes.io/group.name: test            # 多个Ingress.yaml文件配置相同的group.name和load-balancer-name,则可以共用同一个ALB负载均衡器,控制器将自动合并相同group.name中所有ingress.yaml的ingress规则
     #alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}, {"HTTP": 8080}, {"HTTPS": 8443}]'
     #alb.ingress.kubernetes.io/certificate-arn: arn:aws-cn:acm:cn-northwest-1:475810397983:certificate/0d804345-35a8-48b5-89ba-ebfbc7341c63
     #alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
@@ -33,6 +33,7 @@ spec:
       http:
         paths:
           - path: /
+            pathType: Prefix
             backend:
               service:
                 name: "service-2048"
