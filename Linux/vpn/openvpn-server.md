@@ -309,6 +309,11 @@ systemctl status openvpn@server
 # 验证
 [root@local-vpn ~]# netstat -antpu | grep openvpn
 udp        0      0 0.0.0.0:1194            0.0.0.0:*                           6601/openvpn
+
+# 服务端启动后将获取虚拟IP：10.8.0.1
+[root@local-vpn ~]# ifconfig
+tun0: flags=4305<UP,POINTOPOINT,RUNNING,NOARP,MULTICAST>  mtu 1500
+        inet 10.8.0.1  netmask 255.255.255.255  destination 10.8.0.2
 ```
 说明：如果时间不同步，那么VPN登录访问就可能存在问题。
 
@@ -427,6 +432,22 @@ exit 0
 EOF
 ```
 
+### vpn网络连接测试
+* 客户端ping服务端vpn虚拟IP
+```
+14:58 $ ping 10.8.0.1
+PING 10.8.0.1 (10.8.0.1) 56(84) bytes of data.
+64 bytes from 10.8.0.1: icmp_seq=1 ttl=64 time=0.024 ms
+64 bytes from 10.8.0.1: icmp_seq=2 ttl=64 time=0.028 ms
+```
+* 客户端ping服务端后面的其它主机IP
+```
+13:34 $ ping 172.16.14.139
+PING 172.16.14.139 (172.16.14.139): 56 data bytes
+64 bytes from 172.16.14.139: icmp_seq=0 ttl=64 time=46.525 ms
+64 bytes from 172.16.14.139: icmp_seq=1 ttl=64 time=23.368 ms
+```
+
 
 # [配置CCD客户端规则访问策略](https://openvpn.net/community-resources/how-to/#configuring-client-specific-rules-and-access-policies)
 * 为不同client角色分配不同网段虚拟IP
@@ -448,7 +469,6 @@ client-config-dir ccd  #开启客户端配置目录
 ```
 * 新建ccd目录及客户端文件：在/etc/openvpn/下新建ccd目录，在ccd目录下新建以用户名命名的文件，并且通过ifconfig-push分配地址，注意这里需要分配两个地址，一个是客户端本地地址，另一个是服务器的ip端点
 ```
-# 在配置固定IP时，掩码必须为/30
 #ccd/sysadmin1
 ifconfig-push 10.8.1.1 10.8.1.2
 #ccd/contractor1
@@ -456,7 +476,24 @@ ifconfig-push 10.8.2.1 10.8.2.2
 #ccd/contractor2
 ifconfig-push 10.8.2.5 10.8.2.6
 ```
-* 配置iptables规则
+>在配置固定IP时，每一对ifconfig-push地址代表虚拟客户端和服务器IP端点。它们必须从连续的/30子网中获取，以便与Windows客户端和TAP-Windows驱动程序兼容,具体来说，每个端点对的IP地址的最后八位必须取自这个集合:
+```
+[  1,  2] [  5,  6] [  9, 10] [ 13, 14] [ 17, 18]
+[ 21, 22] [ 25, 26] [ 29, 30] [ 33, 34] [ 37, 38]
+[ 41, 42] [ 45, 46] [ 49, 50] [ 53, 54] [ 57, 58]
+[ 61, 62] [ 65, 66] [ 69, 70] [ 73, 74] [ 77, 78]
+[ 81, 82] [ 85, 86] [ 89, 90] [ 93, 94] [ 97, 98]
+[101,102] [105,106] [109,110] [113,114] [117,118]
+[121,122] [125,126] [129,130] [133,134] [137,138]
+[141,142] [145,146] [149,150] [153,154] [157,158]
+[161,162] [165,166] [169,170] [173,174] [177,178]
+[181,182] [185,186] [189,190] [193,194] [197,198]
+[201,202] [205,206] [209,210] [213,214] [217,218]
+[221,222] [225,226] [229,230] [233,234] [237,238]
+[241,242] [245,246] [249,250] [253,254]
+```
+
+* 配置iptables规则以完成访问策略控制
 ```
 # Employee rule
 iptables -A FORWARD -i tun0 -s 10.8.0.0/24 -d 10.66.4.4 -j ACCEPT
@@ -558,3 +595,20 @@ systemctl restart openvpn@server
 ```
 
 
+# 通过openvpn服国器代理转发流量到客户端
+```
+openvpn服务器公有IP：120.79.20.71
+openvpn服务器私有IP：172.16.14.139
+openvpn隧道虚拟网段：10.8.0.0/24
+```
+
+1. 通过ccd为客户端分配固定虚拟IP 10.8.0.9
+2. 在openvpn服务器上通过iptables跨主机端口重定向流量到客户端固定虚拟IP 10.8.0.9
+```
+iptables -t nat -A PREROUTING -d 120.79.20.71/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination 10.8.0.9:80
+iptables -t nat -A PREROUTING -d 172.16.14.139/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination 10.8.0.9:80
+iptables -t nat -A PREROUTING -d 10.8.0.1/32 -p tcp -m tcp --dport 80 -j DNAT --to-destination 10.8.0.9:80
+iptables -t nat -A POSTROUTING -d 10.8.0.9/32 -p tcp -m tcp --dport 80 -j SNAT --to-source 10.8.0.1
+iptables -t nat -A POSTROUTING -d 10.8.0.9/32 -p tcp -m tcp --dport 80 -j SNAT --to-source 120.79.20.71
+iptables -t nat -A POSTROUTING -d 10.8.0.9/32 -p tcp -m tcp --dport 80 -j SNAT --to-source 172.16.14.139
+```

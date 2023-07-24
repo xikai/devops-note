@@ -37,6 +37,9 @@ tcpdump ip host 210.27.48.1 and ! 210.27.48.2
 
 抓取指定IP的ICMP包
 tcpdump icmp and host 172.31.42.89
+
+抓取所有网卡icmp包
+tcpdump icmp -i any
 ```
 
 # 包解析

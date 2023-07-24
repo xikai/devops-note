@@ -57,6 +57,7 @@ localhost(YES)                                               |
 ### iptables命令
 ```bash
 iptables -L 查看防火墙规则
+iptables -vL 详细模式查看防火墙规则
 iptables -F 清除所有规则
 iptables -X 清除所有用户自定义规则
 
@@ -149,10 +150,10 @@ iptables -A FORWARD -d 10.0.0.0/24 -j ACCEPT      允许外网地址NAT转换为
 # 本机端口重定向
 iptables -t nat -A PREROUTING -p tcp --dport 16379 -j REDIRECT --to-port 6379
 
-# 跨主机端口重定向
-iptables -t nat -A PREROUTING -p tcp -d 172.31.36.155 --dport 6379 -j DNAT --to-destination 172.31.21.29:6379
-iptables -t nat -A POSTROUTING -p tcp -d 172.31.21.29 --dport 6379 -j SNAT --to-source 172.31.36.155
+# 跨主机端口重定向(本机：172.31.36.155），访问172.31.36.155:443的数据包转发到172.16.0.223:443
+iptables -t nat -A PREROUTING -d 172.31.36.155/32 -p tcp -m tcp --dport 443 -j DNAT --to-destination 172.16.0.223:443
+iptables -t nat -A POSTROUTING -d 172.16.0.223/32 -p tcp -m tcp --dport 443 -j SNAT --to-source 172.31.36.155
 
 # 通过ssh隧道跨主机端口转发
-ssh -f -N -L :16379:172.31.21.29:6379 root@172.31.21.29
+ssh -f -N -L :16379:172.16.0.223:6379 root@172.16.0.223
 ```

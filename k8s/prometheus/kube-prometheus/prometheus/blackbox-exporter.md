@@ -3,7 +3,7 @@
 
 # [配置blackbox-exporter](https://github.com/prometheus/blackbox_exporter/blob/master/CONFIGURATION.md)
 * https://github.com/prometheus/blackbox_exporter/blob/master/example.yml
-* vim manifests/config/blackbox2-exporter-configmap.yaml
+* vim config/blackbox2-exporter-configmap.yaml
 ```yaml
 apiVersion: v1
 kind: ConfigMap
@@ -57,7 +57,7 @@ kubectl apply -f manifests/config/blackbox2-exporter-configmap.yaml
 ```
 
 # 部署blackbox-exporter
-* vim manifests/config/blackbox2-exporter.yaml
+* vim config/blackbox2-exporter.yaml
 ```yml
 apiVersion: v1
 kind: Service
@@ -138,12 +138,12 @@ spec:
         name: config
 ```
 ```
-kubectl apply -f manifests/config/blackbox2-exporter.yaml
+kubectl apply -f config/blackbox2-exporter.yaml
 ```
 
 # [配置prometheus](https://github.com/prometheus/blackbox_exporter#prometheus-configuration)
 * https://prometheus.io/docs/guides/multi-target-exporter/
-* vim manifests/config/prometheus-additional.yaml
+* vim config/prometheus-additional.yaml
 ```
 scrape_configs:
   - job_name: 'blackbox2_http_2xx'

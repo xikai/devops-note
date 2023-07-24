@@ -1,3 +1,4 @@
+* https://www.elastic.co/guide/index.html#viewall
 * https://www.elastic.co/guide/cn/elasticsearch/guide/current/distributed-cluster.html
 * https://mp.weixin.qq.com/s/y8DNnj4fjiS3Gqz2DFik8w?spm=a2c6h.12873639.0.0.135365aeF1zJoB
 * https://www.zhihu.com/question/327209680
@@ -124,15 +125,21 @@ systemctl start elasticsearch
 ```
 
 # 集群管理
-* 检查集群健康状态
+### 检查集群健康状态
 ```
 curl localhost:9200/_cluster/health?pretty
-
-#查看集群指定索引健康状态
-curl localhost:9200/_cluster/health/test1,test2?pretty
+curl localhost:9200/_cat/health?v
+```
+* 查看集群挂起的任务(e.g. create index, update mapping, allocate or fail shard)
+```
+curl -XGET 'http://localhost:9200/_cluster/pending_tasks'
+```
+* 查看线程池
+```
+curl -XGET 'localhost:9200/_cat/thread_pool?v'
 ```
 
-* 查询集群节点信息、状态
+### 查询集群节点信息、状态
 ```
 #列出node节点
 curl -XGET "http://localhost:9200/_cat/nodes"
@@ -149,19 +156,14 @@ curl -XGET 'localhost:9200/_nodes/hot_threads'
 curl -XGET 'localhost:9200/_nodes/nodeId1,nodeId2/hot_threads'
 ```
 
-* 列出集群索引
+### 列出集群索引
 ```
-curl -XGET "localhost:9200/_cat/indices"
-```
-
-* 查看集群挂起的任务(e.g. create index, update mapping, allocate or fail shard)
-```
-curl -XGET 'http://localhost:9200/_cluster/pending_tasks'
+curl -XGET "localhost:9200/_cat/indices?v"
 ```
 
-* 查看线程池
+#查看集群指定索引健康状态
 ```
-curl -XGET 'localhost:9200/_cat/thread_pool'
+curl localhost:9200/_cluster/health/test1,test2?pretty
 ```
 
 * 手动迁移索引分片
@@ -179,6 +181,27 @@ curl -X POST "localhost:9200/_cluster/reroute?pretty" -H 'Content-Type: applicat
     ]
 }'
 ```
+
+* 查询索引分片信息
+```
+curl http://localhost:9200/_cat/shards?v
+curl http://localhost:9200/_cat/shards/my_index?v
+```
+
+* 查询索引中分片的segments
+```
+#查看所有索引分片的段
+curl -XGET 'localhost:9200/_cat/segments'
+#查看指定索引分片的段
+curl -XGET 'localhost:9200/_cat/segments/my_index1,myindex2'
+```
+
+# 集群设置
+```
+# 查看集群设置
+curl http://localhost:9200/_cluster/settings?pretty
+```
+* 分片自动重平衡
 ```
 # 关闭分片平衡迁移
 curl -XPUT http://localhost:9200/_cluster/settings -d '{
@@ -193,7 +216,10 @@ curl -XPUT http://localhost:9200/_cluster/settings -d '{
         "cluster.routing.allocation.enable" : "all"
     }
 }'
+```
 
+* 分片不分配到指定节点
+```
 # 设置不分配分片到指定IP的节点
 curl -XPUT "http://localhost:9200/_cluster/settings" -d '{
   "transient" : {
@@ -206,22 +232,27 @@ curl -XPUT "http://localhost:9200/_cluster/settings" -d '{
     "cluster.routing.allocation.exclude._ip" : null
   }
 }'
-
-# 查看设置是否配置成功
-curl http://localhost:9200/_cluster/settings?pretty
 ```
 
-* 查询索引分片信息
+* 推迟分片分配
+>当一个节点需要重启时，可以避免自动重平衡导致分片迁移，造成不必要的网络、磁盘IO开销
 ```
-curl http://localhost:9200/_cat/shards/my_index?v
-```
+# 查看推迟分片分配的设置，delayed_unassigned_shards延时待分配到具体节点上的分片数
+curl http://localhost:9200/_cluster/health?pretty
 
-* 查询索引中分片的segments
-```
-#查看所有索引分片的段
-curl -XGET 'localhost:9200/_cat/segments'
-#查看指定索引分片的段
-curl -XGET 'localhost:9200/_cat/segments/my_index1,myindex2'
+# 推迟分片分配,此设置可以在活动索引(或所有索引)上更新.等待5分钟后再开始分配分片
+curl -X PUT "localhost:9200/_all/_settings?pretty" -H 'Content-Type: application/json' -d'{
+  "settings": {
+    "index.unassigned.node_left.delayed_timeout": "5m"
+  }
+}'
+
+# 取消推迟分片分配，设置为立即分配
+curl -X PUT "localhost:9200/_all/_settings?pretty" -H 'Content-Type: application/json' -d'{
+  "settings": {
+    "index.unassigned.node_left.delayed_timeout": "0"
+  }
+}'
 ```
 
 # [索引管理](https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-management.html)

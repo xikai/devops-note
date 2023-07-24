@@ -43,7 +43,6 @@ export LSCOLORS=Exfxcxdxbxegedabagacad
 * 修改simple主题
 > vim .oh-my-zsh/themes/simple.zsh-theme
 ```
-# PROMPT='%(!.%{$fg[red]%}.%{$fg[green]%})%~%{$fg_bold[blue]%}$(git_prompt_info)%{$reset_color%} '
 PROMPT='%(!.%{$fg[red]%}.%{$fg[green]%})%~ ${FG[133]}$(git_prompt_info)
 %{$fg_bold[blue]%}%T %{$reset_color%}$ '
 

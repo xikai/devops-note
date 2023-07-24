@@ -39,7 +39,10 @@ curl -XPOST -H 'Content-Type: application/json' http://localhost:9200/_plugins/_
       }
     ],
     "ism_template": { //在策略中设置 ism_template 字段，当您创建与模板模式匹配的索引时，策略会自动附加到该索引。在此示例中，以 "log" 开头的名称创建的任何索引都会自动匹配 ISM 策略 
-      "index_patterns": ["log*"],
+      "index_patterns": [
+        "log*",
+        "error-*"
+      ],
       "priority": 100   //值越高，优先级越高
     }
   }

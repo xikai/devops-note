@@ -2,7 +2,7 @@
 
 # 部署redis-exporter
 * 配置redis密码
-* vim manifests/additional/redis-pwd-file-configmap.yaml
+* vim config/redis-pwd-file-configmap.yaml
 ```yml
 apiVersion: v1
 kind: ConfigMap
@@ -21,11 +21,11 @@ data:
     }
 ```
 ```
-kubectl apply -f redis-pwd-file-configmap.yaml
+kubectl apply -f config/redis-pwd-file-configmap.yaml
 ```
 
 * 部署redis-exporter
-* vim manifests/additional/redis-exporter.yaml
+* vim config/redis-exporter.yaml
 ```yml
 apiVersion: v1
 kind: Service
@@ -89,14 +89,14 @@ spec:
       terminationGracePeriodSeconds: 30
 ```
 ```
-kubectl apply -f manifests/additional/redis-exporter.yaml
+kubectl apply -f config/redis-exporter.yaml
 ```
 
 
 
 # 配置prometheus
 * 通过此文件，prometheus自动发现redis监控目标
-* vim manifests/additional/redis-targets-configmap.yaml
+* vim config/redis-targets-configmap.yaml
 ```yml
 apiVersion: v1
 kind: ConfigMap
@@ -117,7 +117,7 @@ data:
     ]
 ```
 ```
-kubectl apply -f redis-targets-configmap.yaml
+kubectl apply -f config/redis-targets-configmap.yaml
 ```
 
 * 配置prometheus挂载redis-targets
@@ -139,7 +139,7 @@ kubectl apply -f manifests/prometheus-prometheus.yaml
 ```
 
 * 增加redis-exporter metrics scrape配置
-* vim manifests/additional/prometheus-additional.yaml
+* vim config/prometheus-additional.yaml
 ```yml
 - job_name: "redis_exporter_targets"
   file_sd_configs:
@@ -171,4 +171,4 @@ kubectl get secret additional-scrape-configs -n monitoring -oyaml |yq e '.data .
 ```
 
 # dashboard
-* https://grafana.com/grafana/dashboards/12776
+* https://grafana.com/grafana/dashboards/763-redis-dashboard-for-prometheus-redis-exporter-1-x/

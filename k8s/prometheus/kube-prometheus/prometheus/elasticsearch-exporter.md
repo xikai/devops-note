@@ -1,7 +1,7 @@
 * https://github.com/prometheus-community/elasticsearch_exporter
 
 # [部署elasticsearch_exporter](https://github.com/prometheus-community/elasticsearch_exporter/blob/master/examples/kubernetes/deployment.yml)
-* vim  manifests/additional/es-exporter.yaml
+* vim  config/es-exporter.yaml
 ```yml
 apiVersion: v1
 kind: Service
@@ -98,11 +98,11 @@ spec:
         fsGroup: 10000
 ```
 ```
-kubectl apply -f manifests/additional/es-exporter.yaml
+kubectl apply -f config/es-exporter.yaml
 ```
 
 # 配置prometheus
-* vim manifests/additional/prometheus-additional.yaml
+* vim config/prometheus-additional.yaml
 ```yml
 - job_name: 'es_exporter'
   static_configs:

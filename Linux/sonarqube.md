@@ -83,7 +83,7 @@ pmd
 # [SonarScanner for Maven](https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-maven/)
 > 推荐maven作为maven项目的默认扫瞄器; maven已经拥有SonarQube成功分析项目所需的大量信息,可以大大减少手动配置 
 * Maven 3.x and Java
-* vim $MAVEN_HOME/conf or ~/.m2 ，修改对应标签
+* vim $MAVEN_HOME/conf/settings.xml or ~/.m2/settings.xml ，修改对应标签
 ```xml
 <settings>
   <pluginGroups>

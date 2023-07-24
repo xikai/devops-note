@@ -100,6 +100,8 @@ node {
                         println e
                     }
                     OLD_PODS = sh( script: "kubectl get pod -n $nameSpace -o wide |grep ${JOB_NAME} |grep Running |awk '{print \$6}'",returnStdout: true ).trim()
+                    //k8s1.24 get pod_ip and status
+                    //OLD_PODS = sh( script: "sudo kubectl get pod -n $nameSpace -o=jsonpath='{range .items[*]}{.metadata.name}{\"\\t\"}{.status.containerStatuses[].started}{\"\\t\"}{.status.podIP}{\"\\n\"}{end}' |grep ${JOB_NAME} |grep true |awk '{print \$3}'",returnStdout: true ).trim()
                     if(child){
                       sh "cd ${JOB_NAME}&&sudo docker build -t ${image_name} ."
                       sh "cd ${JOB_NAME}&&sudo docker tag ${image_name} $ecrRepo/${image_name}"

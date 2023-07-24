@@ -39,7 +39,10 @@ EvenPodsSpreadPriority：实现了 Pod 拓扑扩展约束的优先级排序。
 
 
 # [节点压力驱逐](https://kubernetes.io/zh/docs/concepts/scheduling-eviction/node-pressure-eviction/)
-* 由于节点的 CPU、内存、磁盘空间和文件系统的 inode 等资源达到特定的消耗水平， kubelet 主动终止 Pod 以回收节点上资源的过程。
+```
+可压缩资源（cpu）不足不会导致pod被驱逐。不可压缩资源（memory/磁盘IO）不足则会导致pod被驱逐。kubelet通过抓取cAdvisor的指标来监控节点的资源使用量。
+（1）存储资源不足。容器镜像使用的文件系统imagefs.available不足时，尝试删除不使用的镜像释放空间；容器volume使用的文件系统nodefs.available不足时，kubelet驱逐的过程中不参考QoS，根据pod的nodefs使用量排名。（2）内存资源不足。kubelet此时根据QoS和内存使用量和request之间的差值决定驱逐的pod。（3）Node OOM。内核OOM Killer被触发后，kubelet和内核都可能杀容器。kubelet可能会根据QoS驱逐pod，内核OOM Killer根据内部的oom_score杀容器。
+```
 
 ### 软驱逐
 * 将驱逐条件与管理员所必须指定的宽限期配对。 在超过宽限期之前，kubelet 不会驱逐 Pod。 如果没有指定的宽限期，kubelet 会在启动时返回错误。
@@ -50,9 +53,9 @@ EvenPodsSpreadPriority：实现了 Pod 拓扑扩展约束的优先级排序。
 * 硬驱逐条件没有宽限期。当达到硬驱逐条件时， kubelet 会立即杀死 pod，而不会正常终止以回收紧缺的资源。
 * kubelet 具有以下默认硬驱逐条件：
 ```
-memory.available<100Mi
-nodefs.available<10%
-imagefs.available<15%
+memory.available<100Mi      
+nodefs.available<10%        //监控kubelet启动参数 --root-dir 指定的目录所在分区。默认/var/lib/kubelet
+imagefs.available<15%       //监控docker启动参数 data-root 或者 graph 目录所在的分区。默认/var/lib/docker
 nodefs.inodesFree<5%（Linux 节点）
 ```
 
@@ -77,3 +80,8 @@ evictionMinimumReclaim:
   nodefs.available: "500Mi"     # 然后继续回收至少 500Mi 直到信号达到 1.5Gi
   imagefs.available: "2Gi"
 ```
+
+# [本地临时存储 ephemeral-storage](https://kubernetes.io/zh-cn/docs/concepts/configuration/manage-resources-containers/#local-ephemeral-storage)
+
+* 在 Kubernetes 中，ephemeral-storage（临时存储）是一种用于表示容器可以使用的临时存储资源的概念。它通常用于表示容器在节点上可以使用的本地磁盘空间; 在每个Kubernetes的节点上，kubelet的根目录(默认是/var/lib/kubelet)和日志目录(/var/log)保存在节点的根分区上(除非通过配置root-dir修为其它分区)，这个分区同时也会被Pod的EmptyDir类型的volume、容器日志、镜像的层、容器的可写层所占用。
+* kubelet 将仅跟踪临时存储的根文件系统。如果你定制了相关的参数，例如 --root-dir指定了别的独立的分区，比如修改了docker的镜像层和容器可写层的存储位置(默认是/var/lib/docker)所在的分区 ，将不再将其计入ephemeral-storage的消耗；并且kubelet不限制容器对其他存储卷（如PVC持久卷）的使用。

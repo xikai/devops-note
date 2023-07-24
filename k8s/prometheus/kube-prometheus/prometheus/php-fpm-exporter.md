@@ -62,7 +62,7 @@ spec:
 ```
 
 ### 配置php-fpm-exporter metrics scrape配置
-* vim manifests/additional/prometheus-additional.yaml
+* vim config/prometheus-additional.yaml
 ```yml
 - job_name: "phpfpm_exporter_targets"
   kubernetes_sd_configs:

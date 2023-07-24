@@ -1,4 +1,4 @@
-https://www.cnblogs.com/itfat/p/12563818.html
+* https://www.cnblogs.com/itfat/p/12563818.html
 
 # 加载gre内核模块
 ```
@@ -33,7 +33,7 @@ sysctl -p
 ```
 
 
-# host_aws
+# host_aws（联网-->更改源/目标检查-->停止）
 > public_ip:18.166.180.137 , private_subnet: 10.30.0.0/16
 ```
 cat > /etc/sysconfig/network-scripts/ifcfg-grevpn <<EOF
@@ -139,6 +139,8 @@ Ruijie#show interface Tunnel 1
 
 
 # 其它网络配置（非必须配置）
+* [IP分片和MTU详解](http://www.3542xyz.com/?p=205)
+>MTU称为最大传输单元（MaximumTransmissionUnit）。MTU的大小决定了发送端一次能够发送报文的最大字节数。如果MTU超过了接收端所能够承受的最大值，或者是超过了发送路径上途经的某台设备所能够承受的最大值，就会造成报文分片甚至丢弃，加重网络传输的负担。
 * 调整隧道MTU(两端都需要)
 ```
 ifconfig grevpn mtu 1500

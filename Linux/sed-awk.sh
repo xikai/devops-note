@@ -91,6 +91,7 @@ awk '{i=1;while(i<NF) {print NF,$i;i++}}' file  
 #通过for语句实现循环
 awk '{for(i=1;i<NF;i++) {print NF,$i}}'   file  
 
+awk '{if(NR>1 && $3>0) {print $0}}'
 
 -------------------------------------------------------------
 awk内置函数

@@ -7,11 +7,18 @@ netstat -antp|grep ESTABLISHED |awk -F'[ :]+' '{if($5==80) print $6}'|sort|uniq 
 
 #设置网卡mtu值
 ip link set dev eth0 mtu 1500
+ifdown/ifup eth0  #重启网卡恢复设置
 #永久配置： /etc/sysconfig/network-scripts/ifcfg-eth0 添加MTU=1500
 
 日志分析
 #查看nginx状态404的访问日志(json)
 cat /data/logs/nginx/m.tomtop.com_access.log |awk -F\" '{if($24==404)print $0}'|wc -l
+
+journalctl -u kubelet --since "2023-07-13 17:30:00" --until "2023-07-13 18:00:00"
+journalctl --since yesterday
+journalctl --since 09:00 --until "1 hour ago"
+journalctl -k  //查看内核日志,等同于 demsg 命令
+journalctl _PID=1
 
 
 文件句柄
@@ -30,9 +37,10 @@ cat /proc/$pid/limits
 #查看当前己打开的文件句柄数
 cat /proc/sys/fs/file-nr   #己分配 未使用 最大
 lsof |wc -l
-
 #查看进程当前己打开的文件数
 lsof -p pid |wc -l
+#查看被进程标记为删除的文件
+lsos |grep deleted
 
 
 
@@ -59,6 +67,8 @@ grep -rl "rm-wz90448rzu9sd21h0.mysql.rds.aliyuncs.com" * |xargs perl -pi -e 's|r
 curl -H "token: 8dbcc3fd-22f2-452e-b205-a2b268746219" -H "Content-Type: application/json" -X POST -d '{"from":"chicuu@chicuu.com","toEmail":"2853635728@qq.com","title":"test111","content":"0000000000content test11"}' http://email.api.tomtop.com/email/send
 #curl proxy访问
 curl -U [username:password] --proxy 1.1.1.1:7070 https://www.google.com
+# 通过指定网卡访问
+curl cip.cc --interface 172.16.4.89
 
 
 #yum下载相关依赖rpm包文件
@@ -79,3 +89,8 @@ cat /proc/sys/vm/drop_caches
 手动执行sync命令（描述：sync 命令运行 sync 子例程。如果必须停止系统，则运行sync 命令以确保文件系统的完整性。sync 命令将所有未写的系统缓冲区写到磁盘中，包含已修改的 i-node、已延迟的块 I/O 和读写映射文件）
 sync
 echo 3 > /proc/sys/vm/drop_caches  #重启系统恢复默认值0
+
+
+ps auxwf
+w:宽泛输出 ww无限宽度
+f: 完整格式，输出额外的列

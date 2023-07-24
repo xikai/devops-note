@@ -29,3 +29,5 @@ kubectl top pod --all-namespaces |sort -k 4 -nr
 ```
 kubectl describe node -l name=backend-c |grep -A 10 "Allocated resources:"
 ```
+
+# [jsonpath格式输出](https://kubernetes.io/zh-cn/docs/reference/kubectl/jsonpath/)

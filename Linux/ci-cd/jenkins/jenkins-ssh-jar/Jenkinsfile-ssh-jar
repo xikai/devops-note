@@ -1,0 +1,41 @@
+pipeline {
+    agent { label 'slave-x86' }
+
+    parameters {
+        string(name: 'branch', defaultValue: 'master_abroad', description: '')
+    }
+
+    environment {
+        DEPLOY_HOST = "10.10.59.157,10.10.90.15"
+        TARGET_JAR = "/data/jenkins/workspace/bigdata-api-server/data-api-server/target/data-api-server.jar"
+    }
+
+    stages {
+        stage('checkout scm') {
+            steps {
+                echo "checkout from ${params.branch}"
+                git credentialsId:'newvevor-public-bot',url: 'git@codeup.aliyun.com:newvevor/data/data-server.git', branch: "${params.branch}"
+            }
+        }
+
+        stage('maven build') {
+            steps {
+                sh "/usr/local/maven/bin/mvn --settings /home/vevor/.m2/settings-bigdata.xml -f pom.xml -U  clean package -U -DskipTests"
+            }
+        }
+
+        stage("deploy") {
+            steps {
+                script {
+                    def HOSTS="${DEPLOY_HOST}".split(",")
+                    for (IP in HOSTS) {
+                        sh """
+                            scp -P 1022 -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no $TARGET_JAR root@$IP:/data/apps/
+                            ssh -p 1022 -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no root@$IP /data/apps/app.sh restart
+                        """
+                    }
+                }
+            }
+        }
+    }
+}

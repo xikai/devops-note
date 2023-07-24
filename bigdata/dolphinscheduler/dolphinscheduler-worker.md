@@ -6,7 +6,7 @@ yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel
 ```
 ```
 #which java 找到java路径
-echo "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64" >>/etc/profile
+echo "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk" >>/etc/profile
 source /etc/profile
 ```
 
@@ -15,7 +15,7 @@ source /etc/profile
 ```
 export HADOOP_CONF_DIR=/opt/soft/hadoop/etc/hadoop
 export SPARK_HOME2=/usr/lib/spark
-export JAVA_HOME=${JAVA_HOME:-/usr/lib/jvm/temurin-8-jdk-amd64}
+export JAVA_HOME=${JAVA_HOME:-/usr/lib/jvm/java-1.8.0-openjdk}
 ```
 
 * vim conf/config/install_config.conf

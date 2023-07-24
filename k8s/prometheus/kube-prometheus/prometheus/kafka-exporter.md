@@ -1,7 +1,7 @@
 * https://github.com/danielqsj/kafka_exporter
 
 # [部署kafka-exporter](https://github.com/danielqsj/kafka_exporter/tree/master/deploy/base)
-* vim manifests/additional/kafka-exporter.yaml
+* vim config/kafka-exporter.yaml
 * 监控多套kafka集群 拷贝多份文件部署
 ```yml
 apiVersion: v1
@@ -56,12 +56,12 @@ spec:
       terminationGracePeriodSeconds: 30
 ```
 ```
-kubectl apply -f manifests/additional/kafka-exporter.yaml
+kubectl apply -f config/kafka-exporter.yaml
 ```
 
 # 配置prometheus
 * 增加kafka-exporter metrics scrape配置
-* vim manifests/additional/prometheus-additional.yaml
+* vim config/prometheus-additional.yaml
 ```yml
 - job_name: 'kafka_exporter_targets'
   static_configs:

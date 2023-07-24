@@ -7,6 +7,8 @@ http://www.groovy-lang.org/semantics.html
 https://www.qikqiak.com/post/groovy-simple-tutorial/
 https://cloud.tencent.com/developer/article/1358357
 
+# python-jenkins
+https://python-jenkins.readthedocs.io/en/latest/
 
 #插件
 GIT plugin
@@ -18,7 +20,9 @@ Publish Over SSH                        [通过ssh插件执行远�
 Role-based Authorization Strategy       [权限管理插件]
 Maven Integration plugin
 
-
+# 共享库（shared library）
+https://www.jenkins.io/zh/doc/book/pipeline/shared-libraries/
+https://www.qikqiak.com/post/jenkins-shared-library-demo/
 
 #备份jenkins (jobs config)
 rsync -avz --delete --partial --exclude='workspace/' --exclude='jobs/*/builds/*/' -e 'ssh -p 1022' /data/jenkins/ root@172.31.40.180:/data/jenkins_bak

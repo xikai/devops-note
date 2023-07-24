@@ -1,0 +1,69 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:1.24.0
+    container_name: nginx
+    #ports:
+    #  - "8888:80"
+    #  - "8080:8080"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d/:ro
+      - /data/www:/usr/share/nginx/html
+    network_mode: "host"
+
+  mysql:
+    container_name: mysql
+    image: mysql:5.7.42
+    #ports:
+    #  - "3306:3306"
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8_unicode_ci, --default-authentication-plugin=mysql_native_password]
+    volumes:
+      - /data/mysql:/var/lib/mysql:rw
+    environment:
+      MYSQL_ROOT_PASSWORD: passwd
+    user: root
+    stop_grace_period: 1m
+    network_mode: "host"
+
+  mongo:
+    image: mongo:4.4.22-focal
+    container_name: mongodb
+    #ports:
+    #  - "27017:27017"
+    volumes:
+      - /data/mongodb:/data/db:rw
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: passwd
+    network_mode: "host"
+
+      # mongo-express:
+      #   container_name: mongo-express
+      #   image: mongo-express:latest
+      #   ports:
+      #     - "8081:8081"
+      #   environment:
+      #     ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      #     ME_CONFIG_MONGODB_ADMINPASSWORD: passwd
+      #     ME_CONFIG_MONGODB_URL: mongodb://root:passwd@mongo:27017/
+      #   depends_on:
+      #     - mongo
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.8.9-management
+    restart: always
+    #ports:
+    #  - "5672:5762"
+    #  - "15672:15672"
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    volumes:
+      - /data/rabbitmq/mnesia:/var/lib/rabbitmq/mnesia
+      - /data/rabbitmq/log:/var/log/rabbitmq/log
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: passwd
+    network_mode: "host"

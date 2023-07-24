@@ -9,7 +9,7 @@ yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel
 ```
 ```
 #which java 找到java路径
-echo "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64" >>/etc/profile
+echo "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk" >>/etc/profile
 source /etc/profile
 ```
 
@@ -144,7 +144,7 @@ dataBasedirPath="/data/dolphinscheduler"
 # DolphinScheduler ENV
 # ---------------------------------------------------------
 # JAVA_HOME 的路径，是在 **前置准备工作** 安装的JDK中 JAVA_HOME 所在的位置.
-javaHome="/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.amzn2.0.2.x86_64"
+javaHome="/usr/lib/jvm/java-1.8.0-openjdk"
 
 # ---------------------------------------------------------
 # Database
