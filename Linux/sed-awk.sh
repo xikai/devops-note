@@ -40,6 +40,15 @@ echo this is a test line | sed 's/\w\+/[&]/g' 
 sed '/test/n;s/aa/bb/' file
 grep -rl profile jobs/*/config.xml |xargs sed -i '/profile/n;s/test/dev/'
 
+#打印匹配行的第4，5行 （n匹配下一行）
+sed -n '/upload_nexus/ {n;n;n;n;p;n;p;q}' file
+
+# 在匹配文本行的 第3行后 添加文本内容
+sed -i '/匹配行文本/ {n;n;n;a\
+要添加的文本行1\
+要添加的文本行2\
+要添加的文本行3
+}' jobs/*/config.xml
 
 --------------------------------------------------------------------------------
 https://www.cnblogs.com/emanlee/p/3327576.html

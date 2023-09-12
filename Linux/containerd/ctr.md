@@ -1,3 +1,13 @@
+# 配置
+* vim /etc/containerd/config.toml
+```
+# root用来保存持久化数据，包括 Snapshots, Content, Metadata 以及各种插件的数据
+root = "/var/lib/containerd"
+# state 用来保存临时数据，包括 sockets、pid、挂载点、运行时状态以及不需要持久化保存的插件数据
+state = "/run/containerd"
+```
+
+
 # 镜像
 ```
 # 查看镜像

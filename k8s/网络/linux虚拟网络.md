@@ -1,4 +1,7 @@
 * https://weread.qq.com/web/reader/829328f071a74c6182975cck16732dc0161679091c5aeb1
+* https://system51.github.io/2019/08/26/kubernetes-flannel-Vxlan/
+* https://system51.github.io/2020/05/27/using-calico/
+* https://blog.csdn.net/qq_25518029/article/details/120313700
 
 # network namespace
 * 在Linux的世界里，文件系统挂载点、主机名、POSIX进程间通信消息队列、进程PID数字空间、IP地址、user ID数字空间等全局系统资源被namespace分割，装到一个个抽象的独立空间里。而隔离上述系统资源的namespace分别是Mount namespace、UTS namespace、IPC namespace、PID namespace、networknamespace和user namespace。

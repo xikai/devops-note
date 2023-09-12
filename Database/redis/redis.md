@@ -187,7 +187,17 @@ SLOWLOG RESET  # 重置慢查询日志,删除后，信息将永远丢失
 ./redis-benchmark -h 10.10.4.85 -p 6391 -a XeQ1htbZf2mpQyZn -c 100 -d 500 -n 100000 -t set,get
 ```
 
+# [bigkey](https://zhuanlan.zhihu.com/p/589221096)
+* https://blog.csdn.net/luomin369433047/article/details/129412602
+* 扫描bigkey
+  - 最好在 slave 节点执行，因为 --bigkeys 也是扫描数据，会造成其他线程阻塞
+  - 使用 --i 参数，降低扫描的执行速度，比如 --i 0.1 表示 100 毫秒执行一次
+  - 只能统计每个数据类型最大的数据
+```
+# 获取每个数据类型最大的 big keys，同时给出每个类型键的个数和平均大小
+./redis-cli --bigkeys
+```
 
-
-
+* MEMORY USAGE key
+>MEMORY USAGE 命令给出一个 key 和它的值在 RAM 中所占用的字节数
 

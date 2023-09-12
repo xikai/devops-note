@@ -1,104 +1,66 @@
 * https://docs.docker.com/engine/reference/builder/#cmd
 * https://docs.docker.com/engine/reference/builder/#entrypoint
 
-# 指令格式
-* CMD指令三种格式：
+# CMD 用于定义容器启动时要执行的默认命令 如：启动主进程
+* exec格式, 推荐的写法
+>它使用 JSON 数组或类似数组的格式来指定要执行的命令和参数。这样可以避免由于使用 shell 解释器而引起的一些问题，比如参数处理不正确等。
 ```sh
-# exec form, this is the preferred form
-CMD ["executable","param1","param2"]
-# shell form
-CMD command param1 param2
-# as default parameters to ENTRYPOINT
-CMD ["param1","param2"]
+# CMD ["executable","param1","param2"]
+CMD ["nginx", "-g", "daemon off;"]
 ```
-* ENTRYPOINT、CMD同时存在时,CMD作为ENTRYPOINT指定参数
+* shell格式
+```sh
+# CMD command param1 param2
+CMD nginx -g "daemon off;"
+```
+
+* CMD 指令可以被在运行容器时传递的命令行参数覆盖。这意味着，如果在运行容器时提供了自定义的命令，它将取代 Dockerfile 中定义的默认命令。
+```sh
+# 例如，如果你有一个 Dockerfile，内容如下：
+FROM ubuntu:latest
+CMD ["echo", "Hello, Docker!"]
+```
+```sh
+# 当你运行容器时，可以像这样覆盖默认命令, 这将会运行 ls -la 命令而不是默认的 echo 命令
+docker run <image_name> ls -la
+```
+
+# ENTRYPOINT 用于传递额外的命令行参数启动容器主进程
+>可以传递额外的命令行参数，或者希望将容器作为一个可执行的“工具”来运行不同的命令，使用 ENTRYPOINT
+* exec格式, 推荐的写法
+```sh
+# ENTRYPOINT ["executable", "param1", "param2"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
+```
+* shell格式
+```sh
+# ENTRYPOINT command param1 param2
+ENTRYPOINT nginx -g "daemon off;"
+```
+
+* 如果在 Dockerfile 中已经使用了 ENTRYPOINT 指令，那么 CMD 中的内容会被当作参数传递给 ENTRYPOINT 指定的命令
 ```
 ENTRYPOINT ["/bin/echo"] 
 CMD ["this is a test"]
 docker run -it imageecho 输出"this is a test"（执行/bin/echo "this is a test"）
 ```
 
-* ENTRYPOINT指令两种格式:
-```sh
-# exec form, this is the preferred form
-ENTRYPOINT ["executable", "param1", "param2"]
-# shell form
-ENTRYPOINT command param1 param2
-```
-
-# 覆盖（docker run的参数会覆盖CMD）
-```
-# demo
-FROM ubuntu:trusty
-CMD ping localhost
-```
-* docker run无参数
-```
-$ docker run -t demo
-PING localhost (127.0.0.1) 56(84) bytes of data.
-64 bytes from localhost (127.0.0.1): icmp_seq=1 ttl=64 time=0.051 ms
-64 bytes from localhost (127.0.0.1): icmp_seq=2 ttl=64 time=0.038 ms
-^C
---- localhost ping statistics ---
-2 packets transmitted, 2 received, 0% packet loss, time 999ms
-rtt min/avg/max/mdev = 0.026/0.032/0.039/0.008 ms
-```
-* docker run加参数
-```
-$ docker run demo hostname
-6c1573c0d4c0
-
-```
 * --entrypoint参数也会覆盖ENTRYPOINT，否则 docker run参数会追加到ENTRYPOINT后面
 ```
-# demo
 FROM ubuntu:trusty
 ENTRYPOINT ping localhost
 ```
 ```
-$ docker run --entrypoint hostname demo
+$ docker run --entrypoint hostname <image_name>
 075a2fa95ab7
 ```
 
-* 追加docker run 参数到ENTRYPOINT，并覆盖CMD
+* 当你运行容器时，无法覆盖 ENTRYPOINT，但可以传递额外的参数
 ```
-# demo
-FROM busybox
-ENTRYPOINT ["/bin/ping"]
-CMD ["localhost"]
+FROM ubuntu:latest
+ENTRYPOINT ["echo", "Hello, Docker!"]
 ```
+```sh
+docker run <image_name> "Additional text."
+# 输出 "Hello, Docker! Additional text."
 ```
-$ docker run -t --name demo ping:latest baidu.com
-PING baidu.com (220.181.38.148): 56 data bytes
-64 bytes from 220.181.38.148: seq=0 ttl=37 time=46.358 ms
-64 bytes from 220.181.38.148: seq=1 ttl=37 time=53.020 ms
-64 bytes from 220.181.38.148: seq=2 ttl=37 time=44.262 ms
-^C
---- baidu.com ping statistics ---
-3 packets transmitted, 3 packets received, 0% packet loss
-round-trip min/avg/max = 44.262/47.880/53.020 ms
-```
-
-# Shell格式
-* shell form, 命令作为sh程序的子程序运行
-```
-ENTRYPOINT ping localhost
-CMD ping localhost
-```
-```
-$ docker run -d demo
-15bfcddb11b5cde0e230246f45ba6eeb1e6f56edb38a91626ab9c478408cb615
-
-$ docker ps -l
-CONTAINER ID IMAGE COMMAND CREATED
-15bfcddb4312 demo:latest "/bin/sh -c 'ping localhost'" 2 seconds ago 
-
-# PID为1的进程并不是在Dockerfile里面定义的ping命令, 而是/bin/sh命令
-# 如果从外部发送任何POSIX信号到docker容器, 由于/bin/sh命令不会转发消息给实际运行的ping命令, 则不能安全得关闭docker容器
-$ docker exec 15bfcddb ps -f
-UID PID PPID C STIME TTY TIME CMD
-root 1 0 0 20:14 ? 00:00:00 /bin/sh -c ping localhost
-root 9 1 0 20:14 ? 00:00:00 ping localhost
-root 49 0 0 20:15 ? 00:00:00 ps -f
-```
-* 在上面的ping的例子中, 如果用了shell形式的CMD, 用户按ctrl-c也不能停止ping命令, 因为ctrl-c的信号没有被转发给ping命令

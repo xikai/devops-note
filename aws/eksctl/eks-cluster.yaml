@@ -1,0 +1,49 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: dev
+  region: cn-northwest-1
+  version: "1.24"
+
+vpc:
+  id: "vpc-0c61ffcf5f946d0c7"
+  subnets:
+    private:
+      cn-northwest-1a:
+        id: "subnet-0e9dae7320e7c9e25"
+      cn-northwest-1b:
+        id: "subnet-0ac2bd312b9d531c6"
+  clusterEndpoints:
+    privateAccess: true
+
+kubernetesNetworkConfig:
+  serviceIPv4CIDR: 172.18.16.0/21
+
+
+managedNodeGroups:
+  - name: ng-backend-v1
+    instanceType: t3.2xlarge
+    minSize: 2
+    maxSize: 6
+    desiredCapacity: 2
+    labels:
+      name: "dev-backend"
+    privateNetworking: true
+    volumeType: gp3
+    volumeSize: 40
+    ssh:
+      allow: true
+      publicKeyName: dev
+
+addons:  # 安装Amazon EKS类型的附加组件
+  - name: vpc-cni # no version is specified so it deploys the default version
+    attachPolicyARNs:
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+  - name: coredns
+    version: latest # auto discovers the latest available
+  - name: kube-proxy
+    version: latest
+  - name: aws-ebs-csi-driver
+    wellKnownPolicies:      # add IAM and service account
+      ebsCSIController: true

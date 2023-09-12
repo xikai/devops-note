@@ -4,7 +4,7 @@ chown -R 1000:1000 /data/elasticsearch/data
 
 docker run -d --name es -p 9200:9200 -p 9300:9300 \
         --ulimit nofile=65536:65536 \
-        -e "discovery.type=single-node"\
+        -e "discovery.type=single-node" \
         -v /data/elasticsearch/data:/usr/share/elasticsearch/data \
         docker.elastic.co/elasticsearch/elasticsearch:7.10.2
 

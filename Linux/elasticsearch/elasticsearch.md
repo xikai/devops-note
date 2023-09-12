@@ -166,16 +166,24 @@ curl -XGET "localhost:9200/_cat/indices?v"
 curl localhost:9200/_cluster/health/test1,test2?pretty
 ```
 
-* 手动迁移索引分片
+* 手动迁移/分配单个分片到指定节点
+>在处理任何重路由命令后，Elasticsearch将像正常一样执行再平衡
 ```
+# 使用参数?dry_run测试命令运行结果，命令并不会实际被执行
 curl -X POST "localhost:9200/_cluster/reroute?pretty" -H 'Content-Type: application/json' -d'
 {
     "commands" : [
         {
-          "allocate_replica" : {
-                "index" : "test", 
-                "shard" : 1,
-                "node" : "node3"
+          "move" : { #将已启动的分片从一个节点移动到另一个节点
+            "index" : "test", "shard" : 0,
+            "from_node" : "node1", "to_node" : "node2"
+          }
+        },
+        {
+          "allocate_replica" : {  #将未分配的分片分配给节点
+            "index" : "test", 
+            "shard" : 1,
+            "node" : "node3"
           }
         }
     ]

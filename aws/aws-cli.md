@@ -1,3 +1,8 @@
+# 获取当前aksk的用户身份信息
+```
+aws sts get-caller-identity
+```
+
 # [describe-instances](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ec2/describe-instances.html)
 * 通过tag获取tag key等于Name的ec2实例
 ```sh

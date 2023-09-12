@@ -1,10 +1,13 @@
-* https://docs.aws.amazon.com/zh_cn/eks/latest/userguide/cni-custom-network.html#custom-networking-configure-vpc
-* https://aws.amazon.com/cn/blogs/china/understand-the-network-planning-in-amazon-eks-in-one-article/
+* https://docs.aws.amazon.com/zh_cn/eks/latest/userguide/cni-custom-network.html
 
-# 修改pods的容器网段，开启pod自定义网络
+# 自定义网络
+* 查看集群上当前安装的VPC-CNI附加组件版本
+```
+kubectl describe daemonset aws-node --namespace kube-system | grep amazon-k8s-cni: | cut -d : -f 3
+```
+* 开启pod自定义网络
 ```
 kubectl set env daemonset aws-node -n kube-system AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG=true
-kubectl describe daemonset aws-node --namespace kube-system | grep Image | cut -d "/" -f 2
 ```
 
 # 按可用区创建配置文件
@@ -44,5 +47,5 @@ kubectl set env daemonset -n kube-system aws-node AWS_VPC_K8S_CNI_EXTERNALSNAT=t
 ```
 eksctl get nodegroup --cluster cluster-demo
 eksctl delete nodegroup --name ng-1-workers --cluster cluster-demo 
-eksctl create nodegroup-f nodegroup-backend.yaml
+eksctl create nodegroup -f nodegroup-backend.yaml
 ```

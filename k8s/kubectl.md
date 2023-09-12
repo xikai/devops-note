@@ -1,3 +1,5 @@
+* https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands
+
 * 查看指定节点的标签
 ```
 kubectl get nodes --show-labels -l name=front-b

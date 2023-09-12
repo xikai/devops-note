@@ -1,4 +1,4 @@
-### 安装rabbitmq-erlang（Bintray Yum repositories）
+# 安装rabbitmq-erlang（Bintray Yum repositories）
 >https://github.com/rabbitmq/erlang-rpm
 ```
 cat >/etc/yum.repos.d/rabbitmq-erlang.repo<<EOF
@@ -15,7 +15,7 @@ EOF
 yum install erlang
 ```
 
-### 安装rabbitmq-server(Bintray Yum Repository)
+# 安装rabbitmq-server(Bintray Yum Repository)
 >https://www.rabbitmq.com/install-rpm.html#bintray
 ```
 cat >/etc/yum.repos.d/rabbitmq.repo<<EOF
@@ -71,12 +71,58 @@ rabbitmqctl set_permissions -p / rabbit ".*" ".*" ".*"
 http://server-ip:15672
 ```
 
-### 内存诊断
+# 状态分析
+* 查看节点状态信息
 ```
-# 内存崩溃报告
+rabbitmqctl status
+```
+* top进程状态
+```
+# 开启rabbitmq-top插件,通过Management UI -> Admin -> Top Processes查看进程
+rabbitmq-plugins enable rabbitmq_top
+# rabbitmq-cli top进程查看
+rabbitmq-diagnostics observer
+```
+
+# 内存使用
+>当RabbitMQ服务器使用超过内存水位线（默认为40%的可用内存）时，它会发出内存警报并阻塞所有正在发布消息的连接。
+* [memory_high_watermark](https://www.rabbitmq.com/memory.html#configuring-threshold)
+```
+# 设置内存水位线，基于百分比
+rabbitmqctl set_vm_memory_high_watermark 0.6
+# 设置内存水位线，基于绝对值
+rabbitmqctl set_vm_memory_high_watermark absolute "4G"
+
+# 节点重启后失效，写入配置文件rabbitmq.conf永久生效
+vm_memory_high_watermark 0.6
+vm_memory_high_watermark absolute "4G"
+```
+
+* 内存诊断
+```
+# 内存细分报告 ,https://www.rabbitmq.com/memory-use.html#breakdown-cli
 rabbitmq-diagnostics memory_breakdown
+
+# Management UI:
+点击node -> Memory details -> update
 
 # 内存状态
 rabbitmq-diagnostics status
 rabbitmq status
+```
+
+# 磁盘使用
+>当磁盘可用空间低于配置限制（默认为50MB）时，警报将被触发，所有生产者将被阻塞;在未识别的平台上磁盘空间监控无效。
+* [disk_free_limit](https://www.rabbitmq.com/disk-alarms.html#configure)
+  * 如果磁盘告警设置过低，并且消息快速分页，则可能会在磁盘空间检查之间(间隔至少10秒)耗尽磁盘空间并导致RabbitMQ崩溃。更保守的方法是将限制设置为与系统上安装的内存量相同
+```
+# 设置内存水位线，基于绝对值
+rabbitmqctl set_disk_free_limit "16GB"
+
+# 设置相对于机器中的RAM的空闲空间限制。此配置文件将磁盘可用空间限制设置为与机器上的RAM数量相同
+rabbitmqctl set_disk_free_limit 1.0
+
+# 节点重启后失效，写入配置文件rabbitmq.conf永久生效
+disk_free_limit.absolute = 16GB
+disk_free_limit.relative = 1.0
 ```

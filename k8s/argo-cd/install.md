@@ -28,19 +28,6 @@ chmod +x /usr/local/bin/argocd
 
 
 # Access The Argo CD API Server
-### Port Forwarding argocd service
-```
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-```
-```
-https://localhost:8080
-```
-
-### Service Type Load Balancer
-```
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
-```
-
 ### [ingress] (https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/)
 * 修改argocd-server Deployment 不启用 tls
 ```yml

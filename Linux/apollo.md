@@ -155,7 +155,7 @@ admin
 export JAVA_OPTS="$JAVA_OPTS -Deureka.instance.ipAddress="configservice_ip/adminservice_ip"
 ```
 
-# 使用说明
+# 用户管理
 * 新增部门
 ```
 管理员工具 > 系统参数 > organizations > 查询(保存)
@@ -169,8 +169,8 @@ export JAVA_OPTS="$JAVA_OPTS -Deureka.instance.ipAddress="configservice_ip/admin
 apolloportaldb.users
 ```
 
-# 权限管理
-* 项目创建者默认为项目管理员权限（可以为其它人授权）
+# [权限管理](https://www.apolloconfig.com/#/zh/usage/apollo-user-guide?id=_12-%e9%a1%b9%e7%9b%ae%e6%9d%83%e9%99%90%e5%88%86%e9%85%8d)
+* 项目创建者默认为项目负责人,且拥有该项目管理员权限
 
 * Namespace的获取权限分为两种：
   - private （私有的）：private权限的Namespace，只能被所属的应用获取到。一个应用尝试获取其它应用private的Namespace，Apollo会报“404”异常。默认的“application” Namespace就是私有类型。

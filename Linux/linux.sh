@@ -42,7 +42,11 @@ lsof -p pid |wc -l
 #查看被进程标记为删除的文件
 lsos |grep deleted
 
-
+# 将标准输入（通常是由前面的命令输出产生的）作为参数传递给另一个命令
+xargs -n num：指定每次从输入中读取的参数数量。例如，xargs -n 1 会确保每次只传递一个参数给后续命令
+xargs -t 或 --verbose：显示执行的命令，这对于调试很有帮助
+xargs -p 或 --interactive：在执行每个命令之前询问用户是否要执行。可以防止意外执行危险命令
+xargs -d delimiter：指定输入参数的分隔符，默认是空格。
 
 ls |while read line; do mysql manage < $line; done
 
@@ -65,6 +69,8 @@ grep -rl "rm-wz90448rzu9sd21h0.mysql.rds.aliyuncs.com" * |xargs perl -pi -e 's|r
 
 #curl带头部参数的post请求
 curl -H "token: 8dbcc3fd-22f2-452e-b205-a2b268746219" -H "Content-Type: application/json" -X POST -d '{"from":"chicuu@chicuu.com","toEmail":"2853635728@qq.com","title":"test111","content":"0000000000content test11"}' http://email.api.tomtop.com/email/send
+#认证访问
+curl -u username:password https://www.google.com
 #curl proxy访问
 curl -U [username:password] --proxy 1.1.1.1:7070 https://www.google.com
 # 通过指定网卡访问

@@ -59,6 +59,11 @@ registry.servers=52.83.20.115:2181
 registry.namespace=dolphinscheduler
 ```
 
+* 配置worker分组，conf/worker.properties
+```
+worker.groups=default,test
+```
+
 # 启动worker
 ```
 bash ./bin/dolphinscheduler-daemon.sh start worker-server
