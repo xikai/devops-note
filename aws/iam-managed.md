@@ -1,0 +1,1 @@
+# [允许用户管理自己的MFA、安全凭证](https://docs.aws.amazon.com/zh_cn/IAM/latest/UserGuide/reference_policies_examples_aws_my-sec-creds-self-manage.html)

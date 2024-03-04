@@ -9,7 +9,7 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 data:
-  nginx.conf: |-
+  nginx.conf: |
     user  nginx;
     worker_processes  auto;
     
@@ -65,7 +65,7 @@ data:
     
         include /etc/nginx/conf.d/*.conf;
     }
-  nginx-vhosts.conf: |-
+  nginx-vhosts.conf: |
     server {
         listen       80;
         {{- range .Values.ingress.hosts }}

@@ -6,9 +6,8 @@
 
 
 # 告警说明
-* https://access.redhat.com/documentation/zh-cn/openshift_container_platform/4.7/html-single/release_notes/index#ocp-4-7-monitoring
-* 常用指标：https://cloud.tencent.com/developer/article/1667912
-
+>Prometheus Operator 安装完成后会有很多默认的监控指标，一不注意就大量的报警产生，所以我们非常有必要了解下这些常用的监控指标，有部分指标很有可能对于我们自己的业务可有可无，所以可以适当的进行修改，
+* https://cloud.tencent.com/developer/article/1667912
 * CPUThrottlingHigh
 ```
 # 关于 CPU 的 limit 合理性指标。查出最近5分钟，超过25%的CPU执行周期受到限制的容器
@@ -38,3 +37,7 @@ sum(kube_node_status_allocatable_cpu_cores) >
 # 原因：超过钉钉/微信单条消息最大长度限制等原因，导致发送失败
 # 解决：静默或删除积堆告警，重启alertmanager
 ```
+
+# 常用指标
+* https://access.redhat.com/documentation/zh-cn/openshift_container_platform/4.7/html-single/release_notes/index#ocp-4-7-monitoring
+* https://cloud.tencent.com/developer/article/1667912

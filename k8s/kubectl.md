@@ -32,4 +32,27 @@ kubectl top pod --all-namespaces |sort -k 4 -nr
 kubectl describe node -l name=backend-c |grep -A 10 "Allocated resources:"
 ```
 
+# resources
+```
+kubectl set resources deployment nginx --limits=cpu=200m,memory=512Mi --requests=cpu=100m,memory=256Mi
+```
+
+# replicas scale
+```
+kubectl scale deployment/nginx-deployment --replicas=10
+```
+# hpa scale
+```
+kubectl autoscale deployment/nginx-deployment --min=10 --max=15 --cpu-percent=80
+```
+
+# 手动均衡pod
+```
+kubectl cordon ip-172-31-119-7.cn-northwest-1.compute.internal
+kubectl get pod -n test -owide|grep ip-172-31-120-6 |awk '{print $1}' |head |xargs kubectl delete pods -n test
+kubectl get pod -n test -owide|grep ip-172-31-88-116 |awk '{print $1}' |head |xargs kubectl delete pods -n test
+kubectl get pod -n test -owide|grep ip-172-31-89-163 |awk '{print $1}' |head |xargs kubectl delete pods -n test
+kubectl uncordon ip-172-31-119-7.cn-northwest-1.compute.internal
+```
+
 # [jsonpath格式输出](https://kubernetes.io/zh-cn/docs/reference/kubectl/jsonpath/)

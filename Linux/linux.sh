@@ -63,6 +63,8 @@ ls |grep -v proc |xargs du -sh|sort -hr
 find . -newermt '2015-03-02 00:00:00' ! -newermt '2015-03-03 14:00:00' -name "*@1c_1e_90Q*"
 #查找删除.开头的隐藏文件
 find . -type f -name .\* -exec rm {} \;
+#保留id最大的10个目录 并删除其它目录，目录名格式id-datatime：32-20231122043631697 
+find /data/www -maxdepth 1 -mindepth 1 -type d |awk -F / '{print $NF}' |sort -t'-' -k1n |head -n -10 |while read dir; do rm -rf "/data/www/$dir"; done
 
 #批量查找替换字符串
 grep -rl "rm-wz90448rzu9sd21h0.mysql.rds.aliyuncs.com" * |xargs perl -pi -e 's|rm-wz90448rzu9sd21h0.mysql.rds.aliyuncs.com|mydb01.dadi01.net|g'
@@ -100,3 +102,6 @@ echo 3 > /proc/sys/vm/drop_caches  #重启系统恢复默认值0
 ps auxwf
 w:宽泛输出 ww无限宽度
 f: 完整格式，输出额外的列
+
+
+dmesg （全称是display message (or display driver)），dmesg命令是从内核环形缓冲区中获取数据的，当我们在Linux上排除故障时，dmesg命令会十分方便，它能很好地帮我们鉴别硬件相关的error和warning。除此之外，dmesg命令还能打印出守护进程相关的信息，已帮助我们debug

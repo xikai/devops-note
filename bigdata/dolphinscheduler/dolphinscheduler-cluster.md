@@ -62,15 +62,19 @@ mysql> flush privileges;
 ### 安装ZooKeeper (3.4.6+)集群,参考zookeeper文档
 *
 
-
-# 安装dolphinscheduler
 ### 准备 DolphinScheduler 启动环境
 * 创建部署用户，并且一定要配置 sudo 免密
 >因为任务执行服务是以 sudo -u {linux-user} 切换不同 linux 用户的方式来实现多租户运行作业，所以部署用户需要有 sudo 权限，而且是免密的。
 
 >如果发现 /etc/sudoers 文件中有 "Defaults requirett" 这行，也请注释掉
 ```
+# 创建用户需使用 root 登录
 useradd dolphinscheduler
+
+# 添加密码
+echo "dolphinscheduler" | passwd --stdin dolphinscheduler
+
+# 配置 sudo 免密
 sed -i '$adolphinscheduler  ALL=(ALL)  NOPASSWD: NOPASSWD: ALL' /etc/sudoers
 sed -i 's/Defaults    requirett/#Defaults    requirett/g' /etc/sudoers
 ```
@@ -86,9 +90,10 @@ hostnamectl --static set-hostname dolphinscheduler01
 hostnamectl --static set-hostname dolphinscheduler02
 hostnamectl --static set-hostname dolphinscheduler03
 ```
+
+* 由于安装的时候需要向不同机器发送资源，所以要求各台机器间能实现SSH免密登陆。配置免密登陆的步骤如下
 ```
-# 由于安装的时候需要向不同机器发送资源，所以要求各台机器间能实现SSH免密登陆。配置免密登陆的步骤如下
-su dolphinscheduler
+su - dolphinscheduler
 
 ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
 cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
@@ -98,146 +103,159 @@ ssh localhost
 ssh-copy-id dolphinscheduler0X
 ssh dolphinscheduler0X
 ```
-* 创建安装、数据目录
-```
-mkdir /opt/dolphinscheduler
-mkdir /data/dolphinscheduler
-chown -R dolphinscheduler.dolphinscheduler /opt/dolphinscheduler
-chown -R dolphinscheduler.dolphinscheduler /data/dolphinscheduler
-```
 
-
-### [下载二进制安装包](https://www.apache.org/dyn/closer.lua/dolphinscheduler/2.0.5/apache-dolphinscheduler-2.0.5-bin.tar.gz)
-* 只需要在其中一个节点上执行集群安装操作
+# 安装dolphinscheduler
+### [下载二进制安装包](https://dolphinscheduler.apache.org/zh-cn/download)
 ```
-wget https://dlcdn.apache.org/dolphinscheduler/2.0.5/apache-dolphinscheduler-2.0.5-bin.tar.gz
-tar -xzf apache-dolphinscheduler-2.0.5-bin.tar.gz
-chown -R dolphinscheduler:dolphinscheduler apache-dolphinscheduler-2.0.5-bin
+cd ~
+wget https://www.apache.org/dyn/closer.lua/dolphinscheduler/*/apache-dolphinscheduler-*-bin.tar.gz
+tar -xzf apache-dolphinscheduler-*-bin.tar.gz
+
+# 修改目录权限，使得部署用户对二进制包解压后的 apache-dolphinscheduler-*-bin 目录有操作权限
+chown -R dolphinscheduler:dolphinscheduler apache-dolphinscheduler-*-bin
 ```
 
 ### 修改相关配置(仅需要修改运行install.sh脚本的所在机器的配置即可)
-* vim conf/config/install_config.conf
-```
+>只需要在第一个节点上执行集群安装操作（可免密ssh登陆其它节点）
+* vim bin/env/install_env.sh
+```sh
 # ---------------------------------------------------------
 # INSTALL MACHINE
 # ---------------------------------------------------------
-# 需要配置master、worker、API server，所在服务器的IP均为机器IP或者localhost
-# 如果是配置hostname的话，需要保证机器间可以通过hostname相互链接
-# 如下图所示，部署 DolphinScheduler 机器的 hostname 为 ds1,ds2,ds3,ds4,ds5，其中 ds1,ds2 安装 master 服务，ds3,ds4,ds5安装 worker 服务，alert server安装在ds4中，api server 安装在ds5中
+# A comma separated list of machine hostname or IP would be installed DolphinScheduler,
+# including master, worker, api, alert. If you want to deploy in pseudo-distributed
+# mode, just write a pseudo-distributed hostname
+# Example for hostnames: ips="ds1,ds2,ds3,ds4,ds5", Example for IPs: ips="192.168.8.1,192.168.8.2,192.168.8.3,192.168.8.4,192.168.8.5"
 ips="dolphinscheduler01,dolphinscheduler02,dolphinscheduler03"
+
+# Port of SSH protocol, default value is 22. For now we only support same port in all `ips` machine
+# modify it if you use different ssh port
+sshPort=${sshPort:-"22"}
+
+# A comma separated list of machine hostname or IP would be installed Master server, it
+# must be a subset of configuration `ips`.
+# Example for hostnames: masters="ds1,ds2", Example for IPs: masters="192.168.8.1,192.168.8.2"
 masters="dolphinscheduler01,dolphinscheduler02,dolphinscheduler03"
+
+# A comma separated list of machine <hostname>:<workerGroup> or <IP>:<workerGroup>.All hostname or IP must be a
+# subset of configuration `ips`, And workerGroup have default value as `default`, but we recommend you declare behind the hosts
+# Example for hostnames: workers="ds1:default,ds2:default,ds3:default", Example for IPs: workers="192.168.8.1:default,192.168.8.2:default,192.168.8.3:default"
 workers="dolphinscheduler01:default,dolphinscheduler02:default,dolphinscheduler03:default"
+
+# A comma separated list of machine hostname or IP would be installed Alert server, it
+# must be a subset of configuration `ips`.
+# Example for hostname: alertServer="ds3", Example for IP: alertServer="192.168.8.3"
 alertServer="dolphinscheduler02"
+
+# A comma separated list of machine hostname or IP would be installed API server, it
+# must be a subset of configuration `ips`.
+# Example for hostname: apiServers="ds1", Example for IP: apiServers="192.168.8.1"
 apiServers="dolphinscheduler01"
-pythonGatewayServers="dolphinscheduler01"
 
-# DolphinScheduler安装路径，如果不存在会创建
-installPath="/opt/dolphinscheduler"
+# The directory to install DolphinScheduler for all machine we config above. It will automatically be created by `install.sh` script if not exists.
+# Do not set this configuration same as the current path (pwd). Do not add quotes to it if you using related path.
+installPath="/usr/local/dolphinscheduler"
 
-# 部署用户，填写在 **配置用户免密及权限** 中创建的用户
+# The user to deploy DolphinScheduler for all machine we config above. For now user must create by yourself before running `install.sh`
+# script. The user needs to have sudo privileges and permissions to operate hdfs. If hdfs is enabled than the root directory needs
+# to be created by this user
 deployUser="dolphinscheduler"
 
-# 数据目录（确保dolphinscheduler用户可读写）
-dataBasedirPath="/data/dolphinscheduler"
-
-# ---------------------------------------------------------
-# DolphinScheduler ENV
-# ---------------------------------------------------------
-# JAVA_HOME 的路径，是在 **前置准备工作** 安装的JDK中 JAVA_HOME 所在的位置.
-javaHome="/usr/lib/jvm/java-1.8.0-openjdk"
-
-# ---------------------------------------------------------
-# Database
-# ---------------------------------------------------------
-# 数据库的类型，用户名，密码，IP，端口，元数据库db。其中 DATABASE_TYPE 目前支持 mysql, postgresql, H2
-# 请确保配置的值使用双引号引用，否则配置可能不生效
-DATABASE_TYPE="mysql"
-SPRING_DATASOURCE_URL="jdbc:mysql://ds1:3306/ds_201_doc?useUnicode=true&characterEncoding=UTF-8"
-# 如果你不是以 dolphinscheduler/dolphinscheduler 作为用户名和密码的，需要进行修改
-SPRING_DATASOURCE_USERNAME="dolphinscheduler"
-SPRING_DATASOURCE_PASSWORD="dolphinscheduler"
-
-#DATABASE_TYPE="postgresql"
-#SPRING_DATASOURCE_URL="jdbc:postgresql://dolphinscheduler03:5432/dolphinscheduler"
-#SPRING_DATASOURCE_USERNAME="dolphinscheduler"
-#SPRING_DATASOURCE_PASSWORD="dolphinscheduler"
-
-# ---------------------------------------------------------
-# Registry Server
-# ---------------------------------------------------------
-# 注册中心地址，zookeeper服务的地址
-registryServers="dolphinscheduler01:2181,dolphinscheduler02:2181,dolphinscheduler03:2181"
-
-# 上传资源文件到s3
-#resourceStorageType="S3"
-#defaultFS="s3a://dolphinscheduler"
-#s3Endpoint="https://s3.us-west-2.amazonaws.com"
-#s3AccessKey="xxxxxxxxxx"
-#s3SecretKey="xxxxxxxxxx"
+# The root of zookeeper, for now DolphinScheduler default registry server is zookeeper.
+zkRoot=${zkRoot:-"/dolphinscheduler"}
 ```
+* vim bin/env/dolphinscheduler_env.sh
+```sh
+# JAVA_HOME, will use it to start DolphinScheduler server
+export JAVA_HOME="/usr/lib/jvm/java-1.8.0-openjdk"
+
+# Database related configuration, set database type, username and password
+export DATABASE=${DATABASE:-mysql}
+export SPRING_PROFILES_ACTIVE=${DATABASE}
+export SPRING_DATASOURCE_URL="jdbc:mysql://mysql-master.test.local:3306/dolphinscheduler?useUnicode=true&characterEncoding=UTF-8"
+export SPRING_DATASOURCE_USERNAME="dolphinscheduler"
+export SPRING_DATASOURCE_PASSWORD="dolphinscheduler"
+
+# DolphinScheduler server related configuration
+export SPRING_CACHE_TYPE=${SPRING_CACHE_TYPE:-none}
+export SPRING_JACKSON_TIME_ZONE=${SPRING_JACKSON_TIME_ZONE:-UTC}
+export MASTER_FETCH_COMMAND_NUM=${MASTER_FETCH_COMMAND_NUM:-10}
+
+# Registry center configuration, determines the type and link of the registry center
+export REGISTRY_TYPE=${REGISTRY_TYPE:-zookeeper}
+export REGISTRY_ZOOKEEPER_CONNECT_STRING="dolphinscheduler01:2181,dolphinscheduler02:2181,dolphinscheduler03:2181"
+
+# Tasks related configurations, need to change the configuration if you use the related tasks.
+export HADOOP_HOME="/usr/local/hadoop"
+export HADOOP_CONF_DIR="/usr/local/hadoop/etc/hadoop"
+export SPARK_HOME1=${SPARK_HOME1:-/opt/soft/spark1}
+export SPARK_HOME2=${SPARK_HOME2:-/opt/soft/spark2}
+export PYTHON_HOME=${PYTHON_HOME:-/opt/soft/python}
+export HIVE_HOME=${HIVE_HOME:-/opt/soft/hive}
+export FLINK_HOME=${FLINK_HOME:-/opt/soft/flink}
+export DATAX_HOME=${DATAX_HOME:-/opt/soft/datax}
+export SEATUNNEL_HOME=${SEATUNNEL_HOME:-/opt/soft/seatunnel}
+export CHUNJUN_HOME=${CHUNJUN_HOME:-/opt/soft/chunjun}
+
+export PATH=$HADOOP_HOME/bin:$SPARK_HOME1/bin:$SPARK_HOME2/bin:$PYTHON_HOME/bin:$JAVA_HOME/bin:$HIVE_HOME/bin:$FLINK_HOME/bin:$DATAX_HOME/bin:$SEATUNNEL_HOME/bin:$CHUNJUN_HOME/bin:$PATH
 ```
-#使用mysql数据库需要下载mysql-connector-java 驱动 (8.0.16) 并移动到 DolphinScheduler 的 lib目录下
+
+### 初始化数据库
+* 使用mysql数据库需要下载mysql-connector-java 驱动 (8.0.16) 并移入 api-server/libs 以及 worker-server/libs 文件夹中，最后重启 api-server 和 worker-server 服务，即可使用 MySQL 数据源
+```
 wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.28/mysql-connector-java-8.0.28.jar
-mv mysql-connector-java-8.0.28.jar apache-dolphinscheduler-2.0.5-bin/lib/
+cp mysql-connector-java-8.0.28.jar apache-dolphinscheduler-*-bin/api-server/libs/
+cp mysql-connector-java-8.0.28.jar apache-dolphinscheduler-*-bin/master-server/libs/
+cp mysql-connector-java-8.0.28.jar apache-dolphinscheduler-*-bin/worker-server/libs/
+cp mysql-connector-java-8.0.28.jar apache-dolphinscheduler-*-bin/alert-server/libs/
+cp mysql-connector-java-8.0.28.jar apache-dolphinscheduler-*-bin/tools/libs/
 ```
-
-* 启动参数配置，bin/dolphinscheduler-daemon.sh
+* 通过Shell 脚本来初始化数据库
 ```
-# 修改日志文件路径
-export DOLPHINSCHEDULER_LOG_DIR=/data/dolphinscheduler/logs
-
-# JVM堆栈大小
-HEAP_OPTS="-Xms1g -Xmx1g -Xmn512m"
-```
-
-* 多租户配置
->租户对应的是 Linux 的用户，用于 worker 提交作业所使用的用户。如果 linux 没有这个用户，则会导致任务运行失败。你可以通过修改 worker.properties 配置文件中参数 worker.tenant.auto.create=true 实现当 linux 用户不存在时自动创建该用户。worker.tenant.auto.create=true 参数会要求 worker 可以免密运行 sudo 命令
-```
-# conf/worker.properties
-worker.tenant.auto.create=true
+bash tools/bin/upgrade-schema.sh
 ```
 
 ### 部署 DolphinScheduler （在其中一个节点上执行）
+>通过操作此安装目录分发配置、管理dolphinscheduler节点
 ```
-su dolphinscheduler
+su - dolphinscheduler
+cd ~/apache-dolphinscheduler-*-bin
 
-# 初始化数据库,创建表
-sh script/create-dolphinscheduler.sh
-
-# 启动DolphinScheduler 
-sh install.sh
-```
-
-* 启停服务
-```
-# 启停 Master
-sh ./bin/dolphinscheduler-daemon.sh start master-server
-sh ./bin/dolphinscheduler-daemon.sh stop master-server
-
-# 启停 Worker
-sh ./bin/dolphinscheduler-daemon.sh start worker-server
-sh ./bin/dolphinscheduler-daemon.sh stop worker-server
-
-# 启停 Api
-sh ./bin/dolphinscheduler-daemon.sh start api-server
-sh ./bin/dolphinscheduler-daemon.sh stop api-server
-
-# 启停 Alert
-sh ./bin/dolphinscheduler-daemon.sh start alert-server
-sh ./bin/dolphinscheduler-daemon.sh stop alert-server
-```
-```
-# 一键停止集群所有节点所有服务 (只需要在任一节点执行)
-sh ./bin/stop-all.sh
-
-# 一键开启集群所有节点所有服务 (只需要在任一节点执行)
-sh ./bin/start-all.sh
+bash ./bin/install.sh
+注意: 第一次部署的话，可能出现 5 次sh: bin/dolphinscheduler-daemon.sh: No such file or directory相关信息，此为非重要信息直接忽略即可
 ```
 
 # 登录 DolphinScheduler
 ```
 浏览器访问地址 http://apiServers:12345/dolphinscheduler 即可登录系统UI。
 默认的用户名和密码是 admin/dolphinscheduler123
+```
+
+# 启停服务
+* 启停服务
+```
+# 启停 Master
+bash ./bin/dolphinscheduler-daemon.sh start master-server
+bash ./bin/dolphinscheduler-daemon.sh stop master-server
+
+# 启停 Worker
+bash ./bin/dolphinscheduler-daemon.sh start worker-server
+bash ./bin/dolphinscheduler-daemon.sh stop worker-server
+
+# 启停 Api
+bash ./bin/dolphinscheduler-daemon.sh start api-server
+bash ./bin/dolphinscheduler-daemon.sh stop api-server
+
+# 启停 Alert
+bash ./bin/dolphinscheduler-daemon.sh start alert-server
+bash ./bin/dolphinscheduler-daemon.sh stop alert-server
+```
+```
+# 一键停止集群所有节点所有服务 (只需要在任一节点执行)
+bash ./bin/stop-all.sh
+
+# 一键开启集群所有节点所有服务 (只需要在任一节点执行)
+bash ./bin/start-all.sh
 ```
 
 # DolphinScheduler正常运行提供如下的网络端口配置：

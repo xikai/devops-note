@@ -43,7 +43,8 @@ rabbitmq-plugins list
 rabbitmq-plugins enable rabbitmq_management
 ```
 
-* 命令行管理
+* [访问授权](https://www.rabbitmq.com/access-control.html)
+* https://www.rabbitmq.com/management.html#permissions
 ```
 #用户管理
 rabbitmqctl list_users 
@@ -63,7 +64,17 @@ rabbitmqctl
 
 #权限管理
 rabbitmqctl list_permissions
+#rabbitmqctl set_permissions -p VHostPath User ConfP(有配置权限的资源) WriteP(有写权限的资源) ReadP(有读权限的资源)
 rabbitmqctl set_permissions -p / rabbit ".*" ".*" ".*"
+#禁止配置和写入权限，^$表示资源为空
+rabbitmqctl set_permissions -p / rabbit "^$" "^$" ".*"
+```
+```
+# 新建monitoring用户
+rabbitmqctl add_user backend-admin rabbitpassword 
+rabbitmqctl set_user_tags backend-admin monitoring
+for v in $(rabbitmqctl list_vhosts --silent); do rabbitmqctl set_permissions -p $v "backend-admin" ".*" ".*" ".*"; done
+rabbitmqctl list_users
 ```
 
 * web管理

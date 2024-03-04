@@ -10,6 +10,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositorie
       libtool \
       linux-headers \
       tzdata \
+      busybox-extras \
       freetype \
       freetype-dev \
       libpng \

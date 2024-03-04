@@ -1,12 +1,18 @@
 #character set
-CREATE DATABASE `wordpress` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-ALTER DATABASE 数据库名 CHARACTER SET utf8 COLLATE utf8_bin;
+mysql> CREATE DATABASE {database} DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+mysql> ALTER DATABASE {database} CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-# user & grants
-CREATE USER `dadi01`@`172.19.%.%` IDENTIFIED BY 'xxxxxxx';
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE VIEW, SHOW VIEW ON *.* TO 'dadi01'@'172.19.%.%' IDENTIFIED BY 'xxxxxxxx';
-GRANT SELECT ON *.* TO 'dadi_read'@'%' IDENTIFIED BY 'xxxxxx'; 
+# user & grants ,修改 {user} 和 {password} 为你希望的用户名和密码
+CREATE USER '{user}'@'%' IDENTIFIED BY '{password}';
+GRANT ALL PRIVILEGES ON dolphinscheduler.* TO '{user}'@'%';
+CREATE USER '{user}'@'localhost' IDENTIFIED BY '{password}';
+GRANT ALL PRIVILEGES ON dolphinscheduler.* TO '{user}'@'localhost';
+FLUSH PRIVILEGES;
 
-DROP USER 'dadi01'@'172.19.%.%';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE VIEW, SHOW VIEW ON *.* TO '{user}'@'%';
+GRANT SELECT ON *.* TO '{user}'@'%'; 
 
-show grants for 'dadi01'@'172.19.%.%';
+# revoke
+show grants for '{user}'@'%';
+revoke GRANT SELECT ON *.* FROM '{user}'@'%'; 
+DROP USER '{user}'@'%';

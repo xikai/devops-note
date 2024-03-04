@@ -84,7 +84,10 @@ git pull origin develop
 git push --tags                    #推送所有分支及tag
 git pull --tags                    #拉取所有分支tag
 
-git fetch origin master            #将远程master分支在本地更新为一个名为origin/master的本地分支
+
+git fetch origin master            #将远程master分支下载到本地名为origin/master的本地分支，而不会直接合并到本地master分支
+git diff FETCH_HEAD
+git merge FETCH_HEAD
 
 #pull所有分支到本地
   git fetch --all

@@ -79,6 +79,7 @@ rabbitmqctl -n rabbit2 start_app
 rabbitmq02# rabbitmqctl forget_cluster_node rabbit@rabbitmq01
 
 #创建集群用户(使用集群中任一节点)
+#https://www.rabbitmq.com/access-control.html
 rabbitmqctl -n rabbit1 list_users
 rabbitmqctl -n rabbit1 add_user admin admin
 rabbitmqctl -n rabbit1 set_user_tags admin administrator
@@ -97,7 +98,7 @@ rabbitmqctl -n rabbit1 set_policy ha-two "^" '{"ha-mode":"exactly", "ha-params":
 # rabbitmqctl set_policy ha-nodes "^" '{"ha-mode":"nodes","ha-params":["rabbit@nodeA","rabbit@nodeB"]}'
 
 # 应用策略到所有vhost
-# vhosts=$(rabbitmqctl list_vhosts | egrep -v "Listing|name"); for vhost in $vhosts; do rabbitmqctl set_policy -p $vhost ha-all "^" '{"ha-mode":"all","ha-sync-mode":"automatic"}'; done
+# for v in $(rabbitmqctl list_vhosts --silent); do rabbitmqctl set_policy -p $vhost ha-all "^" '{"ha-mode":"all","ha-sync-mode":"automatic"}'; done
 ```
 * ha-sync-mode配置队列同步
 ```sh

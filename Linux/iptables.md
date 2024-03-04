@@ -1,6 +1,7 @@
 * https://www.netfilter.org/documentation/index.html
 * https://www.frozentux.net/iptables-tutorial/iptables-tutorial.html
 * https://wiki.archlinux.org/index.php/Iptables_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)
+* https://arthurchiao.art/blog/deep-dive-into-iptables-and-netfilter-arch-zh/
 
 ### table表：
 1. filter表——三个链：INPUT、FORWARD、OUTPUT作用：过滤数据包 内核模块：iptables_filter.
@@ -156,4 +157,26 @@ iptables -t nat -A POSTROUTING -d 172.16.0.223/32 -p tcp -m tcp --dport 443 -j S
 
 # 通过ssh隧道跨主机端口转发
 ssh -f -N -L :16379:172.16.0.223:6379 root@172.16.0.223
+```
+
+# [conntrack连接(记录)跟踪](https://arthurchiao.art/blog/conntrack-design-and-implementation-zh/)
+* 连接太多导致 conntrack table 被打爆
+```
+conntrack table 使用量监控
+可以定期采集系统的 conntrack 使用量，
+
+$ cat /proc/sys/net/netfilter/nf_conntrack_count
+257273
+并与最大值比较：
+
+$ cat /proc/sys/net/netfilter/nf_conntrack_max
+262144
+```
+```
+1. 调大 conntrack 表 (影响：连接跟踪模块会多用一些内存)
+ $ echo 'net.netfilter.nf_conntrack_max = 524288' >> /etc/sysctl.conf
+ $ echo 'net.netfilter.nf_conntrack_buckets = 131072' >> /etc/sysctl.conf
+
+2. 减小 GC 时间,加快过期 entry 的回收 (建议保守一些，例如设置 6 个小时 —— 这已经比默认值 5 天小多了)
+ $ echo 'net.netfilter.nf_conntrack_tcp_timeout_established = 21600' >> /etc/sysctl.conf
 ```

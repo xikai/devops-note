@@ -1,5 +1,4 @@
-* https://libreswan.org/
-* https://docs.strongswan.org/
+* https://github.com/libreswan/libreswan
 
 # 环境准备
 * subnet to subnet vpn

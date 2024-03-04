@@ -263,3 +263,36 @@ repl_backlog_histlen:4014
 ```
 
 * 客户端连接sentinel（ip+端口,sentinel_name）
+
+
+# 哨兵标识状态
+```
+<instance-type> <name> <ip> <port> @ <master-name> <master-ip> <master-port>
+```
+```
++reset-master <instance details> --- 主节点被重置。
++slave <instance details> --- 一个新的从节点被发现和关联。
++failover-state-reconf-slaves <instance details> --- 故障转移状态被转换为reconf-slaves状态。
++failover-detected <instance details> --- 另一个Sentinel开始了故障转移或者其他的外部实体被发现（一个关联的从节点变为主节点）。
++slave-reconf-sent <instance details> --- 为了给新的从节点重新配置，sentinel 中的leader发送SLAVEOF命令到这个实例。
++slave-reconf-inprog <instance details> --从节点被重新配置展示一个主节点的从节点，但是同步过程尚未完成。
++slave-reconf-done <instance details> --- 从节点现在和主节点是同步的。
+-dup-sentinel <instance details> --指定的主节点，一个或者多个sentinels被 移除，因为是重复的。
++sentinel <instance details> --- 这个主节点的一个新的sentinel被发现和关联。
++sdown <instance details> --- 指定的实例现在处于主观下线状态。
+-sdown <instance details> --- 指定的实例不再处于主观下线状态。
++odown <instance details> --- 指定的实例现在处于客观下线状态。
+-odown <instance details> --- 指定的实例现在不处于客观下线状态。
++new-epoch <instance details> --- 当前时间被更新。
++try-failover <instance details> --- 准备新的故障转移，等待大多数的选举。
++elected-leader <instance details> --- 赢得了选举，开始故障转移。
++failover-state-select-slave <instance details> --- 新的故障转移状态是select-slave：我们 正在寻找合适提升为主节点的从节点。
+no-good-slave <instance details> --- 没有合适进行提升的从节点。一般会在稍后重试，但是这或许会改变并且终止故障转移。
+selected-slave <instance details> --- 我们找到了指定的从节点来进行提升。
+failover-state-send-slaveof-noone <instance details> --- 我们尝试重新配置这个提升后的主节点，等待它切换。
+failover-end-for-timeout <instance details> --- 故障转移由于超时而停止，无论如何从节点最后被配置为复制新的主节点。
+failover-end <instance details> --- 故障转移由于成功而停止，所有的从节点被配置为复制新的主节点。
+switch-master <master name> <oldip> <oldport> <newip> <newport> --- 配置改变后，主节点新的IP和地址都是指定的。这是大多数外部用户感兴趣的消息。
++tilt --- 进入Tilt模式。
+-tilt --- 退出Tilt模式。
+```

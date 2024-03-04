@@ -48,7 +48,6 @@ kubectl describe serviceaccount my-service-account -n default
 
 # 配置 Pods 以使用 关联了IAM角色的 Kubernetes 服务账户
 ```yml
-cat >my-deployment.yaml <<EOF
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -66,7 +65,6 @@ spec:
       containers:
       - name: my-app
         image: public.ecr.aws/nginx/nginx:X.XX
-EOF
 ```
 
 * 查看 Pod 使用的 IAM 角色的 ARN

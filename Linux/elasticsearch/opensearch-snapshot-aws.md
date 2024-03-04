@@ -247,7 +247,7 @@ curl -XPOST -H 'Content-Type: application/json' http://localhost:9200/_plugins/_
           {
             "snapshot": {
               "repository": "s3_backup",
-              "snapshot": "pci-pay-logs"     //快照名称被作为前缀，创建日期自动被添加到它应该具有的名称之后
+              "snapshot": "pci-payorder-logs"     //快照名称被作为前缀，创建日期自动被添加到它应该具有的名称之后
             }
           }
         ],
@@ -273,12 +273,20 @@ curl -XPOST -H 'Content-Type: application/json' http://localhost:9200/_plugins/_
     "ism_template": {
       "index_patterns": [
         "pay-*",
-        "ads-*"
+        "order-*"
       ],
       "priority": 100     //值越高，优先级越高
     }
   }
 }
+```
+
+# 手动删除快照
+```
+# 查询pci-pay-logs-2022年的快照
+curl -XGET https://xxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/s3_backup/pci-pay-logs-2022*?pretty |more
+# 删除pci-pay-logs-2022年的快照
+curl -XDELETE https://xxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/s3_backup/pci-pay-logs-2022*
 ```
 
 # 恢复快照
@@ -316,7 +324,7 @@ curl -XGET https://xxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot?pretty
 ```
 * 查询cs-automated-enc仓库，快照名包含2022-06-10的快照
 ```
-curl -XGET https://xxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/cs-automated-enc/2022-06-10*?pretty
+curl -XGET https://xxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/cs-automated-enc/2022-06-10*
 ```
 * [恢复快照](https://opensearch.org/docs/latest/opensearch/snapshots/snapshot-restore/#restore-snapshots)
 ```
@@ -325,5 +333,13 @@ curl -XPOST 'https://xxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/cs-automat
   "indices": ".kibana_1",
   "rename_pattern": ".kibana_1",        #匹配需要重命名的索引组
   "rename_replacement": ".kibana_1_old" #替换匹配的索引名
+}'
+```
+```
+curl -XPOST 'https://xxxxxxxxxxx.us-west-2.es.amazonaws.com/_snapshot/cs-automated-enc/2022-06-10t23-41-15.707514a0-3bfd-4d82-b177-d23615f9e4c2/_restore' -H 'Content-Type: application/json' -d '
+{
+  "indices": "order-2024.01.14,order-2024.01.15,order-2024.01.16",
+  "rename_pattern": "order-(.+)",
+  "rename_replacement": "restored-order-$1"
 }'
 ```

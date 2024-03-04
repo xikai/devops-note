@@ -3,8 +3,15 @@
 ```
 # root用来保存持久化数据，包括 Snapshots, Content, Metadata 以及各种插件的数据
 root = "/var/lib/containerd"
+  # image镜像存储目录
+  /var/lib/containerd/io.containerd.content.v1.content
+
 # state 用来保存临时数据，包括 sockets、pid、挂载点、运行时状态以及不需要持久化保存的插件数据
 state = "/run/containerd"
+  # 容器运行时数据目录
+  /run/containerd/io.containerd.runtime.v2.task/k8s.io
+
+
 ```
 
 
@@ -12,9 +19,21 @@ state = "/run/containerd"
 ```
 # 查看镜像
 ctr i ls
+ctr i ls -q  #只输出镜像ID
 
 # 镜像下载
 ctr i pull docker.io/library/nginx:alpine
+
+# 删除镜像
+ctr i rm docker.io/library/nginx:alpine
+# 删除指定镜像
+ctr -n k8s.io i ls -q |grep '123456789012'|xargs ctr -n k8s.io i rm
+
+# tag镜像
+ctr i tag nginx:alpine docker.io/library/nginx:alpine
+
+# 推送镜像
+ctr i push docker.io/library/nginx:alpine
 
 # 将镜像挂载到主机目录
 ctr i mount docker.io/library/nginx:alpine /mnt
