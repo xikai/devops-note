@@ -69,51 +69,82 @@ node.data: false
 
 
 # [安装elasticsearch](https://mp.weixin.qq.com/s/y8DNnj4fjiS3Gqz2DFik8w?spm=a2c6h.12873639.0.0.135365aeF1zJoB)
-* 下载
+* 设置主机名
 ```
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.16.tar.gz
-tar -xzf elasticsearch-5.6.16.tar.gz
-cd elasticsearch-5.6.16/ 
-./bin/elasticsearch -d  #Running as a daemon
+hostnamectl --static set-hostname es01
+hostnamectl --static set-hostname es02
+hostnamectl --static set-hostname es03
+```
+* hosts解析
+```
+172.28.44.0 es01
+172.28.47.41 es02
+172.28.43.19 es03
 ```
 
-* 配置elasticsearch
+* 下载安装
 ```
-groupadd es
-useradd -g es es
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.2-linux-x86_64.tar.gz
+tar -xzf elasticsearch-7.10.2-linux-x86_64.tar.gz -C /usr/local
+ln -s /usr/local/elasticsearch-7.10.2 /usr/local/elasticsearch
+```
+
+# 配置elasticsearch
+```
+groupadd elasticsearch
+useradd -g elasticsearch elasticsearch
 mkdir -p /data/elasticsearch/{data,logs}
-chown -R es.es /data/elasticsearch
-chown -R es.es /usr/local/elasticsearch
+chown -R elasticsearch.elasticsearch /data/elasticsearch
+chown -R elasticsearch.elasticsearch /usr/local/elasticsearch/
 ```
 
 * vim config/elasticsearch.yml
 ```
-cluster.name: es-test
+cluster.name: test-es
 node.name: es01
 path.data: /data/elasticsearch/data
 path.logs: /data/elasticsearch/logs
-bootstrap.memory_lock: false
 network.host: 0.0.0.0
-http.port: 9400
-transport.tcp.port: 9500
-# 单播发现，加入集群
-discovery.zen.ping.unicast.hosts: ["es01:9500", "es02:9500", "es03:9500"]
-# 参与选举的候选主节点数，不小于这个数才能触发选举（官方建议取值：候选主节点个数/2)+1，以防止脑裂）
-# 避免集群中只有2个候选主节点（如果一个节点出现问题，另一个节点的同意人数最多只能为1，永远也不能选举出新的主节点，这时就发生了脑裂现象）
-discovery.zen.minimum_master_nodes: 2 
+http.port: 9200
+
+# 候选主节点列表
+discovery.seed_hosts: ["es01","es02","es03"]
+
+# 第一次启动集群时需要配置master初始候选节点 用于master选举,之后需要删除此配置
+# cluster.initial_master_nodes: ["es01","es02","es03"]  #必须与node.name值一致
+
+# 线程池设置
+thread_pool.search.size: 50
+thread_pool.search.queue_size: 2000
+
+# head 插件需要这打开这两个配置
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+http.cors.allow-headers: Authorization
+http.max_content_length: 200mb
 ```
 
-* vim /usr/lib/systemd/system/es.service
+### 设置jvm堆栈大小
+* vim config/jvm.options
+```
+#设置为内存的一半
+-Xms8g
+-Xmx8g
+```
+
+### systemd服务管理
+* vim /usr/lib/systemd/system/elasticsearch.service
 ```
 [Unit]
-Description=elasticsearch
+Description=Elasticsearch
 
 [Service]
-#User=elasticsearch
-#Group=elasticsearch
-ExecStart=/usr/bin/su - es -c '/usr/local/elasticsearch/bin/elasticsearch'
-LimitMEMLOCK=infinity
-
+Type=simple
+User=elasticsearch
+Group=elasticsearch
+LimitNOFILE=100000
+LimitNPROC=100000
+ExecStart=/usr/local/elasticsearch/bin/elasticsearch
 Restart=on-failure
 
 [Install]
@@ -122,6 +153,23 @@ WantedBy=multi-user.target
 ```
 systemctl daemon-reload
 systemctl start elasticsearch
+```
+
+### [插件管理](https://www.elastic.co/guide/en/elasticsearch/plugins/7.10/plugin-management.html)
+```
+bin/elasticsearch-plugin -h
+
+# 通过插件名/url/插件文件来安装
+bin/elasticsearch-plugin install [plugin_name]
+bin/elasticsearch-plugin install [url]
+bin/elasticsearch-plugin install file:///path/to/plugin.zip
+
+# 查看己安装的插件
+bin/elasticsearch-plugin list
+
+# 重启生效
+systemctl restart elasticsearch
+curl http://localhost:9200/_cat/plugins?v
 ```
 
 # 集群管理

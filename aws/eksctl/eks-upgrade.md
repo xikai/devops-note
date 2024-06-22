@@ -1,6 +1,11 @@
 # 一、升级EKS托管附加组件(通过EKS插件控制台)
-## vpc-cni
-* EKS控制台 --> 插件 --> vpc-cni --> 可选配置设置 添加以下自义定变量，冲突解决方法选择: 覆盖
+## [vpc-cni](https://docs.amazonaws.cn/eks/latest/userguide/managing-vpc-cni.html)
+* 查询指定k8s版本对应的插件默认版本
+```
+aws eks describe-addon-versions --kubernetes-version 1.28 --addon-name vpc-cni  --query 'addons[].addonVersions[].{Version: addonVersion, Defaultversion: compatibilities[0].defaultVersion}' --output table
+```
+* 自定义CNI配置：EKS控制台 --> 插件 --> vpc-cni --> 可选配置设置 添加以下自义定变量，冲突解决方法选择: 覆盖
+>保留(自定义配置覆盖eks默认配置)，覆盖(eks默认配置覆盖自定义配置)，无(等于覆盖)
 ```
 {"env": {"AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG": "true",
     "AWS_VPC_K8S_CNI_EXTERNALSNAT": "true",
@@ -9,12 +14,16 @@
     "ENI_CONFIG_LABEL_DEF":"failure-domain.beta.kubernetes.io/zone"
 }}
 ```
-## coredns
+## [coredns](https://docs.amazonaws.cn/eks/latest/userguide/managing-coredns.html)
+* 查询指定k8s版本对应的插件默认版本
+```
+aws eks describe-addon-versions --kubernetes-version 1.28 --addon-name coredns  --query 'addons[].addonVersions[].{Version: addonVersion, Defaultversion: compatibilities[0].defaultVersion}' --output table
+```
 
 # 二、更新控制面板
 ```
 eksctl version
-eksctl upgrade cluster --name my-cluster --version 1.25 --approve
+eksctl upgrade cluster --name my-cluster --version 1.28 --approve
 ```
 
 # 三、更新节点组
@@ -23,22 +32,11 @@ eksctl upgrade cluster --name my-cluster --version 1.25 --approve
 3. 重启deployment让pod重新调度到新节点组(滚动更新)
     * 循环滚动更新deployment
     ```
-    for i in `cat front-c-deploy.txt`
+    for i in `kubectl get deploy -n front |awk '{if(NR>1){print $1}}'`
     do
         kubectl rollout restart deploy/$i -n front
         sleep 2
     done
-    ```
-    * 查询包含指定label的节点组、namespace下运行的pod
-    ```
-    kubectl get nodes -l name=front-c |awk '{if(NR>1) {print $1}}'| while read NODE
-    do
-        kubectl get pod -n front -owide |grep $NODE
-    done
-    ```
-    * 按创建时间排序查询pod,检查遗漏未重启的pod应用
-    ```
-    k get pods -A --sort-by='.metadata.creationTimestamp' -o wide
     ```
     * 查询指定节点组下运行的pod
     ```
@@ -47,9 +45,17 @@ eksctl upgrade cluster --name my-cluster --version 1.25 --approve
         kubectl get pod -A -owide |grep $NODE
     done
     ```
-4. 升级kube-proxy
+    * 按创建时间排序查询pod,检查遗漏未重启的pod应用
+    ```
+    k get pods -A --sort-by='.metadata.creationTimestamp' -o wide
+    ```
+## 4. [升级kube-proxy](https://docs.amazonaws.cn/eks/latest/userguide/managing-kube-proxy.html)
+* 查询指定k8s版本对应的插件默认版本
+```
+aws eks describe-addon-versions --kubernetes-version 1.28 --addon-name kube-proxy  --query 'addons[].addonVersions[].{Version: addonVersion, Defaultversion: compatibilities[0].defaultVersion}' --output table
+```
 
-# 四、Cluster Autoscaler
+# 四、[Cluster Autoscaler](https://docs.amazonaws.cn/eks/latest/userguide/autoscaling.html)
 * 将 Cluster Autoscaler 更新为与您升级后的 Kubernetes 主版本和次要版本匹配的最新版本
 ```
 # https://github.com/kubernetes/autoscaler/releases/tag/cluster-autoscaler-1.25.3

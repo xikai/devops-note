@@ -24,7 +24,7 @@ syntax on
 colorscheme peachpuff
 ```
 
-# [homebrew包管理器](https://brew.sh/index_zh-cn)
+# [brew包管理器](https://brew.sh)
 
 # 微信多开
 ```

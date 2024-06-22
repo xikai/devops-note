@@ -1,5 +1,4 @@
 * http://nginx.org/en/docs/
-* http://www.nginx.cn/doc/
 
 
 # 日志格式
@@ -65,7 +64,15 @@ location优先级说明
 正则表达式类型（~ ~*）的优先级次之。如果有多个location的正则能匹配的话，则使用正则表达式最长的那个。
 常规字符串匹配类型。按前缀匹配。
 ```
+# [proxy_pass](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_pass)
+>在proxy_pass中指定URI时，会将location中的URI替换
+```
+location /new/ {
+   proxy_pass http://backend-server/;  #指定URI "/", 请求访问/new/会被替换成/
+} 
 
+
+```
 
 # rewrite
 ```

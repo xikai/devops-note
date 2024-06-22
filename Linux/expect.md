@@ -1,4 +1,5 @@
-expect语法：
+* expect语法
+```sh
 set 变量名 变量值
 set username "xikai"
 set ip [lindex $argv 0]    #传递参数赋值,$argv内置变量
@@ -16,9 +17,10 @@ exp_continue        匹配一个关健字后从头开始匹配，而不�
 exp_internal        打开调式模式(非0，0为关闭)，将整个操作过程显示出来,放在spawn命令后
 send_user            等于puts+send,将字符串发送并打印到标准输出
 更多参考man expect 或    http://www.doc88.com/p-671126483324.html
+```
 
-
-if 分支
+* if分支结构
+```sh
 #!/usr/bin/expect
 set test [lindex $argv 0]
 if { "$test" == "apple" } {
@@ -26,8 +28,10 @@ if { "$test" == "apple" } {
 } else {
     puts "not apple"
 }
+```
 
-switch  分支结构
+* switch分支结构
+```sh
 #!/usr/bin/expect
 set color [lindex $argv 0]
 switch $color {
@@ -38,8 +42,10 @@ switch $color {
         puts "banana is yellow "
     }
 }
+```
 
-for 循环结构
+* for循环结构
+```sh
 #!/usr/bin/expect
 for {set i 0} {$i<4} {incr i} {   #incr递增,等同于i++
     puts "$i"
@@ -48,28 +54,30 @@ for {set i 0} {$i<4} {incr i} {   #incr递增,等同于i++
 foreach  i { 1 3 5 7 9 } {
     puts "$i"
 }
+```
 
-
-while  循环结构
+* while循环结构
+```sh
 #!/usr/bin/expect
 set i 1
 while {$i<4} {
         puts "$i"
         incr i
 }
+```
 
-函数定义
+* 函数定义
+```sh
 #!/usr/bin/expect
 proc test {} {
     puts "ok"
 }
 test
+```
 
 
-
--------------------------------------------------------------
-eg:
-一个简单的expect ssh脚本：
+* 一个简单的expect ssh脚本：
+```sh
 #!/usr/bin/expect
 set timeout 60
 set passwd "fanhougame"
@@ -85,21 +93,48 @@ expect -re "\](\$|#)"
 send "ls\r"
 send "exit\r"
 expect eof
+```
 
--------------------------------------------------------------
-eg:
-在shell中嵌入expect
-#!/bin/sh
-passwd="fanhougame"
+* 在shell中嵌入expect
+```sh
+#!/bin/bash
 
-/usr/bin/expect -c "
-set timeout 60
-spawn ssh root@192.168.0.220
-expect {
-   \"(yes/no)?\" {send \"yes\r\"}
-   \"password:\" {send \"${passwd}\r\"}
-}
-expect -re \"\](\$|#)\"
-send \"ls\r\"
-send \"exit\r\"
-expect eof"
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <environment>"
+    exit 1
+fi
+
+ENV=$1
+SSH_CMD="ssh -p 2222 -i ~/.ssh/id_rsa"
+
+case $ENV in
+    test)
+        SSH_USER="test-xikai"
+        SSH_HOST="jumpserver-test-website.vevor-internal.net"
+        OTP_CODE=$(authy fuzz -a 'JumpServer-dlz: xikai@test'|jq -r '.items[0].subtitle | split("Code: ")[1] | split(" ")[0]')
+        ;;
+    prod)
+        SSH_USER="xikai"
+        SSH_HOST="10.30.33.120"
+        OTP_CODE=$(authy fuzz -a "JumpServer-dlz: xikai@prod"|jq -r '.items[0].subtitle | split("Code: ")[1] | split(" ")[0]')
+        ;;
+    *)
+        echo "Invalid environment: $ENV"
+        exit 1
+        ;;
+esac
+
+expect <<EOF
+    set timeout 30
+    spawn $SSH_CMD $SSH_USER@$SSH_HOST
+    expect {
+        "*yes/no" {send "yes\r";exp_continue}
+        "*]:" {send ${OTP_CODE}\r}
+    }
+    expect eof
+EOF
+```
+
+* 参考文档
+  - https://blog.csdn.net/u010820857/article/details/89925274
+  - https://github.com/dunwu/linux-tutorial/blob/master/docs/linux/expect.md

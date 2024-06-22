@@ -84,8 +84,8 @@
 * 控制从其他 AWS 账户写入到此存储桶的对象所有权以及访问控制列表 (ACL) 的使用。对象所有权决定谁可以指定对象的访问权限。
 
 ### [访问控制列表(ACL)](https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/acls.html)
-> Amazon S3 中的大多数现代使用案例不再需要使用 ACL，我们建议您禁用 ACL，除非在需要单独控制每个对象的访问,在对象级别管理权限。使用对象所有权，您可以禁用 ACL 并依赖策略进行访问控制。
+* Amazon S3 中的大多数现代使用案例不再需要使用 ACL，我们建议您禁用 ACL，除非在需要单独控制每个对象的访问,在对象级别管理权限。
 
 
 # [跨源资源共享(CORS)](https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/cors.html)
->配置s3允许跨域请求
+ * 配置s3允许跨域请求

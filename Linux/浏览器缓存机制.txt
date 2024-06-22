@@ -28,3 +28,6 @@ Ctrl+F5(强制刷新)：
 浏览器会认为这是一个新文件，而请求到WEB服务器时？号后面的参数会被WEB服务器忽略；等同于浏览器发送了一个全新的文件请求
 
 
+参考文档：
+https://www.cloudflare.com/zh-cn/learning/cdn/glossary/what-is-cache-control/
+

@@ -1,18 +1,13 @@
+#!/bin/bash
+mkdir -p /data/rabbitmq/{mnesia,log}
+
 docker run -d --name rabbitmq \
   --restart=always \
-  --hostname rabbit \
-  -p 5672:5672 \
-  -p 15672:15672 \
-  -e RABBITMQ_DEFAULT_USER=rabbit \
-  -e RABBITMQ_DEFAULT_PASS=rabbitdd01 \
-  rabbitmq:3-management
-
-docker run -d --name rabbit-mqtt \
-  --restart=always \
-  --hostname rabbit-mqtt \
-  -p 5673:5672 \
-  -p 15673:15672 \
-  -p 1883:1883 \
-  -e RABBITMQ_DEFAULT_USER=rabbitmqtt \
-  -e RABBITMQ_DEFAULT_PASS=rabbitmqttdd01 \
-  cyrilix/rabbitmq-mqtt
+  --hostname rabbitmq \
+  --net=host \
+  --ulimit nofile=65536:65536 \
+  -v /data/rabbitmq/mnesia:/var/lib/rabbitmq/mnesia \
+  -v /data/rabbitmq/log:/var/log/rabbitmq/log \
+  -e RABBITMQ_DEFAULT_USER=admin \
+  -e RABBITMQ_DEFAULT_PASS=vevor@124 \
+  rabbitmq:3.8.1-management

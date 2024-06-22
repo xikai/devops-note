@@ -1,3 +1,6 @@
+查询文件系统目录大小
+ls |egrep -v 'data|proc' |xargs du -sh
+
 重定向
 2>&1 将 stderr 重定向到 stdout，错误消息被发送到与标准输出相同的地方
 

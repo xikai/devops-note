@@ -28,3 +28,11 @@ ln -s /usr/local/python3/bin/pip3 /usr/bin/pip3
 yum -y install epel-release
 yum install python-pip
 ```
+
+# ubuntu通过ppa:deadsnakes源 安装python
+```
+apt-get install -y software-properties-common
+add-apt-repository -y ppa:deadsnakes/ppa
+apt-get -y update
+apt-get install -y python3.7
+```

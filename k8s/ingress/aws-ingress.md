@@ -22,6 +22,7 @@ metadata:
     #alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}, {"HTTP": 8080}, {"HTTPS": 8443}]'
     #alb.ingress.kubernetes.io/certificate-arn: arn:aws-cn:acm:cn-northwest-1:475810397983:certificate/0d804345-35a8-48b5-89ba-ebfbc7341c63
     #alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+    #alb.ingress.kubernetes.io/actions.redirect-to-www: '{"Type": "redirect", "RedirectConfig": { "Host": "www.example.com", "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
     #alb.ingress.kubernetes.io/backend-protocol: (HTTP|HTTPS)     #路由流量到后端应用所用的协议
     #alb.ingress.kubernetes.io/backend-protocol-version: HTTP2      #路由流量到后端应用所用的协议版本，HTTP2/GRPC,默认为HTTP1
     #alb.ingress.kubernetes.io/healthcheck-protocol: (HTTP|HTTPS)
@@ -39,6 +40,16 @@ spec:
                 name: "service-2048"
                 port:
                   number: 80
+    #- host: example.com 
+    #  http:
+    #    paths:
+    #      - path: /
+    #        pathType: Prefix
+    #        backend:
+    #          service:
+    #            name: redirect-to-www
+    #            port:
+    #              name: use-annotation
 ```
 
 

@@ -22,6 +22,11 @@ data:
           "method": "POST"
           "preferred_ip_protocol": "ip4"
         "prober": "http"
+      "http_no_redirect_2xx":
+        "http":
+          "preferred_ip_protocol": "ip4"
+          "follow_redirects": false
+        "prober": "http"
       "irc_banner":
         "prober": "tcp"
         "tcp":

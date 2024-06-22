@@ -7,6 +7,9 @@
 * Xen 实例和 Nitro 实例的设备和分区命名有所不同。要确定实例是基于 Xen 还是基于 Nitro
 ```
 aws ec2 describe-instance-types --instance-type m6g.xlarge --query "InstanceTypes[].Hypervisor"
+[
+    "nitro"
+]
 ```
 * 检查卷是否有分区
 ```
@@ -45,4 +48,11 @@ sudo xfs_growfs -d /
 * [Ext4 文件系统] 使用 resize2fs 命令
 ```
 sudo resize2fs /dev/nvme0n1p1
+```
+
+# 核心步骤
+```
+lsblk
+df -hT
+xfs_growfs -d /data
 ```

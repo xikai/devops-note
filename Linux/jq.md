@@ -82,26 +82,23 @@ $ cat file.json | jq '.[] | select(.age >= 100)'
 ```
 * and和or
 ```
-$ cat file.json | jq '.[] | select(.age > 100 and .gender == "male")'$ cat file.json | jq '.[] | select(.age > 100 or .gender == "female")'
+$ cat file.json | jq '.[] | select(.age > 100 and .gender == "male")'
+$ cat file.json | jq '.[] | select(.age > 100 or .gender == "female")'
 ```
 
 # jq的正则表达式
-jq使用 Oniguruma 正则表达式库，与 php、ruby、TextMate、Sublime Text 等一样，因此这里的描述将集中在 jq 细节上。
-定义了正则表达式jq过滤器，以便可以使用以下模式之一使用它们：
+### select 操作可以用于过滤输入中的元素，并根据给定的条件返回结果
 ```
-STRING | FILTER( REGEX )
-STRING | FILTER( REGEX; FLAGS )
-STRING | FILTER( [REGEX] )
-STRING | FILTER( [REGEX, FLAGS] )
+jq -n '"a b" | test("a\\sb"; "x")'
 ```
-* 例如，要提取与特定正则表达式匹配的值
+
+* 
+
+* 查询aws ip-ranges中region为us-west-2，service为S3的地址段
+* [aws-ip-syntax](https://docs.aws.amazon.com/zh_cn/vpc/latest/userguide/aws-ip-ranges.html#aws-ip-syntax)
 ```
-$ cat file.json | jq '.[] | select(.email | test("^[a-z]+@"))'
-```
-* 或与特定正则表达式不匹配的值：
-```
-$ cat file.json | jq '.[] | select(.email | test("^[a-z]+@") | not)'
+curl -s https://ip-ranges.amazonaws.com/ip-ranges.json |jq '.prefixes[] | select(.region=="us-west-2") | select(.service |test("^S3$"))'
 ```
 
 # 参考文档
-https://jqlang.github.io/jq/
+* https://jqlang.github.io/jq/manual/

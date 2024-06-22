@@ -6,7 +6,7 @@ kubectl get nodes --show-labels -l name=front-b
 kubectl describe node -l name=training |grep Hostname
 ```
 ```
-kubectl -n prod run -it busybox --image=busybox
+kubectl run -it busybox --image=busybox -n prod
 ```
 
 * 获取节点所有pod的事件
@@ -19,7 +19,7 @@ kubectl get events -n test --watch
 * 查看节点资源使用情况
 ```
 kubectl top nodes
-kubectl top nodes --selector="name=front-c"
+kubectl top nodes -l name=front-c
 ```
 * 按pod cpu内存使用大小排序
 ```
