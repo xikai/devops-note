@@ -166,7 +166,7 @@ export JAVA_OPTS="$JAVA_OPTS -Deureka.instance.ipAddress="configservice_ip/admin
 ```
 ```
 # sql查询数据库，查询所有用户
-apolloportaldb.users
+select * from apolloportaldb.users;
 ```
 
 # [权限管理](https://www.apolloconfig.com/#/zh/usage/apollo-user-guide?id=_12-%e9%a1%b9%e7%9b%ae%e6%9d%83%e9%99%90%e5%88%86%e9%85%8d)
