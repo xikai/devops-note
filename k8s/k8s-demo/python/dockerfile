@@ -1,0 +1,15 @@
+FROM python:3.10.14-slim-bullseye
+
+COPY . /var/www/html
+
+RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list \
+    && apt-get update -y \
+    && apt-get install -y curl iputils-ping net-tools procps telnet zip cron logrotate vim tzdata \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple -r /var/www/html/requirements.txt \
+    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+WORKDIR /var/www/html/
+
+ENTRYPOINT ["sh","/var/www/html/entrypoint.sh"] 

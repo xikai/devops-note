@@ -149,3 +149,17 @@ passwd #设置密码
 ```
 ssh -p 8022 u0_a308@192.168.0.174
 ```
+
+# vscode markdown文件默认以预览模式打开
+1. 打开命令行模式（command+shift+p）
+2. 输入：Open User Settings(JSON)，打开用户settings.json文件
+3. 在 settings.json 文件中，添加以下配置项：
+```
+{
+    "markdown.preview.openMarkdownLinks": "inPreview",
+    "workbench.editorAssociations": {
+      "*.md": "vscode.markdown.preview.editor"
+    },
+    "markdown.preview.fontSize": 12
+}
+```
