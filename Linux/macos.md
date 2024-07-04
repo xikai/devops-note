@@ -163,3 +163,20 @@ ssh -p 8022 u0_a308@192.168.0.174
     "markdown.preview.fontSize": 12
 }
 ```
+
+# [chflags修改文件目录属性](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/chflags.2.html)
+```
+hidden：将文件或目录标记为隐藏，使其在图形界面的 Finder 中不可见。
+nohidden：取消文件或目录的隐藏标记。
+uchg：防止文件被修改、重命名或删除，只有超级用户或文件的拥有者才能更改标志。
+nouchg：取消用户更改禁止标志。
+schg：防止文件被修改、重命名或删除，只有超级用户才能更改标志。
+noschg：取消系统更改禁止标志。
+```
+```
+# man chflags
+sudo chflags -hv noschg /Applications/CorpLink.app
+sudo /usr/bin/chflags -R noschg /usr/local/corplink
+sudo rm -rf /Applications/CorpLink.app
+sudo rm -rf /usr/local/corplink
+```

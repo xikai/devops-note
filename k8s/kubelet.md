@@ -1,0 +1,2 @@
+* https://kubernetes.io/zh-cn/docs/tasks/administer-cluster/kubelet-config-file/
+* https://kubernetes.io/zh-cn/docs/reference/config-api/kubelet-config.v1beta1/#kubelet-config-k8s-io-v1beta1-KubeletConfiguration

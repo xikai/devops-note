@@ -37,7 +37,7 @@ systemctl start rabbitmq-server
 systemctl enable rabbitmq-server
 ```
 
-* 安装管理插件
+* [安装管理插件](https://www.rabbitmq.com/community-plugins)
 ```
 rabbitmq-plugins list                      
 rabbitmq-plugins enable rabbitmq_management

@@ -124,15 +124,18 @@ case $ENV in
         ;;
 esac
 
-expect <<EOF
-    set timeout 30
+expect -c "
+    set timeout 60
     spawn $SSH_CMD $SSH_USER@$SSH_HOST
     expect {
-        "*yes/no" {send "yes\r";exp_continue}
-        "*]:" {send ${OTP_CODE}\r}
+        \"*yes/no\" {send \"yes\r\";exp_continue}
+        \"*]:\" {send \"${OTP_CODE}\r\"}
+    }
+    expect {
+        \"Opt>\" {send \"p\r\"; interact}
     }
     expect eof
-EOF
+"
 ```
 
 * 参考文档
