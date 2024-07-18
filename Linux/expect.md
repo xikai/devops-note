@@ -1,4 +1,4 @@
-* expect语法
+# expect语法
 ```sh
 set 变量名 变量值
 set username "xikai"
@@ -95,7 +95,15 @@ send "exit\r"
 expect eof
 ```
 
-* 在shell中嵌入expect
+# authy自动获取mfa令牌
+- [安装authy命令行工具](https://github.com/momaek/authy)
+```sh
+mv authy-darwin-amd64 /usr/local/bin/authy
+authy --help
+
+authy account #登陆帐号
+authy fuzz  #模糊搜索您的otp令牌(不区分大小写)
+```
 ```sh
 #!/bin/bash
 

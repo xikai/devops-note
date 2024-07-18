@@ -49,3 +49,60 @@ eksctl utils update-kube-proxy --cluster=<clusterName>
 eksctl utils update-aws-node --cluster=<clusterName>
 eksctl utils update-coredns --cluster=<clusterName>
 ```
+
+# [使用 Amazon CloudWatch Observability EKS 附加组件安装 CloudWatch Agent](https://docs.aws.amazon.com/zh_cn/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Observability-EKS-addon.html)
+>让 CloudWatch 代理能够向 CloudWatch 发送指标、日志和跟踪；授予 IAM 权限(两种方式)
+* 选项 1：将 CloudWatchAgentServerPolicy IAM 策略附加到您的 Worker 节点上
+```
+aws iam attach-role-policy \
+--role-name my-worker-node-role \  # my-worker-node-role 为 Kubernetes Worker 节点使用的 IAM 角色
+--policy-arn arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+```
+```
+aws eks create-addon --addon-name amazon-cloudwatch-observability --cluster-name my-cluster-name
+```
+
+* 选项 2： 使用 IAM 服务账户角色进行安装
+```sh
+#  OpenID Connect（OIDC）提供程序
+eksctl utils associate-iam-oidc-provider --cluster my-cluster-name --approve
+
+# 创建附加了 CloudWatchAgentServerPolicy 策略的 IAM 角色，然后使用 OIDC 将代理服务账户配置为代入该角色
+eksctl create iamserviceaccount \
+  --name cloudwatch-agent \
+  --cluster my-cluster-name \
+  --namespace amazon-cloudwatch \
+  --role-name cloudwathch-agent-role \      #cloudwathch-agent-role为要将sa关联到的角色名称
+  --attach-policy-arn arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy \
+  --role-only \
+  --approve
+```
+```sh
+aws eks create-addon \
+  --addon-name amazon-cloudwatch-observability \
+  --cluster-name my-cluster-name \
+  --service-account-role-arn arn:aws:iam::111122223333:role/my-service-account-role \ 
+  --configuration-values '{
+    "agent": {
+      "config": {
+        "logs": {
+          "metrics_collected": {
+            "app_signals": {},
+            "kubernetes": {
+              "enhanced_container_insights": true,
+              "accelerated_compute_metrics": false   #不从 EKS 工作负载收集 NVIDIA GPU 指标
+            }
+          }
+        },
+        "traces": {
+          "traces_collected": {
+            "app_signals": {}
+          }
+        },
+        "containerLogs": {
+          "enabled": false  #不收集容器日志
+        }
+      }
+    }
+  }'
+```
