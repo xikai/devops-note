@@ -77,20 +77,127 @@ systemctl start amazon-cloudwatch-agent
 systemctl enable amazon-cloudwatch-agent
 ```
 
+# EKS DaemonSet安装 cloudwatch-agent(采集ethtool指标)
+* [网络微爆发](https://repost.aws/zh-Hans/knowledge-center/ec2-instance-exceeding-network-limits)
+```yml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cloudwatch-ethtool
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cwagentconfig
+  namespace: cloudwatch-ethtool
+data:
+  cwagentconfig.json: |
+    {
+      "agent": {
+        "metrics_collection_interval": 10
+      },
+      "metrics": {
+        "append_dimensions": {
+          "InstanceId": "${aws:InstanceId}"
+        },
+        "metrics_collected": {
+          "ethtool": {
+            "interface_include": [
+               "eth1"
+            ],
+            "metrics_include": [
+              "rx_packets",
+              "tx_packets",
+              "bw_in_allowance_exceeded",
+              "bw_out_allowance_exceeded",
+              "conntrack_allowance_exceeded",
+              "linklocal_allowance_exceeded",
+              "pps_allowance_exceeded"
+            ]
+          }
+        }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cloudwatch-agent-ethtool
+  namespace: cloudwatch-ethtool
+spec:
+  selector:
+    matchLabels:
+      name: cloudwatch-agent-ethtool
+  template:
+    metadata:
+      labels:
+        name: cloudwatch-agent-ethtool
+    spec:
+      #nodeSelector:
+      #  kubernetes.io/arch: arm64
+      serviceAccountName: cloudwatch-agent-ethtool
+      terminationGracePeriodSeconds: 30
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: cloudwatch-agent
+        image: amazon/cloudwatch-agent:1.300041.0b681
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: 200Mi
+            cpu: 200m
+        volumeMounts:
+          - name: cwagentconfig
+            mountPath: /etc/cwagentconfig
+      volumes:
+        - name: cwagentconfig
+          configMap:
+            name: cwagentconfig
+```
+```sh
+#!/bin/bash
+# usage: bash -x install.sh
+
+AWS_ACCOUNT_ID=123456789012
+AWS_COUNTRY=aws
+REGION=us-west-2
+CLUSTER_NAME=newproduct
+
+# 为集群创建 IAM OIDC 提供商
+### 检索集群的 OIDC 提供商 ID 并将其存储在变量中
+oidc_id=$(aws eks describe-cluster --name $CLUSTER_NAME --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5)
+is_associate=$(aws iam list-open-id-connect-providers | grep $oidc_id | cut -d "/" -f4)
+if [ -z $is_associate ] ;then
+    eksctl utils associate-iam-oidc-provider --cluster $CLUSTER_NAME --approve
+else
+    echo "iam oidc provider has been associated."
+fi
+
+# 创建 IAM 角色和 Kubernetes 服务账户,并向其附加此 IAM policy
+eksctl create iamserviceaccount \
+  --name=cloudwatch-agent-ethtool \
+  --cluster=$CLUSTER_NAME \
+  --namespace=cloudwatch-ethtool \
+  --role-name CloudWatchAgentServerRole_ethtool_$CLUSTER_NAME \
+  --attach-policy-arn arn:$AWS_COUNTRY:iam::aws:policy/CloudWatchAgentServerPolicy \
+  --approve
+
+# 部署cloudwatch-agent daemontset
+kubectl apply -f cloudwatch-agent-ethtool.yaml
+```
 
 # [使用 Amazon CloudWatch Observability EKS 附加组件安装 CloudWatch Agent](https://docs.aws.amazon.com/zh_cn/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Observability-EKS-addon.html)
->让 CloudWatch 代理能够向 CloudWatch 发送指标、日志和跟踪；授予 IAM 权限(两种方式)
-* 选项 1：将 CloudWatchAgentServerPolicy IAM 策略附加到您的 Worker 节点上
+>让 CloudWatch 代理能够向 CloudWatch 发送指标、日志和跟踪；授予 IAM 权限
+### EKS控制台安装amazon-cloudwatch-observability插件
+* 配置值（不收集容器日志）
 ```
-aws iam attach-role-policy \
---role-name my-worker-node-role \  # my-worker-node-role 为 Kubernetes Worker 节点使用的 IAM 角色
---policy-arn arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
-```
-```
-aws eks create-addon --addon-name amazon-cloudwatch-observability --cluster-name my-cluster-name
+{ "containerLogs": { "enabled": false } }
 ```
 
-* 选项 2： 使用 IAM 服务账户角色进行安装
+### eksctl安装amazon-cloudwatch-observability插件
+*  使用 IAM 服务账户角色进行安装
 ```sh
 #  OpenID Connect（OIDC）提供程序
 eksctl utils associate-iam-oidc-provider --cluster my-cluster-name --approve
@@ -134,4 +241,6 @@ aws eks create-addon \
     }
   }'
 ```
+
+
 

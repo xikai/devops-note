@@ -111,8 +111,8 @@ git branch -r -d origin/develop            #删除本地对应�
 git branch --set-upstream branch-name origin/branch-name        #建立本地分支和远程分支的关联
 
 git merge develop                               #合并分支
-git merge --no-ff -m "commit message" develop            #合并develop分支到当前分支(develop分支文件的内容会覆盖当前的内容)  
-
+git merge --no-ff -m "commit message" develop            #合并develop分支到当前分支(develop分支文件的内容会覆盖当前的内容)
+# https://www.cnblogs.com/xiao2shiqi/p/14715119.html  
 注：合并分支默认会使用Fast forward "快进模式"，合并功能分支所有的commit信息，当被合并的功能分支被删除时，会丢失分支信息; --no-ff禁用快进模式，Git就会在merge时生成一个新的commit
 
 # 合并指定commit（ 合并某个分支某个commit 到当前分支）假设分支A和分支B, 我们想把A上的某个commit 点合并到B分支上

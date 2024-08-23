@@ -15,9 +15,19 @@ aws eks describe-addon-versions --kubernetes-version 1.28 --addon-name vpc-cni  
 }}
 ```
 ## [coredns](https://docs.amazonaws.cn/eks/latest/userguide/managing-coredns.html)
+* [如何优化Amazon EKS集群DNS性能](https://aws.amazon.com/cn/blogs/china/how-to-optimize-amazon-eks-cluster-dns-performance/)
 * 查询指定k8s版本对应的插件默认版本
 ```
 aws eks describe-addon-versions --kubernetes-version 1.28 --addon-name coredns  --query 'addons[].addonVersions[].{Version: addonVersion, Defaultversion: compatibilities[0].defaultVersion}' --output table
+```
+* 高级配置
+```
+{
+  "nodeSelector": {
+    "name": "backend-b-x86"
+  },
+  "replicaCount": 4
+}
 ```
 
 # 二、更新控制面板

@@ -146,6 +146,14 @@ aarch64
 docker run --rm docker.io/<username>/<image>:latest@sha256:723c22f366ae44e419d12706453a544ae92711ae52f510e226f6467d8228d191 uname -m
 armv7l
 ```
-
-
 >Docker Desktop提供了binfmt_misc多体系结构支持，这意味着您可以在不同的Linux体系结构(如arm、mips、ppc64le甚至s390x)上运行容器。这并不需要在容器本身中进行任何特殊配置，因为它使用来自Docker桌面虚拟机的qemu-static。因此，您可以运行ARM容器，例如busybox映像的arm32v7或ppc64le变体
+
+* 转存多架构镜像
+```
+# 创建 Dockerfile
+echo -e "FROM registry.k8s.io/dns/k8s-dns-node-cache:1.23.1" > Dockerfile
+```
+```
+# 使用 docker buildx build 来构建和推送多架构镜像
+docker buildx build --platform linux/amd64,linux/arm64 --pull -t vevorsz/k8s-dns-node-cache:1.23.1 --push .
+```

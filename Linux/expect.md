@@ -149,3 +149,4 @@ expect -c "
 * 参考文档
   - https://blog.csdn.net/u010820857/article/details/89925274
   - https://github.com/dunwu/linux-tutorial/blob/master/docs/linux/expect.md
+  - https://www.iots.vip/post/iterm2-jumpserver-totp-autocomplete.html

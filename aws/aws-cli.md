@@ -58,3 +58,8 @@ aws ec2 describe-instances \
 --query 'Reservations[].Instances[?Tags[?Key==`Name` && contains(Value, `jenkins`)]].{Name:Tags[?Key==`Name`]|[0].Value,Instance:InstanceId,InstanceType:InstanceType,PublicIpAddress:PublicIpAddress,PrivateIpAddress:PrivateIpAddress,AZ:Placement.AvailabilityZone}' \
 --output text
 ```
+
+# 列出负载均衡器
+```
+aws elbv2 describe-load-balancers --query 'LoadBalancers[*].{LoadBalancerName:LoadBalancerName, DNSName:DNSName}' --output table
+```
