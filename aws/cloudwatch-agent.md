@@ -241,6 +241,53 @@ aws eks create-addon \
     }
   }'
 ```
+```yml
+{
+  "containerLogs": {
+    "enabled": false
+  },
+  "agent": {
+    "config": {
+      "agent": {
+        "region": "us-east-1"
+      },
+      "logs": {
+        "metrics_collected": {
+          "application_signals": {},
+          "kubernetes": {
+            "enhanced_container_insights": true
+          }
+        }
+      },
+      "traces": {
+        "traces_collected": {
+          "application_signals": {}
+        }
+      },
+      "metrics": {
+        "append_dimensions": {
+          "InstanceId": "${aws:InstanceId}"
+        },
+        "metrics_collected": {
+          "ethtool": {
+            "interface_include": ["*"], 
+            "metrics_include": [
+              "rx_packets",
+              "tx_packets",
+              "bw_in_allowance_exceeded",
+              "bw_out_allowance_exceeded",
+              "conntrack_allowance_exceeded",
+              "conntrack_allowance_available",
+              "linklocal_allowance_exceeded",
+              "pps_allowance_exceeded"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+```
 
 
 

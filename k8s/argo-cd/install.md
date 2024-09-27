@@ -1,45 +1,39 @@
-* https://argo-cd.readthedocs.io/en/stable/
+* https://argo-cd.readthedocs.io/en/stable/getting_started/
+* https://mp.weixin.qq.com/s/G16ek7J0x1UbEEKsH46KpA
 
 
-# Install argocd
-* https://github.com/argoproj/argo-cd/blob/master/manifests/install.yaml
+# [Install argocd](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/)
+* https://github.com/argoproj/argo-cd/releases
 ```
 kubectl create namespace argocd
-curl -o install.yaml https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-kubectl apply -f install.yaml -n argocd
-```
-```
-Argo CD 会运行一个 gRPC 服务（由 CLI 使用）和 HTTP/HTTPS 服务（由 UI 使用），这两种协议都由 argocd-server 服务在以下端口进行暴露：
-443 - gRPC/HTTPS
-80 - HTTP（重定向到 HTTPS）
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.12.4/manifests/install.yaml
 ```
 
 ### [install ha argocd](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/#high-availability)
->与非高可用部署清单包含的组件相同，但增强了高可用能力和弹性能力，推荐在生产环境中使用。
-* https://github.com/argoproj/argo-cd/blob/master/manifests/ha/install.yaml
+>与非高可用部署清单包含的组件相同，但增强了高可用能力和弹性能力，推荐在生产环境中使用。如果你对 UI、SSO、多集群管理这些特性不感兴趣，只想把应用变更同步到集群中，那么可以直接安装核心组件即可
 ```
-# 与上文提到的 install.yaml 的内容相同，但配置了相关组件的多个副本。
-curl -o ha-install.yaml https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/ha/install.yaml
-kubectl apply -f ha-install.yaml -n argocd
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.12.4/manifests/ha/install.yaml
+
+#curl -o install-ha-v2.12.4.yaml https://raw.githubusercontent.com/argoproj/argo-cd/v2.12.4/manifests/ha/install.yaml
 ```
 
-# Install argocd cli
-* Download latest version
+# [Install argocd cli](https://argo-cd.readthedocs.io/en/stable/cli_installation/)
 ```
 curl -L -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
 chmod +x /usr/local/bin/argocd
 ```
-* Download concrete version
+* mac
 ```
-VERSION=<TAG> # Select desired TAG from https://github.com/argoproj/argo-cd/releases
-curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/$VERSION/argocd-linux-amd64
-chmod +x /usr/local/bin/argocd
+brew install argocd
 ```
-
 
 # Access The Argo CD API Server
-### [ingress] (https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/)
-* 修改argocd-server Deployment 不启用 tls
+### [ingress](https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/)
+> 修改argocd-server Deployment 不启用 tls,或者简单地在 argocd-cmd-params-cm ConfigMap 中设置 server.insecure: "true" 
+```
+kubectl edit deploy argocd-server -n argocd 
+```
 ```yml
 apiVersion: apps/v1
 kind: Deployment
@@ -97,6 +91,14 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 http://argocd.yourdomain.com
 admin
 xxxxxxxx
+```
+
+* ArgoCD CLI login
+```
+#argocd cli获取初始密码
+argocd admin initial-password -n argocd
+
+argocd login <ARGOCD_SERVER>
 ```
 
 # 注册外部集群
