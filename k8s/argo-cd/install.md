@@ -51,7 +51,7 @@ spec:
         - argocd-server
         - --insecure  #不启用 tls
 ```
-* argocd-ingress.yaml
+* ingress-http.yaml
 ```yml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -81,7 +81,56 @@ spec:
             port:
               number: 80
 ```
-
+* ingress-grpc.yaml
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    alb.ingress.kubernetes.io/backend-protocol-version: HTTP2 #This tells AWS to send traffic from the ALB using HTTP2. Can use GRPC as well if you want to leverage GRPC specific features
+  labels:
+    app: argogrpc
+  name: argogrpc
+  namespace: argocd
+spec:
+  ports:
+  - name: "443"
+    port: 443
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/name: argocd-server
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argogrpc
+  namespace: argocd
+  annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: newdev-front-internal
+    alb.ingress.kubernetes.io/group.name: newdev-front-internal
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/subnets: subnet-0ed62c7b145532283,subnet-049d2f560fb00bc1c
+    alb.ingress.kubernetes.io/backend-protocol-version: GRPC
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws-cn:acm:cn-northwest-1:475810397983:certificate/35284aff-9d42-4e69-a9c1-5ffc0dd6413f
+spec:
+  ingressClassName: alb
+  rules:
+  - host: argogrpc.yourdomain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argogrpc
+            port:
+              number: 443
+```
 ### 访问argocd UI
 * 初始密码
 ```
@@ -98,7 +147,7 @@ xxxxxxxx
 #argocd cli获取初始密码
 argocd admin initial-password -n argocd
 
-argocd login <ARGOCD_SERVER>
+argocd login argogrpc.yourdomain.com
 ```
 
 # 注册外部集群
