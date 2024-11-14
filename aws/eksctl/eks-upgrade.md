@@ -38,6 +38,9 @@ eksctl upgrade cluster --name my-cluster --version 1.28 --approve
 
 # 三、更新节点组
 1. 新建节点组（停止项目发布）
+```
+eksctl create nodegroup -f nodegroup-v1-30-backend-v1.yaml
+```
 2. 老节点组添加污点设置为不可调度(NoSchedule)，并检查确保没有业务pod被调度到新节点组
 3. 重启deployment让pod重新调度到新节点组(滚动更新)
     * 循环滚动更新deployment
@@ -50,7 +53,7 @@ eksctl upgrade cluster --name my-cluster --version 1.28 --approve
     ```
     * 查询指定节点组下运行的pod
     ```
-    kubectl get nodes -l "alpha.eksctl.io/nodegroup-name=front-ng-c" |awk '{if(NR>1) {print $1}}'| while read NODE
+    kubectl get nodes -l "alpha.eksctl.io/nodegroup-name=ng-front-c" |awk '{if(NR>1) {print $1}}'| while read NODE
     do
         kubectl get pod -A -owide |grep $NODE
     done

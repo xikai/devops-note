@@ -13,9 +13,8 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2
 >与非高可用部署清单包含的组件相同，但增强了高可用能力和弹性能力，推荐在生产环境中使用。如果你对 UI、SSO、多集群管理这些特性不感兴趣，只想把应用变更同步到集群中，那么可以直接安装核心组件即可
 ```
 kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.12.4/manifests/ha/install.yaml
-
-#curl -o install-ha-v2.12.4.yaml https://raw.githubusercontent.com/argoproj/argo-cd/v2.12.4/manifests/ha/install.yaml
+curl -o install-ha-v2.12.4.yaml https://raw.githubusercontent.com/argoproj/argo-cd/v2.12.4/manifests/ha/install.yaml
+kubectl apply -n argocd -f install-ha-v2.12.4.yaml
 ```
 
 # [Install argocd cli](https://argo-cd.readthedocs.io/en/stable/cli_installation/)
@@ -199,14 +198,16 @@ spec:
     targetPort: 80
 ```
 
-* 在仓库根目录中创建一个 Application 的配置清单
+* 通过 CRD 创建argocd项目，在仓库根目录中创建一个 Application 的配置清单
 ```yml
 # application.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: myapp-argo-application
+  name: myapp-argo
   namespace: argocd
+  finalizers:   #级联删除Application创建的k8s资源
+  - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
 
@@ -221,7 +222,6 @@ spec:
   syncPolicy:     #指定自动同步策略和频率，不配置时需要手动触发同步 
     syncOptions:  #定义同步方式
     - CreateNamespace=true  #如果不存在这个 namespace，就会自动创建它
-
     automated:  #检测到实际状态与期望状态不一致时，采取的同步措施
       selfHeal: true  #当集群实际状态不符合期望状态时，自动同步
       prune: true     #自动同步时，删除 Git 中不存在的资源
@@ -230,6 +230,10 @@ spec:
 ```
 ```
 kubectl apply -f application.yaml
+```
+* 查看其状态
+```
+argocd app get argocd/myapp-argo
 ```
 
 # 命令行cli
@@ -244,4 +248,5 @@ argocd app create guestbook --repo https://github.com/argoproj/argocd-example-ap
 argocd app get guestbook
 #同步(部署)应用
 argocd app sync guestbook
+argocd app wait guestbook
 ```

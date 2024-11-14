@@ -149,3 +149,16 @@ fields @timestamp, terminatingRuleId, action, httpRequest.clientIp as ClientIP, 
 fields @timestamp, @message
 | filter (httpRequest.uri="/api/encipher/upload" and terminatingRuleId="AWS-AWSManagedRulesSQLiRuleSet" and action="BLOCK")
 ```
+* 过滤请求指定IP，被AWSManagedRulesSQLiRuleSet拒绝的waf日志
+```sh
+fields @timestamp, httpRequest.clientIp as ClientIP, httpRequest.uri as URI, terminatingRuleId as rule
+| filter action = "BLOCK" and httpRequest.clientIp == "193.124.185.62"
+| sort @timestamp desc
+```
+* 过滤被AWSManagedRulesSQLiRuleSet规则BLOCK的waf日志，并对ClientIP去重
+```sh
+fields @timestamp, httpRequest.clientIp as ClientIP, httpRequest.uri as URI, terminatingRuleId as rule
+| filter action = "BLOCK" and terminatingRuleId="AWS-AWSManagedRulesSQLiRuleSet"
+| sort @timestamp desc
+| dedup ClientIP
+```
