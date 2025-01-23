@@ -42,6 +42,9 @@ data:
       - drop_fields:
           fields: ["log", "prospector", "agent", "input", "beat", "offset"]
           ignore_missing: true
+      - add_fields:
+          fields:
+            env: "prod"
 
     cloud.id: ${ELASTIC_CLOUD_ID}
     cloud.auth: ${ELASTIC_CLOUD_AUTH}

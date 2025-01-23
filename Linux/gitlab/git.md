@@ -1,14 +1,20 @@
+* https://docs.github.com/zh
+
 # git clone
 >直接从远程库克隆
 ```
 git clone git@gitlab.ve.cn:xikai/test.git
-git clone http://gitlab.ve.cn/xikai/test.git
+git clone http://gitlab.ve.cn/xikai/test.gitßßß
 ```
 
 # git config
 ```
 git config --global user.name "Your Name"
 git config --global user.email "email@example.com"
+
+git config --global init.defaultBranch "master"
+git init -b master
+
 git config core.filemode false        #忽略文件权限
 ```
 * 取消global
@@ -109,6 +115,9 @@ git branch -r                           #列出远程分支
 git branch -d myfeature                   #删除develop本地分支(git branch -D myfeature 强行删除没有被合并的分支)
 git branch -r -d origin/develop            #删除本地对应的remotes/origin/develop
 git branch --set-upstream branch-name origin/branch-name        #建立本地分支和远程分支的关联
+
+git branch –m master main             #修改本地分支，将分支`master`重命名为`main`
+git push origin --delete master       #删除远程分支
 
 git merge develop                               #合并分支
 git merge --no-ff -m "commit message" develop            #合并develop分支到当前分支(develop分支文件的内容会覆盖当前的内容)

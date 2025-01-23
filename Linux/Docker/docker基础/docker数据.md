@@ -42,8 +42,7 @@ docker image inspect centos
 * 按目录大小排序
 ```
 [root@ip-10-20-56-6 overlay2]# cd /var/lib/docker/overlay2
-[root@ip-10-20-56-6 overlay2]# du -s * |sort -nr |head
-[root@ip-10-20-56-6 overlay2]# du -s * |sort -nr |head |awk '{print $2}' | xargs du -sh
+[root@ip-10-20-56-6 overlay2]# du -sh * |sort -hr
 242G	70ee315c080fce436f3983d4a0d6d7e13f3bd00dcf38bfcd5f43b1451b0c2bd0
 1010M	d1db562b091a853116f49af376dc4c768db1334352f13c933d0a3f0c0f9a7d20
 805M	07ee09431d458e5ff11de770dbdac7ba882aa43d48c3d85bb8901101f69f0075

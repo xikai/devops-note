@@ -24,6 +24,25 @@ syntax on
 colorscheme peachpuff
 ```
 
+# [iterm2 lrzsz](https://github.com/RobberPhex/iTerm2-zmodem)
+```
+brew install lrzsz
+```
+* 下载iterm2-zmodem，在iTerm2中使用Zmodem传输文件
+```
+curl -L https://raw.githubusercontent.com/robberphex/iTerm2-zmodem/refs/heads/main/iterm2-recv-zmodem.sh -o /usr/local/bin/iterm2-recv-zmodem.sh
+curl -L https://raw.githubusercontent.com/robberphex/iTerm2-zmodem/refs/heads/main/iterm2-send-zmodem.sh -o /usr/local/bin/iterm2-send-zmodem.sh
+chmod 755 /usr/local/bin/iterm2-*
+```
+* [iTerm2 配置添加rz sz 功能](https://iterm2.com/documentation-triggers.html)
+>点击 iTerm2 的设置界面 settings-> Profiles -> Default -> Advanced -> Triggers 的 Edit 按钮
+
+Regular Expression | Action | Parameters | Instant
+---  | --- | --- | ---
+rz waiting to receive.\*\*B0100	| Run Silent Coprocess	| /usr/local/bin/iterm2-send-zmodem.sh	| checked
+\*\*B00000000000000	| Run Silent Coprocess	| /usr/local/bin/iterm2-recv-zmodem.sh	| checked
+
+
 # [brew包管理器](https://brew.sh)
 
 # 微信多开

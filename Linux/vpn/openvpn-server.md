@@ -389,6 +389,9 @@ done
 exit 0
 EOF
 ```
+```
+./add_vpn_user.sh VE-Xikai
+```
 
 - 吊销用户证书 
 

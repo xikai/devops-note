@@ -68,3 +68,9 @@ eksctl utils update-kube-proxy --cluster=<clusterName>
 eksctl utils update-aws-node --cluster=<clusterName>
 eksctl utils update-coredns --cluster=<clusterName>
 ```
+
+# eksctl管理aws-auth configmap
+* 查看eks集群iam权限策策
+```
+eksctl get iamidentitymapping --cluster mycluster --region=us-west-2
+```
