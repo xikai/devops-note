@@ -1,0 +1,24 @@
+---
+# tasks file for bi2bdemo-nacos
+
+- name: create necessary directory
+  file:
+    path: '{{ item }}'
+    state: directory
+
+  with_items:
+    - '{{ nacos_origin_dir }}'
+
+- name: unarchieve tar
+  unarchive:
+    src: '{{ nacos_url }}'
+    dest: '{{ nacos_origin_dir }}'
+    remote_src: yes
+
+# - name: generate nacos cluster file
+#   template:
+#     src: cluster.conf.j2
+#     dest: "{{ nacos_abs_dir }}/conf/cluster.conf"
+
+- name: start cluster
+  shell: "sh {{ nacos_abs_dir }}/bin/startup.sh -m standalone"

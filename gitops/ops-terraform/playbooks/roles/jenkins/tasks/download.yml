@@ -1,0 +1,14 @@
+- name : download jenkins packges
+  get_url:
+    url: https://{{ oss_url }}/jenkins/jenkins-{{ jenkins_version }}.war
+    dest: "{{ server_base_path }}/"
+    mode: 0644
+    force: yes
+
+- name : download jdk and tomcat packges
+  get_url:
+    url: https://{{ oss_url }}/jenkins/tools.tar.gz
+    dest: "{{ server_base_path }}/"
+    mode: 0644
+    force: yes
+

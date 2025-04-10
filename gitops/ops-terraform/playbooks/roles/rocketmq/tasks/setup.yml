@@ -1,0 +1,40 @@
+---
+- name: Install zip unzip
+  yum:
+    name: "{{ item  }}"
+    state: present
+  loop:
+    - zip
+    - unzip
+  
+- name: Create project directory 
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ parent_dir }}"
+    - "{{ rocketmq_dashboard_abs_dir  }}"
+
+- name: Get rocketmq zip and unzip it
+  unarchive:
+    src: "{{ rocketmq_url }}"
+    dest: "{{ parent_dir }}"
+    remote_src: true
+
+# download rocketmq dashboard
+- name: Download "{{ rocket_dashboard_package }}"
+  get_url: 
+    url: "{{ rocketmq_dashboard_url  }}"
+    dest: "{{ rocketmq_dashboard_abs_dir  }}"
+    mode: "0755"
+
+# sync rocketmq dashboard script
+- name:  Sync rocketmq dashboard script
+  template:
+    src: start.sh.j2
+    dest: "{{ rocketmq_dashboard_abs_dir }}/start.sh"
+    mode: 0755
+
+
+

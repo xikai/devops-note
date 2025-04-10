@@ -1,0 +1,36 @@
+- name: copy config file
+  template:
+    src: "nginx.conf.j2"
+    dest: "{{ server_base_path }}/openresty/nginx/conf/nginx.conf"
+    force: true
+
+- name: sync conf.d dir
+  synchronize:
+    src: "{{ role_path }}/conf.d"
+    dest: "{{ server_base_path }}/openresty/nginx/conf/"
+
+- name: sync mylua
+  synchronize:
+    src: "{{ role_path }}/my_lua"
+    dest: "{{ server_base_path }}/openresty/lualib/"
+
+- name: create logs dir
+  file:
+    path: "{{ data_path }}/{{ item }}"
+    state: directory
+  loop:
+    - openresty
+    - openresty/logs
+
+- name: create cache dir
+  file:
+    path: "/var/run/{{ item }}"
+    state: directory
+  loop:
+    - openresty
+    - openresty/nginx-client-body
+    - openresty/nginx-proxy
+    - openresty/nginx-fastcgi
+    - openresty/nginx-uwsgi
+    - openresty/nginx-scgi
+    - openresty/nginx-proxy-cache

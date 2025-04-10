@@ -1,0 +1,25 @@
+---
+- name: Determine Oracle JDK architecture
+  set_fact:
+    jdk_arch: "x64"
+
+- name: Determine Oracle JDK version
+  set_fact:
+    jdk_version: "{{ java_oracle_jdk_download_info[java_oracle_jdk_version][java_oracle_jdk_subversion].version_name }}"
+
+- debug:
+    msg: "JDK Version: {{ jdk_version }}, architecture: {{ jdk_arch }}"
+
+- name: Determine Oracle JDK installation directory
+  set_fact:
+    java_oracle_jdk_install_directory: "{{ java_oracle_jdk_target_directory }}/jdk{{ jdk_version }}"
+    java_oracle_jdk_install_link_directory: "{{ java_oracle_jdk_target_directory }}/jdk"
+
+- name: Check if Oracle JDK is installed
+  stat:
+    path: "{{ java_oracle_jdk_install_directory }}"
+  register: st
+
+- name: Determine if Oracle JDK must be installed
+  set_fact:
+    java_oracle_jdk_installation_required: "{{ not st.stat.exists }}"

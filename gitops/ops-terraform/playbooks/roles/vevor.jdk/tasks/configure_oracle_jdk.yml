@@ -1,0 +1,29 @@
+---
+- name: Configure Oracle JDK in profile.d
+  when: java_oracle_jdk_global_install
+  template:
+    src: java.sh.j2
+    dest: /etc/profile.d/java.sh
+    owner: root
+    group: root
+    mode: 644
+
+################################################################################
+# Use /dev/urandom for java random generation
+# 
+# Complicated issue, described in detail here:
+# http://development.adaptris.net/users/lchan/blog/2012/06/15/slow-java-crypto-performance-on-linux/
+# 
+# It boils down to a bug in the java implementation so that the blocking
+# /dev/random is used for seed generation. /dev/random is blocking when there
+# is not enough entropy available. The cases when this happens are not
+# predictable (depends on network IO, keyboard entry, etc) and when it happens
+# it can slow down IOP boot time to a few minutes instead of a few seconds.
+################################################################################
+- name: Use /dev/urandom as the entropy source for the Java PRNG if required
+  when: java_oracle_jdk_use_urandom
+  lineinfile:
+    state: present
+    dest: "{{ java_oracle_jdk_install_directory }}/jre/lib/security/java.security"
+    regexp: '^securerandom.source='
+    line: 'securerandom.source=file:/dev/./urandom'

@@ -1,0 +1,6 @@
+- name : download openresty packges
+  get_url:
+    url: "https://openresty.org/package/{{ ansible_facts['distribution']| lower }}/openresty.repo"
+    dest: /etc/yum.repos.d
+    mode: 0644
+    force: yes

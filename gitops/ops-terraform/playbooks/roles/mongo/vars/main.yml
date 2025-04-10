@@ -1,0 +1,8 @@
+mongo_rpm_url: "https://vevor-packages.oss-cn-shanghai.aliyuncs.com/mongo"
+mongo_rpm_packages:
+  - name: "mongodb-org-server-5.0.14-1.el7.x86_64.rpm"
+  - name: "mongodb-org-shell-5.0.14-1.el7.x86_64.rpm"
+
+mongod_hostname: "127.0.0.1"
+mongo_admin_user: "root"
+mongo_admin_pass: "kgSlQG1.GPb@u2mI"

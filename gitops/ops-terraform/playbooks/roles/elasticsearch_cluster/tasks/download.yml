@@ -1,0 +1,6 @@
+- name : download elasticsearch packges
+  get_url:
+    url: https://{{ oss_url }}/elasticsearch/elasticsearch-7.10.2-linux-x86_64.tar.gz
+    dest: "{{ server_base_path }}/"
+    mode: 0644
+    force: yes

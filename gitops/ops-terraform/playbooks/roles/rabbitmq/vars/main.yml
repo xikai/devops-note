@@ -1,0 +1,46 @@
+---
+
+exchange_list:
+- cop.collector.sub.delay.task.execute.exchange
+- cop.collector.sub.task.execute.fail.exchange
+- cop.collector.sub.task.execute.history.exchange
+- cop.collector.sub.task.execute.new.exchange
+- cop.collector.sub.task.result.exchange
+- cop.data.analysis.task.retry.exchange
+- cop.data.async.notify.external.exchange
+- cop.data.async.notify.internal.exchange
+- cop.data.extract.amz.ads.4k.crawler.message.dead.exchange
+- cop.data.extract.amz.ads.4k.crawler.message.exchange
+- cop.data.extract.amz.ads.4k.crawler.message.retry.exchange
+- cop.data.extract.amz.ads.data.sync.exchange
+- cop.data.extract.amz.ads.data.sync.exchange_dead
+- cop.data.extract.amz.ads.data.sync.exchange_retry
+- cop.data.extract.amz.ads.product.data.sync.exchange
+- cop.data.extract.amz.ads.product.data.sync.exchange_retry
+- cop.data.extract.amz.ads.product.data.sync.exchange_dead
+- cop.data.extract.ebay.data.sync.exchange
+- cop.data.extract.ebay.data.sync.new.exchange
+- cop.data.extract.ebay.data.sync.new.exchange_retry
+- cop.data.extract.execute.fail.job.exchange
+- cop.data.extract.execute.history.job.exchange
+- cop.data.extract.execute.job.result.exchange
+- cop.data.extract.execute.new.job.exchange
+- cop.data.extract.invoice.data.dead.exchange
+- cop.data.extract.invoice.data.exchange
+- cop.data.extract.invoice.data.retry.exchange
+- cop.data.extract.sc.data.sync.new.exchange
+- cop.data.extract.sc.data.sync.new.exchange_retry
+- cop.data.extract.sc.data.sync.exchange
+- cop.data.extract.vc.data.sync.dead.exchange
+- cop.data.extract.vc.data.sync.new.exchange
+- cop.data.extract.vc.data.sync.new.exchange_retry
+- cop.data.extract.vc.data.sync.exchange
+- cop.data.extract.vc.data.sync.retry.exchange
+- cop.data.extract.vevor.data.sync.new.exchange
+- cop.data.extract.vevor.data.sync.new.exchange_retry
+- cop.dct.data.check.compensate.exchange
+- cop.file.upload.dead.exchange
+- cop.file.upload.exchange
+- cop.file.upload.retry.exchange
+- cop.vc.sku.suggest.price.data.sync.toprocess.exchange
+- cop.data.extract.sc.crawler.message.exchange

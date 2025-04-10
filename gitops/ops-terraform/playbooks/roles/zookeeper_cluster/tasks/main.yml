@@ -1,0 +1,84 @@
+- name: Ensure group 'zookeeper' exists
+  group:
+    name: zookeeper
+    state: present
+
+- name: Add the user 'zookeeper' with a primary group of 'zookeeper'
+  user:
+    name: zookeeper
+    group: zookeeper
+
+- name: Ensure zookeeper data dir exists
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /data/zookeeper/data
+    - /data/zookeeper/logs
+
+- name: Change file ownership, group and permissions
+  file:
+    path: /data/zookeeper
+    state: directory
+    owner: zookeeper
+    group: zookeeper
+    mode: '0755'
+    recurse: yes
+
+- name: Download binary distribution package for zookeeper
+  get_url:
+    url: https://{{ oss_url }}/zookeeper/apache-zookeeper-3.6.3-bin.tar.gz
+    dest: /tmp/apache-zookeeper-3.6.3-bin.tar.gz
+
+- name: Unpack binary for zookeeper
+  unarchive:
+    src: /tmp/apache-zookeeper-3.6.3-bin.tar.gz
+    dest: /usr/local
+    remote_src: yes
+
+- name: Create a symbolic link for zookeeper
+  file:
+    src: /usr/local/apache-zookeeper-3.6.3-bin
+    dest: /usr/local/zookeeper
+    owner: zookeeper
+    group: zookeeper
+    state: link
+
+- name: Change file ownership, group and permissions
+  file:
+    path: /usr/local/apache-zookeeper-3.6.3-bin
+    owner: zookeeper
+    group: zookeeper
+    mode: '0755'
+    recurse: yes
+
+- name: Copy the zookeeper systemd service file
+  template:
+    src: zookeeper.service.j2
+    dest: /usr/lib/systemd/system/zookeeper.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy the zookeeper config file
+  template:
+    src: zoo.cfg.j2
+    dest: /usr/local/zookeeper/conf/zoo.cfg
+    owner: zookeeper
+    group: zookeeper
+    mode: '0644'
+
+- name: Create myid file
+  copy:
+    content: "{{ server_id }}"
+    dest: /data/zookeeper/data/myid
+    owner: zookeeper
+    group: zookeeper
+    mode: '0644'
+
+- name: start zookeeper
+  systemd:
+    daemon_reload: yes
+    name: zookeeper
+    enabled: yes
+    state: started

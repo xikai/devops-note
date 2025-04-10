@@ -1,0 +1,12 @@
+- name: create xxl-job dir
+  file:
+    path: "{{ server_base_path }}"
+    state: directory
+    mode: 0755
+
+- name: unarchive xxl.tar.gz
+  unarchive:
+    remote_src: true
+    src: "/tmp/xxl.tar.gz"
+    dest: "{{ server_base_path }}/"
+    mode: 0755

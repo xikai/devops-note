@@ -1,55 +1,42 @@
+* https://www.cnblogs.com/panwenbin-logs/p/18396013
 * https://www.kancloud.cn/pshizhsysu/prometheus/1869390
 * https://blog.csdn.net/liangkiller/article/details/105758857
 * https://www.modb.pro/db/50726
-
-# Target的初始Label
-* 示例配置
-```
-scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
-```
-* prometheus -> status -> targets
-```
-Endpoint: 
- http://localhost:9090/metrics
-Labels: 
- instance="localhost:9090"
- job="prometheus"
-```
-* Prometheus 加载 Targets 后，这些 Targets 会自动包含一些默认的标签，Target 以 __ 作为前置的标签是在系统内部使用的，这些标签不会被写入到样本数据中。
-* 默认每次增加 Target 时会自动增加一个 instance 标签，而 instance 标签的内容刚好对应 Target 实例的 __address__ 值，这是因为实际上 Prometheus 内部做了一次标签重写处理
-* 对于静态配置的Target，最开始的时候，Target固定会有这几个标签：
-  ```
-  job：对应配置里面job_name
-  __address__：当前Target实例的访问地址<host>:<port>
-  __scheme__：采集目标服务访问地址的HTTP Scheme，HTTP或者HTTPS
-  __metrics_path__：采集目标服务访问地址的访问路径
-  __param_<name>：采集任务目标服务的中包含的请求参数
-  ```
 
 
 # 服务发现的Target
 >可以从promtheus -> Status -> Service Discovery页面看到初始标签（Discoverd Labels）及最后的标签（Target Labels）
 * https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config
 ```
-公共配置中的job、__address__、__scheme__、__metrics_path__ 这些标签依然存在
-__meta_：在重新标记阶段可以使用以 _meta_ 为前缀的附加标签。它们由提供目标的服务发现机制设置的
+prometheus 动态发现目标(targer)之后， 在被发现的 target 实例中， 都包含一些原始的Metadata 标签信息， 默认的标签有：
+__address__： 以<host>:<port> 格式显示目标 targets 的地址
+__scheme__： 采集的目标服务地址的 Scheme 形式， HTTP 或者 HTTPS
+__metrics_path__： 采集的目标服务的访问路径
 ```
 
+
 # [relabel_configs](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config)
+>能够在抓取到目标实例之前把目标实例的元数据标签动态重新修改， 动态添加或者覆盖标签
+```
+为了更好的识别监控指标,便于后期调用数据绘图、 告警等需求， prometheus 支持对发现的目标进行 label 修改， 在两个阶段可以重新标记：
+relabel_configs ： 在对 target 进行数据采集之前（比如在采集数据之前重新定义标签信息， 如目的 IP、目的端口等信息） ， 可以使用 relabel_configs 添加、 修改或删除一些标签、 也可以只采集特定目标或过滤目标。
+metric_relabel_configs： 在对 target 进行数据采集之后， 即如果是已经抓取到指标数据时， 可以使用metric_relabel_configs 做最后的重新标记和过滤。流程如下
+```
+```
+配置 - relabel_configs - 抓取 - metric_relabel_configs - TSDB
+```
+
 * relabel_configs，在拉取(scraping)前,修改target和它的labels
 * 每个Target可以配置多个Relabel动作，按照配置文件顺序应用
 * 目标重新标签之后，以__开头的标签将从标签集中删除的
-```
- [ source_labels: '[' <labelname> [, ...] ']' ]
+```sh
+ [ source_labels: '[' <labelname> [, ...] ']' ]  	#源标签， 没有经过 relabel 处理之前的标签名字
  [ separator: <string> | default = ; ]
- [ target_label: <labelname> ]
- [ regex: <regex> | default = (.*) ]
+ [ target_label: <labelname> ]   					#通过 action 处理之后的新的标签名字
+ [ regex: <regex> | default = (.*) ]   				#给定的值或正则表达式匹配， 匹配源标签
  [ modulus: <uint64> ]
- [ replacement: <string> | default = $1 ]
- [ action: <relabel_action> | default = replace ]
+ [ replacement: <string> | default = $1 ]           #通过分组替换后标签（target_label） 对应的值
+ [ action: <relabel_action> | default = replace ]   #操作类型， 默认为 replace. 用source_labels的值，替换 target_label的值
 ```
 ```
 • replace：根据 regex 的配置匹配 source_labels 标签的值（注意：多个 source_label 的值会按照 separator 进行拼接），并且将匹配到的值写入到 target_label 中，并在prometheus的Target Labels中展示。

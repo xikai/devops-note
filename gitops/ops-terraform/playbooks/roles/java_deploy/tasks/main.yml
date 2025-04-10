@@ -1,0 +1,11 @@
+- name: download
+  import_tasks: download.yml
+  tags: download
+
+- name: deploy
+  import_tasks: deploy.yml
+  tags: deploy
+
+
+
+  

@@ -1,0 +1,4 @@
+- name: install openresty
+  yum:
+    name: openresty
+    state: latest

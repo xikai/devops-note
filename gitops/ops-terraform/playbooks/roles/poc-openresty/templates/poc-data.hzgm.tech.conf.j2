@@ -1,0 +1,87 @@
+server {
+  listen 80;
+  server_name poc-data.{{ domain }};
+  return  301   https://$server_name$request_uri;
+
+}
+server {
+  listen 443 ssl;
+  server_name poc-data.{{ domain }};
+  access_log {{ data_path }}/logs/poc-data.hzgm.tech-access.$year-$month-$day.log  json_combined;
+  error_log  {{ data_path }}/logs/error.log;
+  ssl_certificate      {{ data_path }}/conf.d/ssl/hzgm.tech.pem;
+  ssl_certificate_key  {{ data_path }}/conf.d/ssl/hzgm.tech.key;
+  ssl_session_timeout 5m;
+  ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+  ssl_prefer_server_ciphers on;
+
+  root         html; #root指令用于指定虚拟主机的网页根目录，这个目录可以是相对路径，也可以是绝对路径。
+  lua_need_request_body on; #打开获取消息体的开关，以便能获取到消息体
+
+  add_header 'Access-Control-Allow-Origin' *;
+  add_header 'Access-Control-Allow-Credentials' 'true';
+  add_header 'Access-Control-Allow-Methods' *;
+  add_header 'Access-Control-Allow-Headers' *;
+
+  location /heart-check {
+      client_max_body_size 5m;
+      client_body_buffer_size 5m;
+      default_type "text/html";
+      proxy_set_header            X-real-ip $remote_addr;
+      proxy_set_header            X-Forwarded-For $proxy_add_x_forwarded_for;
+      charset utf-8;
+      content_by_lua_block {ngx.say("ok")}
+  }
+
+  location /api/gateway {
+      client_max_body_size 5m;
+      client_body_buffer_size 5m;
+      default_type "text/html";
+      proxy_set_header            X-real-ip $remote_addr;
+      proxy_set_header            X-Forwarded-For $proxy_add_x_forwarded_for;
+      charset utf-8;
+      content_by_lua_file  {{ data_path }}/poc-data-gateway-lua/src/gateway/main.lua;
+  }
+
+ location /api/web/collect {
+     client_max_body_size 5m;
+     client_body_buffer_size 5m;
+     default_type "text/html";
+     proxy_set_header            X-real-ip $remote_addr;
+     proxy_set_header            X-Forwarded-For $proxy_add_x_forwarded_for;
+     charset utf-8;
+     content_by_lua_file  {{ data_path }}/poc-data-gateway-lua/src/collect/main.lua;
+ }
+
+  location /api/web/s {
+        client_max_body_size 5m;
+        client_body_buffer_size 5m;
+        default_type "text/html";
+        proxy_set_header            X-real-ip $remote_addr;
+        #proxy_set_header            X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header            X-Forwarded-For $remote_addr;
+        charset utf-8;
+        content_by_lua_file  {{ data_path }}/poc-data-gateway-lua/src/collect/vmain.lua;
+  }
+
+  location /api/web/log {
+        client_max_body_size 5m;
+        client_body_buffer_size 5m;
+        default_type "text/html";
+        proxy_set_header            X-real-ip $remote_addr;
+        proxy_set_header            X-Forwarded-For $proxy_add_x_forwarded_for;
+        charset utf-8;
+        content_by_lua_file  {{ data_path }}/poc-data-gateway-lua/src/collect/log.lua;
+  }
+
+  location /api/web/order {
+        client_max_body_size 5m;
+        client_body_buffer_size 5m;
+        default_type "text/html";
+        proxy_set_header            X-real-ip $remote_addr;
+        proxy_set_header            X-Forwarded-For $proxy_add_x_forwarded_for;
+        charset utf-8;
+        content_by_lua_file  {{ data_path }}/poc-data-gateway-lua/src/collect/log.lua;
+  }
+}

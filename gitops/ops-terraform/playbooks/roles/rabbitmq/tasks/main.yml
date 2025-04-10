@@ -1,0 +1,11 @@
+# setup and install rabbitmq 
+- name: setup and install rabbitmq
+  include_tasks: setup.yml
+  tags: setup
+
+# enable rabbitmq management create exchange that would not executed by default unless explicitly use tag 
+- name: enable rabbitmq management and create exchange 
+  include_tasks: create.yml
+  tags:
+  - create
+  - never

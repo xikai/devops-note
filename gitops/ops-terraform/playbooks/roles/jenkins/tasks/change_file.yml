@@ -1,0 +1,21 @@
+- name: Replace StrictHostKeyChecking in ssh_config
+  lineinfile:
+    path: /etc/ssh/ssh_config
+    regexp: '^#\s*StrictHostKeyChecking ask'
+    line: 'StrictHostKeyChecking no'
+    state: present
+
+- name: Ensure known_hosts file exists
+  file:
+    path: /root/.ssh/known_hosts
+    owner: root
+    group: root
+    mode: "0644"
+    state: touch
+
+- name: Append content from template to the target file
+  blockinfile:
+    path: /root/.ssh/known_hosts
+    block: "{{ lookup('template', 'codeup_ssh.j2') }}"
+    marker: "# mark ANSIBLE MANAGED BLOCK ansible_managed "
+    insertafter: EOF

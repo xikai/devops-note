@@ -1,0 +1,26 @@
+---
+# tasks file for ansible.apollo
+- name: create apollo home directory
+  file:
+    path: '{{ apollo_home }}'
+    state: directory
+
+- name: create apollo logs directory
+  file:
+    path: '{{ apollo_log_directory }}'
+    state: directory
+
+- name: install unzip command
+  yum:
+    name: unzip
+    state: latest
+    update_cache: yes
+
+- name: deploy configservice
+  include_tasks: configservice.yaml
+
+- name: deploy adminservice
+  include_tasks: adminservice.yaml
+
+- name: deploy portal
+  include_tasks: portal.yaml

@@ -57,10 +57,9 @@ data:
         website: "openresty-access"
 
       # 这些选项使Filebeat能够解码结构为JSON消息的日志。Filebeat逐行处理日志，因此JSON解码只有在每行有一个JSON对象时才有效
-      json.keys_under_root: true   #默认情况下，解码后的JSON放在输出文档中的“JSON”键下。如果启用此设置，则在输出文档的顶层复制密钥。默认为false。
-      json.overwrite_keys: true    #如果keys_under_root被启用，那么在key冲突的情况下，解码后的JSON对象将覆盖Filebeat正常的字段
-      json.message_key: http_x_forwarded_for  #(可选配置)它指定一个JSON键，在该键上应用行过滤和多行设置。如果指定了键，则键必须位于JSON对象的顶层，并且与键关联的值必须是字符串，否则不会发生过滤或多行聚合。
-      json.message_key: http_user_agent
+      json.keys_under_root: true   # 提取所有 JSON 字段到根
+      json.overwrite_keys: false   # 避免覆盖系统字段
+      json.message_key: "message"  # 指定某个字段作为主消息
       exclude_lines: ['^ELB-HealthChecker','^kube-probe']
     
     processors:

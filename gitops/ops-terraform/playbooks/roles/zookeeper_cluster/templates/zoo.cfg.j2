@@ -1,0 +1,10 @@
+tickTime=2000
+initLimit=10
+syncLimit=5
+dataDir=/data/zookeeper/data
+dataLogDir=/data/zookeeper/logs
+clientPort=2181
+maxClientCnxns=600
+server.1=zk-1.{{ project }}-{{ env }}.local:2888:3888
+server.2=zk-2.{{ project }}-{{ env }}.local:2888:3888
+server.3=zk-3.{{ project }}-{{ env }}.local:2888:3888

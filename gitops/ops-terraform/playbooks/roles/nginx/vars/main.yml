@@ -1,0 +1,3 @@
+oss_url: "vevor-packages.oss-cn-shanghai.aliyuncs.com"
+server_base_path: "/usr/local"
+data_path: "/data"

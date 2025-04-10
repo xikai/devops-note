@@ -1,0 +1,10 @@
+---
+- hosts: {{ app_host | default('app') }}{{ 3 | random(start=1) }}
+  remote_user: root
+  vars:
+    java_project_name: {{ item.app_name }}
+    java_project_port: {{ item.app_port }}
+    java_jar_package: {{ item.jar_name }}
+    java_opt: -Xms2g -Xmx2g -jar -Dspring.profiles.active=prod -Dspring.cloud.nacos.discovery.server-addr={{ nacos_url }} -Dspring.cloud.nacos.config.server-addr={{ nacos_url }}
+  roles:
+  - java_deploy

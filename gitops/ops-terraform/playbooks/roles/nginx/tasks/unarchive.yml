@@ -1,0 +1,6 @@
+- name: unarchive nginx.tar.gz
+  unarchive:
+    remote_src: true
+    src: "{{ server_base_path }}/nginx.tar.gz"
+    dest: "{{ server_base_path }}/"
+    mode: 0755

@@ -1,0 +1,2 @@
+- name: start xxl
+  shell: "nohup /usr/local/jdk/bin/java -jar -Xms1g -Xmx1g -Dspring.profiles.active=prod {{ server_base_path }}/xxl-job-admin-2.1.1.jar &"

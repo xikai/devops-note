@@ -1,0 +1,10 @@
+dataDir=/data/kafka/zk-data
+dataLogDir=/data/kafka/zk-logs
+clientPort=2181
+maxClientCnxns=0
+admin.enableServer=false
+initLimit=5
+syncLimit=2
+server.1=kafka-1.{{ project }}-{{ env }}.local:2888:3888
+server.2=kafka-2.{{ project }}-{{ env }}.local:2888:3888
+server.3=kafka-3.{{ project }}-{{ env }}.local:2888:3888

@@ -1,0 +1,6 @@
+- name: unarchive elasticsearch.tar.gz
+  unarchive:
+    remote_src: true
+    src: "{{ server_base_path }}/elasticsearch-7.10.2-linux-x86_64.tar.gz"
+    dest: "{{ server_base_path }}/"
+    mode: 0755

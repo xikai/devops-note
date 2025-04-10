@@ -1,0 +1,7 @@
+oss_url: "vevor-packages.oss-cn-shanghai.aliyuncs.com"
+java_parent_dir: "/data/srv"
+java_logs_dir: "/data/logs"
+nacos_address: "127.0.0.1"
+namespace: "poc"
+jvm: "-Xms512m -Xmx512m"
+java_opts: "{{ jvm }} -jar -Dspring.cloud.nacos.discovery.server-addr={{ nacos_address }}:8848 -Dspring.cloud.nacos.config.server-addr={{ nacos_address }}:8848  -Dspring.profiles.active={{ namespace }}"

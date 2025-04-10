@@ -1,0 +1,6 @@
+- name : download nginx packges
+  get_url:
+    url: https://{{ oss_url }}/nginx/nginx.tar.gz
+    dest: "{{ server_base_path }}"
+    mode: 0644
+    force: yes

@@ -1,0 +1,26 @@
+- name: copy tomcat.service file
+  template:
+    src: "tomcat.service.j2"
+    dest: "/etc/systemd/system/tomcat.service"
+    owner: root
+    group: root
+    mode: "0644"
+    force: true
+
+- name: copy .npmrc file
+  template:
+    src: ".npmrc.j2"
+    dest: "/root/.npmrc"
+    owner: root
+    group: root
+    mode: "0600"
+    force: true
+    
+- name: copy startup.sh file
+  template:
+    src: "startup.sh.j2"
+    dest: "{{ server_base_path }}/tomcat/bin/startup.sh"
+    owner: root
+    group: root
+    mode: "0755"
+    force: true

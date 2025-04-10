@@ -1,0 +1,19 @@
+- name: copy config file
+  template:
+    src: "nginx.conf.j2"
+    dest: "{{ server_base_path }}/nginx/conf/nginx.conf"
+    force: true
+
+- name: sync conf.d dir
+  synchronize:
+    src: "{{ role_path }}/conf.d"
+    dest: "{{ server_base_path }}/nginx/conf/"
+
+
+- name: create logs dir
+  file:
+    path: "{{ data_path }}/{{ item }}"
+    state: directory
+  loop:
+    - nginx
+    - nginx/logs

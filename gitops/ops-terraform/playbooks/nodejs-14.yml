@@ -1,0 +1,40 @@
+---
+- name: Install and configure nodejs
+  hosts: localhost
+  vars:
+    node_version: "v14.17.3"
+    
+  tasks:
+    - name: Download nodejs
+      get_url:
+        url: "https://{{ oss_url }}/nodejs/node-{{ node_version }}-linux-x64.tar.xz"
+        dest: "/tmp/node-{{ node_version }}-linux-x64.tar.xz"
+        mode: '0644'
+
+    - name: Extract nodejs
+      unarchive:
+        src: "/tmp/node-{{ node_version }}-linux-x64.tar.xz"
+        dest: "/usr/local/"
+        remote_src: yes
+
+    - name: Mv nodejs dir name
+      become: true
+      command: mv /usr/local/node-{{ node_version }}-linux-x64 /usr/local/node
+
+
+    - name: Set NODE_HOME in profile
+      lineinfile:
+        path: "/etc/profile"
+        line: "export NODE_HOME=/usr/local/node"
+
+    - name: Update PATH in profile
+      lineinfile:
+        path: "/etc/profile"
+        line: "export PATH=$PATH:$NODE_HOME/bin"
+
+    - name: Source profile to update current session
+      shell: source /etc/profile
+
+  handlers:
+    - name: Reload profile
+      shell: source /etc/profile

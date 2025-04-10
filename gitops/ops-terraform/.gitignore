@@ -1,0 +1,13 @@
+.DS_Store
+.git/
+.terraform/
+terraform.tfstate        
+terraform.tfstate.backup
+.terraform.lock.hcl
+.tfstate
+.tfstate.backup
+!projects/epros-test/.tfstate
+!projects/epros-test/.tfstate.backup
+.pem
+.ppk
+.vscode/

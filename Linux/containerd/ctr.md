@@ -6,12 +6,18 @@
 ```sh
 # root用来保存持久化数据，包括 Snapshots, Content, Metadata 以及各种插件的数据
 root = "/var/lib/containerd"
-  /var/lib/containerd/io.containerd.content.v1.content   # image镜像存储目录,存放镜像对应的 config、index、layer、manifest。layer 是 gzip 文件，其他的是 json 文件。可以用 ctr content ls 查看。
-  /var/lib/containerd/io.containerd.snapshotter.v1.overlayfs   # 容器启动运行和image镜像解压后的存放目录，可以用 ctr snapshot ls 查看。
+  /var/lib/containerd/io.containerd.content.v1.content   
+    # image镜像存储目录,存放镜像对应的 config、index、layer、manifest。layer 是 gzip 文件，其他的是 json 文件。可以用 ctr content ls 查看。
+    
+  /var/lib/containerd/io.containerd.snapshotter.v1.overlayfs   
+    # 这是 Containerd 的快照存储目录，用于存储容器镜像的分层文件系统（如 OverlayFS）。
+    # 当拉取镜像时，镜像的每一层会解压并存储在此目录中，供容器运行时使用。
+    # 它是持久化存储，即使容器停止或重启，数据仍会保留。可以用 ctr snapshot ls 查看。
 
 # state 用来保存临时数据，包括 sockets、pid、挂载点、运行时状态以及不需要持久化保存的插件数据
 state = "/run/containerd"
-  /run/containerd/io.containerd.runtime.v2.task/k8s.io   # 容器运行时映射到宿主机的目录
+  /run/containerd/io.containerd.runtime.v2.task/k8s.io
+    # 这是 Containerd 的运行时目录，用于存储容器的运行时状态，如 PID、网络配置、挂载点、容器的配置等。包含容器的 rootfs、命名空间、cgroups 等运行时信息。它是临时存储，容器停止后，相关数据会被清理。
 ```
 
 
@@ -116,6 +122,11 @@ ctr -n k8s.io task ls
 549M	4eeb2721db5e7dc0546da82dac7ff6169bf7506abe64fb8df419af390f894f09
 362M	29756be75cadf188e663c6c063792f3ecf481e722ba8815e69244275a1570968
 316M	d16d06f3be5178c7d03ff857e4339e03726fef3ceff8d082a1e2bec5eeaf492b
+```
+```
+[root@ip-10-21-47-48 ~]# cd /var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots
+[root@ip-10-21-47-48 snapshots]# du -sh * |sort -hr
+[root@ip-10-21-47-48 snapshots]# mount |grep containerd.snapshotter.v1.overlayfs |grep {目录名}
 ```
 * 通过目录名(containerd ID)查找image名
 ```

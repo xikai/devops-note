@@ -1,0 +1,56 @@
+- name: Download MongoDB RPM packages
+  get_url:
+    url: "{{ mongo_rpm_url }}/{{ item.name }}"
+    dest: "/tmp/{{ item.name }}"
+  with_items: "{{ mongo_rpm_packages }}"
+
+- name: Install MongoDB RPM packages
+  yum:
+    name: "/tmp/{{ item.name }}"
+    state: present
+  with_items: "{{ mongo_rpm_packages }}"
+
+- name: Copy custom mongo configuration file
+  template:
+    src: "mongod.conf.j2"
+    dest: "/etc/mongod.conf"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Change file ownership, group and permissions
+  file:
+    path: /data/mongo
+    state: directory
+    owner: mongod
+    group: mongod
+    mode: "0755"
+    recurse: yes
+
+- name: Enable and start MongoDB service
+  systemd:
+    name: mongod
+    enabled: yes
+    state: started
+
+- name: Wait for MongoDB to start
+  wait_for:
+    host: "{{ mongod_hostname }}"
+    port: 27017
+    delay: 5
+    timeout: 30
+
+- name: Initialize MongoDB admin user
+  command: >
+    mongo admin --eval 'db.createUser({
+      user:"{{ mongo_admin_user }}",
+      pwd:"{{ mongo_admin_pass }}",
+      roles:[{role:"root", db:"admin"}]
+    })'
+  when: ansible_distribution_major_version | int >= 7
+
+- name: Remove the local RPM packages from the remote host (optional)
+  file:
+    path: "/tmp/{{ item.name }}"
+    state: absent
+  with_items: "{{ mongo_rpm_packages }}"

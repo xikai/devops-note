@@ -1,0 +1,16 @@
+---
+# tasks file for generate_yaml
+
+
+- name: loop over templatesfile
+  template:
+    src: jenkinsfile.j2
+    dest: "{{ role_path }}/files/{{ item.app_name }}-jenkinsfile"
+  loop: "{{ app_list }}"
+
+
+- name: loop over app playbook
+  template:
+    src: app.yaml.j2
+    dest: "{{ role_path }}/files/{{ item.app_name }}.yaml"
+  loop: "{{ app_list }}"

@@ -1,0 +1,99 @@
+- name: Ensure group 'kafka' exists
+  group:
+    name: kafka
+    state: present
+
+- name: Add the user 'kafka' with a primary group of 'kafka'
+  user:
+    name: kafka
+    group: kafka
+
+- name: Ensure kafka-zookeeper data dir exists
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /data/kafka/zk-data
+    - /data/kafka/zk-logs
+
+- name: Ensure kafka data dir exists
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /data/kafka/kafka-logs
+    - /data/kafka/logs
+
+- name: Change file ownership, group and permissions
+  file:
+    path: /data/kafka
+    state: directory
+    owner: kafka
+    group: kafka
+    mode: "0755"
+    recurse: yes
+
+- name: Download binary distribution package for kafka
+  get_url:
+    url: https://{{ oss_url }}/kafka/kafka_2.13-2.8.0.tgz
+    dest: /tmp/kafka_2.13-2.8.0.tgz
+
+- name: Unpack binary for kafka
+  unarchive:
+    src: /tmp/kafka_2.13-2.8.0.tgz
+    dest: /usr/local
+    remote_src: yes
+
+- name: Create a symbolic link for kafka
+  file:
+    src: /usr/local/kafka_2.13-2.8.0
+    dest: /usr/local/kafka
+    owner: kafka
+    group: kafka
+    state: link
+
+- name: Change file ownership, group and permissions
+  file:
+    path: /usr/local/kafka_2.13-2.8.0
+    owner: kafka
+    group: kafka
+    mode: "0755"
+    recurse: yes
+
+- name: Copy the kafka systemd service file
+  template:
+    src: kafka.service.j2
+    dest: /usr/lib/systemd/system/kafka.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Copy the zookeeper config file
+  template:
+    src: zookeeper.properties.j2
+    dest: /usr/local/kafka/config/zookeeper.properties
+    owner: kafka
+    group: kafka
+    mode: "0644"
+
+- name: Copy the kafka config file
+  template:
+    src: kafka.service.j2
+    dest: /usr/local/kafka/config/kafka.service
+    owner: kafka
+    group: kafka
+    mode: "0644"
+
+- name: start kafka-zookeeper
+  systemd:
+    daemon_reload: yes
+    name: kafka-zookeeper
+    enabled: yes
+    state: started
+
+- name: start kafka
+  systemd:
+    daemon_reload: yes
+    name: kafka
+    enabled: yes
+    state: started

@@ -1,0 +1,4 @@
+region: "cn-shanghai"
+server_base_path: "/usr/local/openresty"
+data_path: "/data/openresty"
+domain: "hzgm.tech"

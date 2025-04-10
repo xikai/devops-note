@@ -1,0 +1,47 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+172.31.40.176  base.api.tomtop.com
+172.31.40.176  member.api.tomtop.com
+172.31.40.176  product.api.tomtop.com
+172.31.40.176  advert.api.tomtop.com
+172.31.40.176  advertising.api.tomtop.com
+172.31.40.176  ipn.api.tomtop.com
+172.31.40.176  producer.api.tomtop.com
+172.31.40.176  consumer.api.tomtop.com
+172.31.40.176  search.api.tomtop.com
+172.31.40.176  img.api.tomtop.com
+172.31.40.176  logistics.api.tomtop.com analysis.api.tomtop.com
+172.31.40.176  loyalty.api.tomtop.com
+172.31.40.176  report.api.tomtop.com
+172.31.40.176  email.api.tomtop.com
+172.31.40.176  comment.api.tomtop.com
+172.31.40.176  recommend.api.tomtop.com
+172.31.40.176  lottery.api.tomtop.com
+172.31.40.176  review.api.tomtop.com
+172.31.40.176  zookeeper.api.tomtop.com
+172.31.40.176  seo.api.tomtop.com
+172.31.40.176  price.api.tomtop.com
+172.31.40.176  order.api.tomtop.com
+172.31.40.176  esdb.api.tomtop.com
+172.31.40.176  marketing.api.tomtop.com
+172.31.40.176  forum.api.tomtop.com
+172.31.40.176  feed.api.tomtop.com
+172.31.40.176  job.api.tomtop.com
+172.31.40.176  evaluation.api.tomtop.com
+
+172.31.28.195  payment.api.tomtop.com
+172.31.28.195  appuat.koogeek.com
+172.31.28.195  appuat.api.tomtop.com appapiuat.tomtop.com
+172.31.28.195  newbosuat.tomtop-cdn.com bosuat.tomtop-cdn.com
+172.31.28.195  cartuat.tomtop.com mcartuat.tomtop.com mcartuat.tomtop.com newcartuat.tomtop.com
+172.31.28.195  cartuat.chicuu.com mcartuat.chicuu.com newcartuat.chicuu.com
+172.31.28.195  cartuat.rcmoment.com mcartuat.rcmoment.com newcartuat.rcmoment.com
+172.31.28.195  cartuat.tooarts.com mcartuat.tooarts.com newcartuat.tooarts.com
+172.31.28.195  cartuat.cafago.com mcartuat.cafago.com newcartuat.cafago.com
+172.31.28.195  cartuat.lovdock.com mcartuat.lovdock.com newcartuat.lovdock.com
+172.31.28.195  cartuat.camfere.com mcartuat.camfere.com newcartuat.camfere.com
+172.31.28.195  cartuat.interougehome.com mcartuat.interougehome.com newcartuat.interouge.com
+172.31.28.195  cartuat.interouge.com mcartuat.interouge.com newcartuat.interougehome.com
+172.31.28.195  uat.tomtop.com
+172.31.28.195  uat.chicuu.com

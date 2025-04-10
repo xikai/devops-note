@@ -37,3 +37,16 @@
           # 在您的域提供商处添加_dmarc.solarmora.com主机的DNS TXT 记录,某些域名托管服务商会自动在 _dmarc 后添加域名，例如您输入 _dmarc.solarmora.com并且您的域名托管服务商自动添加您的域名，则 TXT 记录名称将被错误地格式化为_dmarc.solarmora.com.solarmora.com。
           v=DMARC1; p=reject; rua=mailto:postmaster@solarmora.com, mailto:dmarc@solarmora.com; pct=100; adkim=s; aspf=s
           ```
+
+
+# 配置示例
+```
+example.com 
+txt记录:
+v=spf1 include:spf.protection.outlook.com -all
+```
+```
+_dmarc.example.com  
+txt记录:
+v=DMARC1; p=reject; pct=100
+```

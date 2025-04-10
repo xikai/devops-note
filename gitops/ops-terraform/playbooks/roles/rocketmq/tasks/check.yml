@@ -1,0 +1,15 @@
+---
+
+- name: debug rocketmq
+  debug:
+    msg: "{{ rocketmq_name }} check port {{ rocketmq_port }} listened"
+
+
+- name: check if "{{ rocketmq_port }}" listen
+  wait_for:
+    port: "{{ rocketmq_port }}"
+    host: "*"
+    delay: 10
+    timeout: 20
+    sleep: 30
+    state: started

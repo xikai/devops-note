@@ -1,0 +1,32 @@
+- name: Enable amazon-linux-extras php
+  shell: amazon-linux-extras enable php{{ php_version }}
+
+- name: installe php
+  yum:
+    name:
+      - php-cli
+      - php-fpm
+      - php-cli
+      - php-pdo
+      - php-json
+      - php-mysqlnd
+      - php-gd
+      - php-xml
+      - php-mbstring
+      - php-redis
+    state: present
+
+- name: Copy the php-fpm www.conf file
+  template:
+    src: www.conf.j2
+    dest: /etc/php-fpm.d/www.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: start php-fpm
+  systemd:
+    daemon_reload: yes
+    name: php-fpm
+    enabled: yes
+    state: started

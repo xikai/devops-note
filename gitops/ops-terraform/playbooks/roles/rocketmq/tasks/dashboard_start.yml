@@ -1,0 +1,3 @@
+---
+- name: start rocketmq dashboard 
+  shell: ' /bin/bash "{{ rocketmq_dashboard_abs_dir }}/start.sh" '

@@ -1,0 +1,8 @@
+CREATE DATABASE ApolloConfigDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+CREATE DATABASE ApolloPortalDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+-- 创建用户并赋予权限
+CREATE USER 'apollo'@'%' IDENTIFIED BY '123456';
+GRANT ALL PRIVILEGES ON ApolloConfigDB.* TO 'apollo'@'%';
+GRANT ALL PRIVILEGES ON ApolloPortalDB.* TO 'apollo'@'%';
+FLUSH PRIVILEGES;

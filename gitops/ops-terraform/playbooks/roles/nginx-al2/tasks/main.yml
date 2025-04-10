@@ -1,0 +1,54 @@
+- name: Enable amazon-linux-extras nginx1
+  shell: amazon-linux-extras enable nginx1
+
+- name: installe nginx
+  yum:
+    name: nginx
+    state: present
+
+- name: Copy the nginx.conf file
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - reload nginx
+
+- name: copy cert
+  copy: src=cert dest=/etc/nginx
+
+- name: Remove default nginx vhost config file (if configured).
+  file:
+    path: "{{ nginx_default_vhost_path }}"
+    state: absent
+  when: nginx_remove_default_vhost
+  notify: restart nginx
+
+- name: Add managed vhost config files.
+  template:
+    src: "{{ item.template|default(nginx_vhost_template) }}"
+    dest: "{{ nginx_vhost_path }}/{{ item.filename|default(item.server_name.split(' ')[0] ~ '.conf') }}"
+    force: yes
+    owner: root
+    group: root
+    mode: 0644
+  when: item.state|default('present') != 'absent'
+  with_items: "{{ nginx_vhosts }}"
+  notify: reload nginx
+  
+- name: Remove managed vhost config files.
+  file:
+    path: "{{ nginx_vhost_path }}/{{ item.filename|default(item.server_name.split(' ')[0] ~ '.conf') }}"
+    state: absent
+  when: item.state|default('present') == 'absent'
+  with_items: "{{ nginx_vhosts }}"
+  notify: reload nginx
+
+- name: start nginx
+  systemd:
+    daemon_reload: yes
+    name: nginx
+    enabled: yes
+    state: started

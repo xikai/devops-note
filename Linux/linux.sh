@@ -42,8 +42,8 @@ cat /proc/sys/fs/file-nr   #己分配 未使用 最大
 lsof |wc -l
 #查看进程当前己打开的文件数
 lsof -p pid |wc -l
-#查看被进程标记为删除的文件
-lsos |grep deleted
+#查看被进程标记为删除的文件(按大小排序)
+lsof -w |grep deleted |sort -nrk 7 |more
 
 # 将标准输入（通常是由前面的命令输出产生的）作为参数传递给另一个命令
 xargs -n num：指定每次从输入中读取的参数数量。例如，xargs -n 1 会确保每次只传递一个参数给后续命令

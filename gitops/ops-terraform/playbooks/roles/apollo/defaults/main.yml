@@ -1,0 +1,39 @@
+---
+# defaults file for ansible.apollo
+## apollo package messages
+# oss variable
+
+oss_url: "vevor-packages.oss-cn-shanghai.aliyuncs.com"
+
+apollo_adminservice_url: https://{{ oss_url }}/apollo/{{ apollo_adminservice }}-{{ apollo_version }}-github.zip
+apollo_configservice_url: https://{{ oss_url }}/apollo/{{ apollo_configservice }}-{{ apollo_version }}-github.zip
+apollo_portal_url: https://{{ oss_url }}/apollo/{{ apollo_portal }}-{{ apollo_version }}-github.zip
+
+## apollo default messages
+apollo_home: /data/apollo
+apollo_log_directory: /opt/logs
+apollo_version: 1.3.0
+apollo_adminservice: apollo-adminservice
+apollo_adminservice_port: 8090
+apollo_adminservice_package: '{{ apollo_adminservice }}-{{ apollo_version }}-github.zip'
+apollo_configservice: apollo-configservice
+apollo_configservice_port: 8080
+apollo_configservice_package: '{{ apollo_configservice }}-{{ apollo_version }}-github.zip'
+apollo_portal: apollo-portal
+apollo_portal_port: 8070
+apollo_portal_package: '{{ apollo_portal }}-{{ apollo_version }}-github.zip'
+
+java_home: /usr/local/jdk
+env: dev
+
+## apollo checking connection status
+apollo_mysql_address: '127.0.0.1'
+apollo_mysql_user: 'apollo'
+apollo_mysql_pass: '123456'
+apollo_mysql_proconfigdb: 'ApolloConfigDB'
+apollo_mysql_portaldb: 'ApolloPortalDB'
+
+## portal env
+apollo_env:
+  - {env: 'dev',server: 'http://127.0.0.1:8080'}
+  - {env: 'fat',server: 'http://127.0.0.1:8080'}

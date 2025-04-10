@@ -199,3 +199,10 @@ sudo /usr/bin/chflags -R noschg /usr/local/corplink
 sudo rm -rf /Applications/CorpLink.app
 sudo rm -rf /usr/local/corplink
 ```
+
+# [ente auth](https://ente.io/auth/)
+```
+ente account add 
+ente account update --app auth --email 81757195@qq.com --dir /Users/xik/.ente
+ente export
+```

@@ -1,0 +1,5 @@
+nginx_vhost_path: "/etc/nginx/conf.d"
+nginx_vhost_template: "vhost.conf.j2"
+nginx_default_vhost_path: "/etc/nginx/default.d"
+nginx_remove_default_vhost: false
+nginx_vhosts: []

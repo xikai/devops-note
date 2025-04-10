@@ -1,0 +1,3 @@
+region: "cn-shanghai"
+server_base_path: "/usr/local"
+data_path: "/data"

@@ -1,0 +1,22 @@
+---
+
+- name: enable namesrv
+  service:
+    name: nameserver
+    enabled: yes
+
+- name: enable broker
+  service:
+    name: broker
+    enabled: yes
+
+- name: start namesrv
+  service:
+    name: nameserver
+    state: started
+    
+- name: start brokers
+  service:
+    name: broker
+    state: started
+  

@@ -31,7 +31,7 @@ rsync -avz --delete --partial --exclude='workspace/' --exclude='jobs/*/builds/*/
 #清理jenkins历史构建数据
 rm -rf jobs/*/builds/*/
 #删除5天以前的构建历史
-find ./jobs/*/builds/ -mindepth 1 -maxdepth 1 -ctime +5 -type d -exec rm -r {} \;
+find ./jobs/*/builds/ -mindepth 1 -maxdepth 1 -ctime +10 -type d -exec rm -r {} \;
 
 
 #关闭basic-msoa-goods正在构建的ID为255以下的job

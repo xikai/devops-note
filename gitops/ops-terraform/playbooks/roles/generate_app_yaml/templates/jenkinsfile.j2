@@ -1,0 +1,54 @@
+def GIT_URL = '{{ item.git_url }}'
+def JAR_NAME = '{{ item.origin_jar_name }}'
+def JAR_BASE_NAME = '{{ item.jar_name }}'
+def ANSIBLE_DIR = '{{ jars_dir }}'
+def APP_YAML = '{{ item.app_name }}.yaml'
+
+pipeline {
+    agent any 
+    options {
+        buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')
+        timestamps()
+        disableConcurrentBuilds()
+    }
+    parameters {
+        gitParameter branch: '', branchFilter: '.*', defaultValue: '', listSize: '20', name: 'branchStatus', quickFilterEnabled: true, selectedValue: 'NONE', sortMode: 'NONE', tagFilter: '*', type: 'GitParameterDefinition'
+    }
+    tools {
+        jdk 'jdk-180'
+    }
+    stages {
+        stage('checkout code') {
+            steps {
+                cleanWs()
+                checkout([$class: 'GitSCM', 
+                        branches: [[name: '$branchStatus']], 
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [[$class: 'CloneOption', timeout: 20, noTags: false]], 
+                        userRemoteConfigs: [[credentialsId: 'vevor_code', url: GIT_URL ]]])
+            }
+        }
+        stage('mvn build') {
+            steps {
+                withMaven(jdk: 'jdk-180', maven: 'maven-363', mavenSettingsConfig: 'c8dd8127-032d-46e4-a83d-f1e5877e5e50', publisherStrategy: 'EXPLICIT') {
+                    sh "mvn -f pom.xml -U  clean install -DskipTests"
+                }  
+            }
+        }
+        stage('ansible deploy') {
+            steps {
+                script {
+                    // get jar package location
+                    env.jar_path = sh(script: "find -name ${JAR_NAME} ",returnStdout: true).trim()
+                    // get jar basename and cp renamed_jar to oss
+                    env.jar_origin_name = sh(script: "basename ${env.jar_path}", returnStdout: true).trim()
+                    sh "mv ${env.jar_path} ${ANSIBLE_DIR}/${JAR_BASE_NAME}" 
+                    sh "cd /app/ansible && ansible-playbook -t deploy -i inventory.ini ${APP_YAML}"
+                }
+            }
+        }
+    }
+
+}
+
+

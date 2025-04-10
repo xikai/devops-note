@@ -1,0 +1,6 @@
+- name : download xxl-job packges
+  get_url:
+    url: https://{{ oss_url }}/xxl-job/xxl.tar.gz
+    dest: "/tmp/xxl.tar.gz"
+    mode: 0644
+    force: yes

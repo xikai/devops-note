@@ -1,0 +1,44 @@
+- hosts: localhost
+  tasks:
+  - sysctl:
+      name: net.ipv4.ip_forward
+      value: '1'
+      state: present
+
+  - sysctl:
+      name: vm.swappiness
+      value: '0'
+      state: present
+  
+  - sysctl:
+      name: fs.file-max
+      value: '200000'
+      state: present
+  
+  - sysctl:
+      name: net.ipv4.ip_local_port_range
+      value: '1024 65500'
+      state: present
+  
+  - sysctl:
+      name: net.ipv4.tcp_syncookies
+      value: '1'
+      state: present
+  
+  - sysctl:
+      name: net.ipv4.tcp_max_syn_backlog
+      value: '32768'
+      state: present
+  
+  - sysctl:
+      name: net.core.somaxconn
+      value: '32768'
+      state: present
+  - sysctl:
+      name: vm.max_map_count
+      value: '262144'
+      state: present
+  - sysctl:
+      name: vm.overcommit_memory
+      value: '1'
+      state: present

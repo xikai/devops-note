@@ -1,0 +1,19 @@
+- name: add link
+  file:
+    src: "{{ server_base_path }}/kibana-7.10.2-linux-x86_64"
+    dest: "{{ server_base_path }}/kibana"
+    state: link
+
+- name: add user
+  user:
+    name: es
+    shell: /sbin/nologin
+
+- name: chang dir user
+  file:
+    path: "{{ item }}"
+    owner: es
+    group: es
+    recurse: true
+  loop:
+    - "{{ server_base_path }}/kibana-7.10.2-linux-x86_64"

@@ -1,0 +1,50 @@
+---
+- block:
+    - name: Create Nodejs directory
+      file:
+        state: directory
+        path: "{{ nodejs_install_directory }}"
+        owner: root
+        group: root
+        mode: "u=rwx,go=rx"
+
+    - name: Create temporary download directory
+      shell: mktemp -d
+      register: tempdir_command_output
+
+    - name: Determine path of temporary download directory
+      set_fact:
+        node_download_directory: "{{ tempdir_command_output.stdout }}"
+
+    - name: Determine nodejs download url
+      set_fact:
+        # nodejs_tarball_url: "{{ nodejs_download_info.url }}"
+        nodejs_tarball_url: "{{ download_url }}"
+
+    - name: Download Nodejs tar.xz file
+      get_url:
+        url: "{{ nodejs_tarball_url }}"
+        dest: "{{ node_download_directory }}/{{ nodejs_tarball_url | basename }}"
+
+    - name: Extract Nodejs tar.gz file
+      unarchive:
+        src: "{{ node_download_directory }}/{{ nodejs_tarball_url | basename }}"
+        dest: "{{ nodejs_target_directory }}"
+        owner: root
+        group: root
+        mode: "go-w"
+        copy: no
+
+    - name: Create symbolic link to Nodejs
+      file:
+        src: "{{ nodejs_install_directory }}"
+        dest: "{{ nodejs_install_link_directory }}"
+        owner: root
+        group: root
+        state: link
+
+  always:
+    - name: Remove temporary download directory
+      file:
+        state: absent
+        path: "{{ node_download_directory }}"

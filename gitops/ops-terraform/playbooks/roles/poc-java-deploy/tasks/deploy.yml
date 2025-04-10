@@ -1,0 +1,48 @@
+---
+# tasks file for java-deploy
+#
+
+- name: create java project directory
+  file:
+    name: '{{ item }}'
+    recurse: yes
+    state: directory
+  with_items:
+    - '{{ java_parent_dir }}'
+    - '{{ java_log_dir }}'
+    - '{{ java_parent_dir }}/{{ java_project_name }}'
+
+- name: make sure deploy.sh exists
+  template:
+    src: deploy.sh.j2
+    mode: 0755
+    dest: '{{ java_parent_dir }}/{{ java_project_name }}/deploy.sh'
+
+- name: debug which service is
+  debug:
+    msg: "{{ java_project_name }}"
+
+
+- name: sync 'package {{ java_project_name }} ' to target
+  copy:
+    src: "{{ java_jar_package }}"
+    dest: "{{ java_parent_dir }}/{{ java_project_name }}/{{ java_jar_package }}"
+#   backup: yes
+
+- name: stop service
+  shell: ' "{{ java_parent_dir }}/{{ java_project_name }}/deploy.sh stop" '
+
+- name: sleep 3
+  shell: sleep 3
+
+- name: start service
+  shell: ' "{{ java_parent_dir }}/{{ java_project_name }}/deploy.sh start &> {{ java_parent_dir }}/{{ java_project_name }}/start.log" '
+
+
+- name: check port '{{ java_project_port }} 'if listen
+  wait_for:
+    port: "{{ java_project_port }}"
+    delay: 10
+    sleep: 3
+    timeout: 150
+    state: started

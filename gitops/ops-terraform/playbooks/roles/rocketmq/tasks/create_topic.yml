@@ -1,0 +1,5 @@
+---
+- name: create rocketmq topic 
+  shell: "bash {{ rocketmq_abs_dir }}/bin/mqadmin updateTopic -n '{{ nameserver_ip }}:{{ rocketmq_port }}' -c '{{ rocketmq_cluster_name }}' -t {{ item }}"
+  loop:
+  - "{{ rocketmq_topic_list }}"

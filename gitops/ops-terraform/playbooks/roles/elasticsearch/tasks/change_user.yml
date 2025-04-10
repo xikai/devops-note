@@ -1,0 +1,20 @@
+- name: add link
+  file:
+    src: "{{ server_base_path }}/elasticsearch-7.10.2"
+    dest: "{{ server_base_path }}/elasticsearch"
+    state: link
+
+- name: add user
+  user:
+    name: es
+    shell: /sbin/nologin
+
+- name: chang dir user
+  file:
+    path: "{{ item }}"
+    owner: es
+    group: es
+    recurse: true
+  loop:
+    - "{{ server_base_path }}/elasticsearch-7.10.2"
+    - "{{ data_path }}/elasticsearch"

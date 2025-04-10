@@ -1,0 +1,9 @@
+---
+# defaults file for bi2bdemo-nacos
+
+oss_url: "vevor-packages.oss-cn-shanghai.aliyuncs.com"
+nacos_version: 2.0.3
+nacos_url: "https://{{ oss_url }}/nacos/nacos-server-{{ nacos_version }}.tar.gz"
+
+nacos_origin_dir: /data
+nacos_abs_dir: "{{ nacos_origin_dir }}/nacos"

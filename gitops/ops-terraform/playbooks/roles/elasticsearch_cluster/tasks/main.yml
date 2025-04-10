@@ -1,0 +1,21 @@
+- name: download
+  import_tasks: download.yml
+  tags: download
+
+- name: unarchive
+  import_tasks: unarchive.yml
+  tags: unarchive
+
+- name: copy file
+  import_tasks: copy.yml
+  tags: copy
+
+- name: change_user dir
+  import_tasks: change_user.yml
+  tags: change_user
+
+- name: start
+  import_tasks: start.yml
+  tags: start
+
+  

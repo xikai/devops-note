@@ -1,0 +1,6 @@
+---
+# tasks file for poc-java-deploy
+
+- name: java deploy
+  include: deploy.yml
+  tags: deploy

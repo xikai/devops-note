@@ -1,0 +1,14 @@
+[Unit]
+Description={{ apollo_adminservice }}
+After=network.target
+
+
+[Service]
+Type=simple
+Environment="JAVA_HOME=/usr/local/jdk"
+ExecStart={{ apollo_home }}/{{ apollo_adminservice }}/scripts/startup.sh
+ExecStop={{ apollo_home }}/{{ apollo_adminservice }}/scripts/shutdown.sh
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

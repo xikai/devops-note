@@ -1,0 +1,45 @@
+- name: Extract 
+  unarchive:
+    src: "{{ data_path }}/openresty_conf.tar.gz"
+    dest: "{{ data_path }}"
+    remote_src: yes
+
+- name: Extract 
+  unarchive:
+    src: "{{ data_path }}/www-ssr.tar.gz"
+    dest: "{{ data_path }}"
+    remote_src: yes
+
+- name: Extract 
+  unarchive:
+    src: "{{ data_path }}/poc-data-gateway-lua.tar.gz"
+    dest: "{{ data_path }}"
+    remote_src: yes
+
+- name: create logs dir
+  file:
+    path: "{{ data_path }}/logs"
+    state: directory
+
+- name: create cache dir
+  file:
+    path: "/var/run/{{ item }}"
+    state: directory
+  loop:
+    - openresty
+    - openresty/nginx-client-body
+    - openresty/nginx-proxy
+    - openresty/nginx-fastcgi
+    - openresty/nginx-uwsgi
+    - openresty/nginx-scgi
+    - openresty/nginx-proxy-cache
+
+- name: Remove downloaded archives
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ data_path }}/openresty_conf.tar.gz"
+    - "{{ data_path }}/poc-data-gateway-lua.tar.gz"
+    - "{{ data_path }}/www-ssr.tar.gz"
+

@@ -1,0 +1,11 @@
+- name: copy config file
+  template:
+    src: "kibana.yml.j2"
+    dest: "{{ server_base_path }}/kibana-7.10.2-linux-x86_64/config/kibana.yml"
+    force: true
+
+- name: copy start file
+  template:
+    src: "kibana.service.j2"
+    dest: "/usr/lib/systemd/system/kibana.service"
+    force: true

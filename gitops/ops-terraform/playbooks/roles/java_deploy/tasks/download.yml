@@ -1,0 +1,7 @@
+- name : download jar packges
+  get_url:
+    url: "https://{{ oss_url }}/base_backend_jar/{{ item }}.jar"
+    dest: "{{ role_path }}/files/{{ item }}.jar"
+    mode: 0644
+    force: yes
+  loop: "{{ service_name }}"

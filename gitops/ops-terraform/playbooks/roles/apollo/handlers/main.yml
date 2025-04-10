@@ -1,0 +1,16 @@
+---
+# handlers file for ansible.apollo
+# - name: restart adminservice
+#   service:
+#     name: '{{ apollo_adminservice }}'
+#     state: restarted
+
+# - name: restart configservice
+#   service:
+#     name: '{{ apollo_configservice }}'
+#     state: restarted
+
+# - name: start {{ apollo_portal }}
+#   service:
+#     name: '{{ apollo_portal }}'
+#     state: restarted

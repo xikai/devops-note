@@ -1,0 +1,7 @@
+---
+java_oracle_jdk_version: 8
+java_oracle_jdk_subversion: 231
+java_oracle_jdk_target_directory: /usr/local
+java_oracle_jdk_global_install: true
+java_oracle_jdk_use_urandom: false
+oss_url: "vevor-packages.oss-cn-shanghai.aliyuncs.com"

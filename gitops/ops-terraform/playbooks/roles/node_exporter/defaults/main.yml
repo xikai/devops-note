@@ -1,0 +1,6 @@
+node_exporter_web_listen_address: "0.0.0.0:9100"
+node_exporter_web_telemetry_path: "/metrics"
+
+_node_exporter_system_group: "ec2-user"
+_node_exporter_system_user: "{{ _node_exporter_system_group }}"
+_node_exporter_binary_install_dir: "/usr/local/node_exporter"

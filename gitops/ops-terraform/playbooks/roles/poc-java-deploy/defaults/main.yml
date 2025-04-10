@@ -1,0 +1,9 @@
+---
+# defaults file for poc-java-deploy
+
+java_parent_dir: '/data/svc'
+java_project_name: '{{ java_project_name }}'
+java_project_port: '{{ java_project_port }}'
+
+java_jar_package: '{{ java_jar_package }}'
+java_log_dir: '/data/logs'

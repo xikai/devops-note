@@ -1,0 +1,17 @@
+filebeat.prospectors:
+{% for project in pillar['api01_project'] %}
+- input_type: log
+  paths:
+    - /data/logs/{{ project }}/catalina.out
+  multiline.pattern: '^\['
+  multiline.negate: true
+  multiline.match: after
+  document_type: tomcat_catalina_{{ project }}
+
+{% endfor %}
+
+
+output.kafka:
+  enabled: true
+  hosts: ["172.31.68.114:9092"]
+  topic: '%{[type]}'

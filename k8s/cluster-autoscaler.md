@@ -149,7 +149,18 @@ spec:
 kubectl apply -f cluster-autoscaler-autodiscover.yaml
 ```
 
-* Snippet of the cluster-autoscaler pod logs while scaling:
+* cluster-autoscaler日志分析
+```sh
+# 循环检测开始
+I0408 02:27:34.234034       1 static_autoscaler.go:306] Starting main loop
+
+# 自动扩容节点
+I0408 02:27:34.234034       1 scale_up.go:529] Final scale-up plan: [{eksctl-xxx-xxx-xxx-nodegroup-ng-xxxxx-NodeGroup-xxxxxxxxxx 2->3 (max: 8)}]
+
+# 开始缩容节点
+I0408 02:37:31.338925       1 cluster.go:174] node ip-172-28-131-248.cn-northwest-1.compute.internal may be removed
+……
+I0408 02:37:31.339054       1 static_autoscaler.go:651] Starting scale down
+I0408 02:37:31.339084       1 nodes.go:134] ip-172-28-131-248.cn-northwest-1.compute.internal was unneeded for 7m35.97233403s
 ```
-I1025 13:48:42.975037       1 scale_up.go:529] Final scale-up plan: [{eksctl-xxx-xxx-xxx-nodegroup-ng-xxxxx-NodeGroup-xxxxxxxxxx 2->3 (max: 8)}]
-```
+

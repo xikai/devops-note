@@ -1,0 +1,32 @@
+---
+- name: Install and configure JDK
+  hosts: localhost
+  tasks:
+    - name: Download JDK
+      get_url:
+        url: "https://{{ oss_url }}/jdk/jdk-18-231.tar.gz"
+        dest: "/tmp/jdk-18-231.tar.gz"
+        mode: '0644'
+
+    - name: Extract JDK
+      unarchive:
+        src: "/tmp/jdk-18-231.tar.gz"
+        dest: "/usr/local/"
+        remote_src: yes
+    
+    - name: Set JAVA_HOME in profile
+      lineinfile:
+        path: "/etc/profile"
+        line: "export JAVA_HOME=/usr/local/jdk"
+
+    - name: Update PATH in profile
+      lineinfile:
+        path: "/etc/profile"
+        line: "export PATH=$PATH:$JAVA_HOME/bin"
+
+    - name: Source profile to update current session
+      shell: source /etc/profile
+
+  handlers:
+    - name: Reload profile
+      shell: source "/etc/profile"

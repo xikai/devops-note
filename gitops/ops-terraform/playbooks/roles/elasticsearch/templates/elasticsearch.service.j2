@@ -1,0 +1,16 @@
+[Unit]
+Description=elasticsearch
+After=network.target
+
+[Service]
+User=es
+Group=es
+ExecStart={{ server_base_path }}/elasticsearch/bin/elasticsearch
+LimitNOFILE=65537
+Type=simple
+KillMode=process
+Restart=on-failure
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,2 @@
+redis_rpm_url: "https://vevor-packages.oss-cn-shanghai.aliyuncs.com/redis/redis-5.0.14-1.el7.remi.x86_64.rpm"
+redis_rpm_name: "redis-5.0.14-1.el7.remi.x86_64.rpm"

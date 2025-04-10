@@ -1,0 +1,17 @@
+---
+- name: check nodejs facts
+  import_tasks: nodejs_facts.yml
+  tags:
+    - check facts
+
+- name: Download and install Nodejs
+  import_tasks: download_and_install_nodejs.yml
+  when: node_exists.rc != 0 #等于0表示node命令已经存在
+  tags:
+    - download nodejs
+
+- name: Configure Nodejs
+  import_tasks: configure_nodejs.yml
+  when: node_exists.rc != 0 #等于0表示node命令已经存在
+  tags:
+    - configure nodejs

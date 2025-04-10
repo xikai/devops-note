@@ -1,0 +1,53 @@
+- name: Ensure group 'redis' exists
+  group:
+    name: redis
+    state: present
+
+- name: Add the user 'redis' with a primary group of 'redis'
+  user:
+    name: redis
+    group: redis
+
+- name: Ensure redis data dir exists
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /data/redis
+
+- name: Change file ownership, group and permissions
+  file:
+    path: /data/redis
+    state: directory
+    owner: redis
+    group: redis
+    mode: "0755"
+    recurse: yes
+
+- name: Download binary distribution package for redis
+  get_url:
+    url: "{{ redis_rpm_url }}"
+    dest: "/tmp/{{ redis_rpm_name }}"
+
+- name: Install the local Redis and MongoDB RPM packages
+  yum:
+    name: "/tmp/{{ item }}"
+    state: present
+  with_items:
+    - "{{ redis_rpm_name }}"
+
+- name: Copy custom Redis configuration file
+  template:
+    src: "redis.conf.j2"
+    dest: "/etc/redis.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart_redis
+
+- name: Remove the local RPM packages from the remote host (optional)
+  file:
+    path: "/tmp/{{ item }}"
+    state: absent
+  with_items:
+    - "{{ redis_rpm_name }}"

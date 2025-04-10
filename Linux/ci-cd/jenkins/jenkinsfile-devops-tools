@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'QUERY_TYPE',
+            choices: ['EC2_PRIVATE_IP', 'EC2_NAME'],
+            description: '选择要查询的类型'
+        )
+        string(
+            name: 'INPUT',
+            description: '输入需要查询的ec2 私有IP地址或EC2包含的实例名称',
+            trim: true
+        )
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '3', daysToKeepStr: '1'))
+        disableConcurrentBuilds()
+        timeout(time: 10, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Validate Input') {
+            steps {
+                script {
+                    if (!params.INPUT) {
+                        error("输入内容不能为空！")
+                    }
+                }
+            }
+        }
+
+        stage('Query input') {
+            steps {
+                script {
+                    if (params.QUERY_TYPE == 'EC2_PRIVATE_IP') {
+                        echo "查询IP地址: ${params.INPUT}"
+                        sh """
+                            aws ec2 describe-instances \
+                                --filters Name=private-ip-address,Values=${params.INPUT} \
+                                --query 'Reservations[].Instances[].{Name:Tags[?Key==`Name`]|[0].Value,Instance:InstanceId,InstanceType:InstanceType,PublicIpAddress:PublicIpAddress,PrivateIpAddress:PrivateIpAddress,AZ:Placement.AvailabilityZone}' \
+                                --output table
+                        """
+                    } else if (params.QUERY_TYPE == 'EC2_NAME') {
+                        echo "查询实例名称包含: ${params.INPUT}"
+                        sh """
+                            aws ec2 describe-instances \
+                                --query 'Reservations[].Instances[?Tags[?Key==`Name` && contains(Value, `${params.INPUT}`)]].{Name:Tags[?Key==`Name`]|[0].Value,Instance:InstanceId,InstanceType:InstanceType,PublicIpAddress:PublicIpAddress,PrivateIpAddress:PrivateIpAddress,AZ:Placement.AvailabilityZone}' \
+                                --output text
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "构建完成，清理工作空间..."
+            cleanWs()
+        }
+    }
+}

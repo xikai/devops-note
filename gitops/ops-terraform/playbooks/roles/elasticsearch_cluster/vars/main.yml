@@ -1,0 +1,8 @@
+oss_url: "vevor-packages.oss-cn-shanghai.aliyuncs.com"
+jvm_xms: 256m
+jvm_xmx: 256m
+server_base_path: "/usr/local"
+data_path: "/data"
+server_id: 1
+project: "test"
+env: "test"

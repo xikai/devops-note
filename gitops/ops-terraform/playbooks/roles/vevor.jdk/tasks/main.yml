@@ -1,0 +1,17 @@
+---
+# http://docs.oracle.com/javase/8/docs/technotes/guides/install/linux_jdk.html
+- name: Check state of Oracle JDK installation and determine required actions
+  import_tasks: check_oracle_jdk_installation_state.yml
+  tags:
+  - java-oracle-jdk
+
+- name: Download and install Oracle JDK
+  when: java_oracle_jdk_installation_required
+  import_tasks: download_and_install_oracle_jdk.yml
+  tags:
+  - java-oracle-jdk
+
+- name: Configure Oracle JDK
+  import_tasks: configure_oracle_jdk.yml
+  tags:
+  - java-oracle-jdk

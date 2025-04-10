@@ -1,0 +1,26 @@
+- name: copy config file
+  template:
+    src: "elasticsearch.yml.j2"
+    dest: "{{ server_base_path }}/elasticsearch-7.10.2/config/elasticsearch.yml"
+    force: true
+
+- name: copy jvm file
+  template:
+    src: "jvm.options.j2"
+    dest: "{{ server_base_path }}/elasticsearch-7.10.2/config/jvm.options"
+    force: true
+
+- name: copy start file
+  template:
+    src: "elasticsearch.service.j2"
+    dest: "/usr/lib/systemd/system/elasticsearch.service"
+    force: true
+
+- name: create logs dir
+  file:
+    path: "{{ data_path }}/{{ item }}"
+    state: directory
+  loop:
+    - elasticsearch
+    - elasticsearch/data
+    - elasticsearch/logs

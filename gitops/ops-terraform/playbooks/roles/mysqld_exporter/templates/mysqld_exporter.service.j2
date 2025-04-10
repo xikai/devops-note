@@ -1,0 +1,12 @@
+[Unit]
+Description=mysqld_exporter
+After=network.target
+
+[Service]
+Type=simple
+Environment=DATA_SOURCE_NAME=exporter:g6rquxhymzhPN5xx@(127.0.0.1:3306)/
+ExecStart={{ _mysqld_exporter_binary_install_dir }}/mysqld_exporter --web.listen-address=:9104
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

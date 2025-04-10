@@ -1,0 +1,14 @@
+- hosts: localhost
+  tasks:
+  - name: installe openjdk
+    yum:
+      name:
+        - java-1.8.0-openjdk
+        - java-1.8.0-openjdk-devel
+      state: latest
+
+  - name: set system variable 'JAVA_HOME'
+    lineinfile:
+      path: /etc/profile
+      regexp: '^export JAVA_HOME'
+      line: "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk"

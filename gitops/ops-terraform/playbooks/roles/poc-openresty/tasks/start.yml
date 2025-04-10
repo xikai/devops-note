@@ -1,0 +1,5 @@
+- name: start openresty
+  service:
+    name: openresty
+    state: started
+    enabled: yes

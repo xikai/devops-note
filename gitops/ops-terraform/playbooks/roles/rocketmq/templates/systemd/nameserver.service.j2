@@ -1,0 +1,17 @@
+[Unit]
+Description=rocketmq - nameserver
+Documentation=Rocketmq nameserver
+After=network.target
+
+[Service]
+Type=sample
+User=root
+Environment="JAVA_HOME={{ java_home }}"
+ExecStart={{ nameserver_abs_binary }}  
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+Restart=0
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

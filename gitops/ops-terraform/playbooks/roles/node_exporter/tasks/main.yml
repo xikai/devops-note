@@ -1,0 +1,49 @@
+- name: Download binary distribution package
+  get_url:
+    url: https://{{ oss_url }}/exporter/node_exporter-1.2.2.linux-{{ go_arch }}.tar.gz
+    dest: /tmp/node_exporter-1.2.2.linux-{{ go_arch }}.tar.gz
+
+- name: Unpack node_exporter binary
+  unarchive:
+    src: "/tmp/node_exporter-1.2.2.linux-{{ go_arch }}.tar.gz"
+    dest: "/tmp"
+    remote_src: yes
+
+- name: Ensure _node_exporter_binary_install_dir exists.
+  become: true
+  file:
+    path: "{{ _node_exporter_binary_install_dir }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Propagate node_exporter binaries
+  become: true
+  copy:
+    src: "/tmp/node_exporter-1.2.2.linux-{{ go_arch }}/node_exporter"
+    dest: "{{ _node_exporter_binary_install_dir }}/node_exporter"
+    mode: 0755
+    owner: root
+    group: root
+    remote_src: yes
+
+- name: Copy the node_exporter systemd service file
+  become: true
+  template:
+    src: node_exporter.service.j2
+    dest: /etc/systemd/system/node_exporter.service
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart node_exporter
+
+- name: Ensure Node Exporter is enabled on boot
+  become: true
+  systemd:
+    daemon_reload: true
+    name: node_exporter
+    enabled: true
+    state: started
+  when:
+    - not ansible_check_mode

@@ -1,0 +1,53 @@
+---
+oss_url: "vevor-packages.oss-cn-shanghai.aliyuncs.com"
+rocketmq_name: rocketmq
+parent_dir: /data
+java_home: /usr/local/jdk
+
+### rocketmq
+rocketmq_port: 9876
+rocketmq_version: 5.0.0
+rocketmq_url: https://{{ oss_url }}/rocketmq/rocketmq-all-{{ rocketmq_version }}-bin-release.zip
+rocketmq_abs_dir: "{{ parent_dir }}/rocketmq-all-{{ rocketmq_version }}-bin-release"
+
+nameserver_ip: 127.0.0.1
+nameserver_abs_binary: "{{ rocketmq_abs_dir }}/bin/mqnamesrv"
+broker_abs_binary: "{{ rocketmq_abs_dir }}/bin/mqbroker"
+rocketmq_cluster_name: DefaultCluster
+
+
+### rocketmq dashboard
+rocketmq_dashboard_port: 7897
+rocketmq_dashboard_url: https://{{ oss_url }}/rocketmq/rocketmq-dashboard-1.0.1-SNAPSHOT.jar
+rocketmq_dashboard_package: rocketmq-dashboard-1.0.1-SNAPSHOT.jar
+rocketmq_dashboard_abs_dir: "{{ parent_dir }}/rocket_dashboard"
+
+
+
+### rocketmq topic list
+rocketmq_topic_list: 
+- business_exception
+- open_ebay_topic
+- crp-collect-data-notice
+- crp-data-portal-topic
+- prm_mapping_topic
+- mdm_goods_business_cus_life_cycle_detail
+- crp-file-upload
+- crp-collect-task-notice
+- crp-collect-list
+- cop-collect-task-notice
+- open_amazon_feed_mark_shipped_result_topic
+- cop-file-upload
+- prm-listing-event
+- crp-collect-realtime
+- flow_center_gener_work_flow
+- open_monitor_req_log_topic
+- cop-plat-site-data-sync
+- prm_trunk_async_task_event
+- vevor-prm-listing
+- cop-collect-list
+- crp-isv-plat-site-product
+- open_cancel_order_to_scp_topic
+- center-download-test
+- cop-plat-site-ads-data-sync
+- prm-listing-handle-task

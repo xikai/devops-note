@@ -1,0 +1,56 @@
+- hosts: localhost
+  roles:
+    - nginx-al2
+    - php-al2
+  vars:
+    php_version: '7.2'
+    nginx_remove_default_vhost: true
+    nginx_vhosts:
+      - listen: "80"
+        server_name: "demo.example.com"
+        root: "/var/www/html"
+        access_log: "/var/log/nginx/demo.access.log"
+        error_log: "/var/log/nginx/demo.error.log"
+        index: "index index.html index.htm index.php"
+        state: "present"
+        template: "{{ nginx_vhost_template }}"
+        extra_parameters: |
+          location / {
+              try_files $uri $uri/ /index.php?$query_string;
+          }
+
+          location ~ \.php$ {
+              fastcgi_pass   unix:/run/php-fpm/www.sock;
+              fastcgi_index  index.php;
+              fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+              include        fastcgi_params;
+          }
+      - listen: "80"
+        server_name: "demo2.example.com"
+        root: "/var/www/html"
+        access_log: "/var/log/nginx/demo2.access.log"
+        error_log: "/var/log/nginx/demo2.error.log"
+        index: "index index.html index.htm index.php"
+        state: "present"
+        template: "{{ nginx_vhost_template }}"
+        extra_parameters: |
+          location / {
+              try_files $uri $uri/ /index.php?$query_string;
+          }
+
+          location ~ \.php$ {
+              fastcgi_pass   unix:/run/php-fpm/www.sock;
+              fastcgi_index  index.php;
+              fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+              include        fastcgi_params;
+          }
+
+  tasks:
+    - name: Ensure code dir exists
+      file:
+        path: /var/www/html
+        state: directory
+
+    - name: add phpinfo demo project
+      shell: echo -e "<?php\nphpinfo();" >/var/www/html/index.php
+        

@@ -1,0 +1,28 @@
+---
+
+- name: setup
+  include_tasks: setup.yml
+  tags: setup
+
+- name: sync conf
+  include_tasks: conf.yml 
+  tags: conf
+
+- name: start service
+  include_tasks: start.yml
+  tags: start
+
+- name: check 
+  include_tasks: check.yml
+  tags: check
+
+- name: dashboard start 
+  include_tasks: dashboard_start.yml
+  tags: dashboard
+
+
+- name: create necessary topic in first initial
+  include_tasks: create_topic.yml
+  tags: 
+  - topic
+  - never

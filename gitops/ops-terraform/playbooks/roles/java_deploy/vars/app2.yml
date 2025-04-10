@@ -1,0 +1,12 @@
+service_name:
+- "crp-component-admin-service"
+- "mdm-goods-synchronized-service"
+- "cop-dct-service"
+- "mdm-goods-data-service"
+- "cop-data-extract-service"
+- "cop-application-open-service"
+- "center-download-service"
+- "crp-collector-admin-service"
+- "crp-collector-service"
+- "crp-file-upload-service"
+- "crp-data-portal-service"

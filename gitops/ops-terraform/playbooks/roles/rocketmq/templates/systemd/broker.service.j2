@@ -1,0 +1,17 @@
+[Unit]
+Description=rocketmq - broker-master-2
+Documentation=rocketmq broker
+After=network.target
+
+[Service]
+Type=sample
+User=root
+Environment="JAVA_HOME={{ java_home }}"
+ExecStart={{  broker_abs_binary }} -n 127.0.0.1:9876 -c {{ rocketmq_abs_dir }}/conf/broker.conf
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+Restart=0
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

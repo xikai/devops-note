@@ -138,10 +138,12 @@ fields @timestamp, @message
 
 
 ### [waf示例](https://repost.aws/zh-Hans/knowledge-center/waf-analyze-logs-stored-cloudwatch-s3)
-* 筛选跨站点脚本或 SQL 注入的waf日志
+
+
+* 过滤指定requestId的waf日志
 ```sh
-fields @timestamp, terminatingRuleId, action, httpRequest.clientIp as ClientIP, httpRequest.country as Country, terminatingRuleMatchDetails.0.conditionType as ConditionType, terminatingRuleMatchDetails.0.location as Location, terminatingRuleMatchDetails.0.matchedData.0 as MatchedData
-| filter ConditionType in["XSS","SQL_INJECTION"]
+fields @timestamp, @message
+| filter (httpRequest.requestId="hF7F0QCIYprOwn4eTB-7GoxnR2WGZp8XCikA53hMcpg-61Qsepjjng==")
 ```
 
 * 过滤请求/api/encipher/upload，被AWSManagedRulesSQLiRuleSet拒绝的waf日志
@@ -149,16 +151,41 @@ fields @timestamp, terminatingRuleId, action, httpRequest.clientIp as ClientIP, 
 fields @timestamp, @message
 | filter (httpRequest.uri="/api/encipher/upload" and terminatingRuleId="AWS-AWSManagedRulesSQLiRuleSet" and action="BLOCK")
 ```
-* 过滤请求指定IP，被AWSManagedRulesSQLiRuleSet拒绝的waf日志
+
+* 筛选跨站点脚本或 SQL 注入的waf日志
 ```sh
-fields @timestamp, httpRequest.clientIp as ClientIP, httpRequest.uri as URI, terminatingRuleId as rule
-| filter action = "BLOCK" and httpRequest.clientIp == "193.124.185.62"
-| sort @timestamp desc
+fields @timestamp, terminatingRuleId, action, httpRequest.clientIp as ClientIP, httpRequest.country as Country, terminatingRuleMatchDetails.0.conditionType as ConditionType, terminatingRuleMatchDetails.0.location as Location, terminatingRuleMatchDetails.0.matchedData.0 as MatchedData
+| filter ConditionType in ["XSS","SQL_INJECTION"]
 ```
+```sh
+fields @timestamp
+| parse @message '"terminatingRuleMatchDetails":[*]' as terminatingRuleMatchData
+| filter (terminatingRuleMatchData like /XSS/ or terminatingRuleMatchData like /SQL/)
+| display @timestamp, terminatingRuleMatchData
+```
+
+* 筛选cookie中包含XSS跨站点脚本的waf日志
+```
+fields @timestamp
+| parse @message '"terminatingRuleMatchDetails":[{*}]' as terminatingRuleMatchDetails
+| filter action="BLOCK" and terminatingRuleMatchDetails like /XSS/ and terminatingRuleMatchDetails like /cookie/
+| display @timestamp, action, terminatingRuleMatchDetails
+```
+
 * 过滤被AWSManagedRulesSQLiRuleSet规则BLOCK的waf日志，并对ClientIP去重
 ```sh
 fields @timestamp, httpRequest.clientIp as ClientIP, httpRequest.uri as URI, terminatingRuleId as rule
 | filter action = "BLOCK" and terminatingRuleId="AWS-AWSManagedRulesSQLiRuleSet"
 | sort @timestamp desc
 | dedup ClientIP
+```
+
+* 模糊搜索header中的User-Agent字段，并返回包含指定User-Agent值的所有日志
+```sh
+fields @timestamp
+| parse @message '"name":"User-Agent","value":"*"' as user_agent
+| filter isPresent(user_agent) and user_agent like /(?i)(GoogleBot)/ and action="BLOCK"
+| sort @timestamp desc
+| limit 20
+| display @timestamp, action, terminatingRuleId, user_agent
 ```

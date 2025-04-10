@@ -1,0 +1,30 @@
+#!/bin/bash
+set -x
+
+# mount data volume
+device_name=`lsblk -p|grep disk|tail -n 1|awk '{print $1}'`
+mount_p="${mount_data_dir}"
+mkdir $mount_p
+mkfs.xfs $device_name
+UUID=$(blkid -s UUID -o value "$device_name")
+echo "UUID=$UUID $mount_p  xfs  defaults  0  0" >> /etc/fstab
+mount $device_name $mount_p
+
+# install ansible、git
+yum install -y ansible git telnet unzip bind-utils lrzsz
+
+oss_url="${oss_region}.aliyuncs.com"
+
+# pull playbook yaml
+rm -rf /srv/ops-terraform
+git clone -b xikai https://oauth2:${git_token}@codeup.aliyun.com/newvevor-devops/ops-terraform.git /srv/ops-terraform
+
+# 安装依赖
+pip3 install pymysql
+curl -o /tmp/community-mysql-3.9.0.tar.gz https://vevor-packages.oss-cn-shanghai.aliyuncs.com/mysql/community-mysql-3.9.0.tar.gz
+ansible-galaxy collection install /tmp/community-mysql-3.9.0.tar.gz
+
+# 执行playbook
+%{ for playbook in playbooks }
+ansible-playbook -v -e "oss_url=$oss_url" /srv/ops-terraform/${playbook} >> /tmp/start.log 2>&1
+%{ endfor }

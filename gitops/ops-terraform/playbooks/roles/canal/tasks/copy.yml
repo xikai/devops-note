@@ -1,0 +1,10 @@
+- name: copy config file
+  template:
+    src: "canal.properties.j2"
+    dest: "{{ server_base_path }}/canal/conf/canal.properties"
+    force: true
+
+- name: sync canal_instance dir
+  synchronize:
+    src: "{{ role_path }}/example"
+    dest: "{{ server_base_path }}/canal/conf/"

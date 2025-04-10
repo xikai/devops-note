@@ -1,0 +1,100 @@
+- name: Uninstall MariaDB-libs
+  yum:
+    name: "mariadb-libs"
+    state: absent
+  no_log: true
+
+- name: Download MySQL RPM packages
+  get_url:
+    url: "{{ mysql_rpm_url }}/{{ item }}"
+    dest: "/tmp/{{ item }}"
+  with_items: "{{ mysql_rpm_packages }}"
+  no_log: true
+
+- name: Install MySQL RPM packages
+  yum:
+    name: "/tmp/{{ item }}"
+    state: present
+  with_items: "{{ mysql_rpm_packages }}"
+  no_log: true
+
+- name: Copy custom MySQL configuration file
+  template:
+    src: "my.cnf.j2"
+    dest: "/etc/my.cnf"
+    owner: root
+    group: root
+    mode: "0644"
+  no_log: true
+
+- name: Change file ownership, group and permissions
+  file:
+    path: /data/mysql
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: "0755"
+    recurse: yes
+  no_log: true
+
+- name: Enable and start MySQL service
+  systemd:
+    name: mysqld
+    enabled: yes
+    state: started
+  no_log: true
+
+- name: Get MySQL initial password
+  command: awk '/temporary password/{print $NF}' /var/log/mysqld.log
+  register: temp_password
+  no_log: true
+
+- name: Set new MySQL root password
+  command: mysql -p'{{ temp_password.stdout }}' --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ db_password }}';"
+  no_log: true
+
+- name: Find all SQL files in the directory
+  find:
+    paths: "{{ sql_dir }}"
+    patterns: "*.sql"
+  register: sql_files
+  no_log: true
+
+- name: Set Python interpreter
+  set_fact:
+    ansible_python_interpreter: "/usr/bin/python3"
+  no_log: true
+
+- name: Execute SQL command to set password policy
+  community.mysql.mysql_query:
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_password }}"
+    query: "SET GLOBAL validate_password.policy = 'LOW';"
+  no_log: true
+  ignore_errors: true
+
+- name: Import SQL files to the database
+  community.mysql.mysql_db:
+    name: "{{ db_name }}"
+    state: import
+    target: "{{ item.path }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_password }}"
+  with_items: "{{ sql_files.files }}"
+  no_log: true
+  ignore_errors: true
+
+- name: Execute SQL command to set password policy
+  community.mysql.mysql_query:
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_password }}"
+    query: "SET GLOBAL validate_password.policy = 'MEDIUM';"
+  no_log: true
+  ignore_errors: true
+
+- name: Remove the local RPM packages from the remote host (optional)
+  file:
+    path: "/tmp/{{ item }}"
+    state: absent
+  with_items: "{{ mysql_rpm_packages }}"
+  no_log: true

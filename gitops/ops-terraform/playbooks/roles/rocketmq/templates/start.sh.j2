@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export JAVA_HOME="{{ java_home }}"
+export JAVA="$JAVA_HOME/bin/java"
+
+nohup java -Dserver.port={{ rocketmq_dashboard_port }} -Drocketmq.namesrv.addr={{ nameserver_ip }}:{{ rocketmq_port }} -jar {{ rocketmq_dashboard_abs_dir }}/{{ rocketmq_dashboard_package }} &> {{ rocketmq_dashboard_abs_dir }}/dashboard.out &

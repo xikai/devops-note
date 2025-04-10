@@ -1,0 +1,39 @@
+- name: create apollo_portal directory
+  file:
+    path: '{{ apollo_home }}/{{ apollo_portal }}'
+    state: directory
+
+- name: unzip '{{ apollo_portal_package }}'
+  unarchive:
+    src: '{{ apollo_portal_url }}'
+    dest: '{{ apollo_home }}/{{ apollo_portal }}'
+    remote_src: yes
+  tags: unzip 
+
+- name: copy mysql configuration template
+  template:
+    src: 'application-portal-{{ env }}.j2'
+    dest: '{{ apollo_home }}/{{ apollo_portal }}/config/application-github.properties'
+
+
+- name: copy env dns template
+  template:
+    src: apollo-env.properties.j2
+    dest: '{{ apollo_home }}/{{ apollo_portal }}/config/apollo-env.properties'
+
+# - name: copy systemd file
+#   template:
+#     src: 'application-portal-systemd.j2'
+#     dest: '/etc/systemd/system/{{ apollo_portal }}.service'
+
+# - name: systemd '{{ apollo_portal }}'
+#   systemd:
+#     name: apollo-portal
+#     daemon_reload: yes
+#     enabled: yes
+#   notify: start {{ apollo_portal }}
+
+- name: Start Apollo portal
+  shell: '/bin/bash "{{ apollo_home }}/{{ apollo_portal }}/scripts/startup.sh" '
+  environment: 
+    JAVA_HOME: "{{ java_home }}"

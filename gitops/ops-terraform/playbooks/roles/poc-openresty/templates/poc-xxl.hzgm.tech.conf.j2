@@ -1,0 +1,19 @@
+server {
+    allow 118.186.13.138;#北京
+    allow 103.85.179.136;#北京新
+    allow 58.33.106.130;#上海
+    allow 171.88.165.207;#成都
+    allow 39.170.19.200;#杭州
+    allow 183.11.233.147;#南山
+    deny all;
+    listen 80;
+    server_name poc-xxl.{{ domain }};
+    location / {
+       proxy_pass http://172.30.0.8:8070;
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+     }
+
+}

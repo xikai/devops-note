@@ -1,0 +1,8 @@
+cluster.name: es
+node.name: node-1
+path.data: {{ data_path }}/elasticsearch/data
+path.logs: {{ data_path }}/elasticsearch/logs
+network.host: 0.0.0.0
+http.port: 9200
+discovery.seed_hosts: ["127.0.0.1"]
+cluster.initial_master_nodes: ["node-1"]

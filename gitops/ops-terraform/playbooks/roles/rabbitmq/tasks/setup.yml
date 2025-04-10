@@ -1,0 +1,90 @@
+- name: Ensure group 'rabbitmq' exists
+  group:
+    name: rabbitmq
+    state: present
+
+- name: Add the user 'rabbitmq' with a primary group of 'rabbitmq'
+  user:
+    name: rabbitmq
+    group: rabbitmq
+
+- name: Ensure rabbitmq data dir exists
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /data/rabbitmq/mnesia
+    - /data/rabbitmq/log
+
+- name: Change file ownership, group and permissions
+  file:
+    path: /data/rabbitmq
+    state: directory
+    owner: rabbitmq
+    group: rabbitmq
+    mode: "0755"
+    recurse: yes
+
+- name: Copy the erlang repo file
+  template:
+    src: rabbitmq_erlang.repo.j2
+    dest: /etc/yum.repos.d/rabbitmq_erlang.repo
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: installe erlang
+  yum:
+    name:
+      - erlang
+    state: latest
+
+- name: Download binary distribution package for rabbitmq
+  get_url:
+    url: https://{{ oss_url }}/rabbitmq/rabbitmq-server-generic-unix-3.7.28.tar.xz
+    dest: /tmp/rabbitmq-server-generic-unix-3.7.28.tar.xz
+
+- name: Unpack binary for rabbitmq
+  unarchive:
+    src: /tmp/rabbitmq-server-generic-unix-3.7.28.tar.xz
+    dest: /usr/local
+    remote_src: yes
+
+- name: Create a symbolic link for rabbitmq
+  file:
+    src: /usr/local/rabbitmq_server-3.7.28
+    dest: /usr/local/rabbitmq
+    owner: rabbitmq
+    group: rabbitmq
+    state: link
+
+- name: Change file ownership, group and permissions
+  file:
+    path: /usr/local/rabbitmq_server-3.7.28
+    owner: rabbitmq
+    group: rabbitmq
+    mode: "0755"
+    recurse: yes
+
+- name: Copy the rabbitmq-env conf file
+  template:
+    src: rabbitmq-env.conf.j2
+    dest: /usr/local/rabbitmq/etc/rabbitmq/rabbitmq-env.conf
+    owner: rabbitmq
+    group: rabbitmq
+    mode: "0644"
+
+- name: Copy the rabbitmq service file
+  template:
+    src: rabbitmq-server.service.j2
+    dest: /usr/lib/systemd/system/rabbitmq-server.service
+    owner: rabbitmq
+    group: rabbitmq
+    mode: "0644"
+
+- name: start rabbitmq-server
+  systemd:
+    daemon_reload: yes
+    name: rabbitmq-server
+    enabled: yes
+    state: started

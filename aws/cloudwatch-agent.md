@@ -73,6 +73,7 @@ rpm -U ./amazon-cloudwatch-agent.rpm
 ### systemd启动
 ```sh
 # /etc/systemd/system/amazon-cloudwatch-agent.service
+# /opt/aws/amazon-cloudwatch-agent/bin/start-amazon-cloudwatch-agent
 systemctl start amazon-cloudwatch-agent
 systemctl enable amazon-cloudwatch-agent
 ```

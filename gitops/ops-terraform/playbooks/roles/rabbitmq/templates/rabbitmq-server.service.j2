@@ -1,0 +1,18 @@
+[Unit]
+Description=Rabbitmq Server
+Documentation=http://www.rabbitmq.com
+Requires=network.target remote-fs.target
+After=network.target remote-fs.target
+
+[Service]
+Type=simple
+User=rabbitmq
+Group=rabbitmq
+LimitNOFILE=65535
+LimitNPROC=65535
+ExecStart=/usr/local/rabbitmq/sbin/rabbitmq-server start
+ExecStop=/usr/lib/rabbitmq/bin/rabbitmqctl stop
+ExecStop=/bin/sh -c "while ps -p $MAINPID >/dev/null 2>&1; do sleep 1; done"
+
+[Install]
+WantedBy=multi-user.target

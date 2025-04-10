@@ -1,0 +1,36 @@
+---
+
+- name: Replace mqnamesrv
+  template:
+    src: mqnamesrv
+    dest: "{{ rocketmq_abs_dir }}/bin/mqnamesrv"
+    mode: 0755
+
+- name: Replace mqbroker
+  template:
+    src: mqbroker
+    dest: "{{ rocketmq_abs_dir }}/bin/mqbroker"
+    mode: 0755
+
+- name: Make sure systemd for broker
+  template:
+    src: "systemd/broker.service.j2"
+    dest: /etc/systemd/system/broker.service
+
+- name: Make sure systemd for nameserv
+  template:
+    src: "systemd/nameserver.service.j2"
+    dest: /etc/systemd/system/nameserver.service
+
+- name: Change namesrv jvm
+  lineinfile:
+    path: '{{ rocketmq_abs_dir }}/bin/runserver.sh'
+    regexp: '^JAVA_OPT=\"\${JAVA_OPT} -server -Xms.*'
+    line: 'JAVA_OPT="${JAVA_OPT} -server -Xms{{ [ansible_memtotal_mb // 4, 4096] | min }}m -Xmx{{ [ansible_memtotal_mb // 4, 4096] | min }}m -Xmn{{ [ansible_memtotal_mb // 8, 2048] | min }}m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m"'
+
+- name: Change broker jvm
+  lineinfile:
+    path: '{{ rocketmq_abs_dir }}/bin/runbroker.sh'
+    regexp: '^JAVA_OPT=\"\${JAVA_OPT} -server -Xms.*'
+    line: 'JAVA_OPT="${JAVA_OPT} -server -Xms{{ [ansible_memtotal_mb // 2, 8192] | min }}m -Xmx{{ [ansible_memtotal_mb // 2, 8192] | min }}m -Xmn{{ [ansible_memtotal_mb // 4, 4096] | min }}m"'
+

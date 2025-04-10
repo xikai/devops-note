@@ -1,0 +1,42 @@
+---
+# enable rabbitmq management
+- name: enable rabbitmqmanagement
+  shell: "/usr/local/rabbitmq/sbin/rabbitmq-plugins enable rabbitmq_management"
+  register: rabbitmqmg
+
+- name: restart rabbitmq makes management enabled 
+  systemd:
+    name: rabbitmq-server
+    state: restarted
+  when: rabbitmqmg.rc == 0
+
+- name: wait for rabbitmq management port listen
+  wait_for:
+    port: 15672
+    state: present
+    timeout: 60
+
+# download and install rabbitmqadmin 
+- name: download rabbitmqadmin 
+  get_url:
+    url: https://{{ oss_url }}/rabbitmq/rabbitmqadmin-3.7.x
+    dest: /tmp/rabbitmqadmin
+
+- name: copy rabbitmqadmin to path
+  copy:
+    src: /tmp/rabbitmqadmin
+    dest: /usr/local/bin/rabbitmqadmin
+    mode: '0755'
+    remote_src: true
+
+- name: checkout if rabbitmqadmin exists
+  stat:
+    path: /usr/local/bin/rabbitmqadmin
+  register: rabbitmaadmin_sp 
+
+- block:
+  - name: create exchange type direct
+    shell: "/usr/local/bin/rabbitmqadmin declare exchange name='{{ item }}'  type=direct"
+    loop: 
+    - "{{ exchange_list }}"
+  when: rabbitmaadmin_sp.stat.exists == true

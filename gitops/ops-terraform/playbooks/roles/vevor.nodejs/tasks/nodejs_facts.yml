@@ -1,0 +1,24 @@
+---
+- name: Nodejs version
+  set_fact:
+    nodejs_full_version: "{{ nodejs_version }}"
+
+- name: Download Url
+  set_fact:
+    download_url: "https://{{ oss_url }}/nodejs/node-{{ nodejs_full_version }}-linux-x64.tar.xz"
+
+- debug: 
+    msg: "Nodejs Version: {{ nodejs_version }}"
+
+- debug:
+    msg: "URL is {{ download_url }}"
+
+- name: Determine Nodejs installation directory
+  set_fact:
+    nodejs_install_directory: "{{ nodejs_target_directory }}/node-{{ nodejs_version }}-linux-x64"
+    nodejs_install_link_directory: "{{ nodejs_target_directory }}/node"
+
+- name: Check if Nodejs is installed
+  shell: locate /bin/npm 
+  register: node_exists
+  ignore_errors: yes

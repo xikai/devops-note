@@ -1,0 +1,38 @@
+version: '3.2'
+services:
+  rocketmq_namesrv:
+    image: ${image_url}/rocketmq:5.0.0
+    container_name: rocketmq_namesrv
+    restart: always
+    privileged: true
+    volumes:
+      - /data/rocketmq/nameserver/logs:/home/rocketmq/logs
+    environment:
+      - MAX_HEAP_SIZE=256M
+      - HEAP_NEWSIZE=128M
+    command: ["sh", "mqnamesrv"]
+    network_mode: "host"
+  rocketmq_broker:
+    image: ${image_url}/rocketmq:5.0.0
+    container_name: rocketmq_broker
+    restart: always
+    privileged: true
+    volumes:
+      - /data/rocketmq/store:/home/rocketmq/store
+      - /data/rocketmq/conf:/home/rocketmq/rocketmq-5.0.0/conf
+    depends_on:
+      - 'rocketmq_namesrv'
+    environment:
+      - NAMESRV_ADDR=127.0.0.1:9876
+    command: ["sh", "mqbroker", "-n 127.0.0.1:9876", "--enable-proxy"]
+    network_mode: "host"
+  rmqdashboard:
+    image: ${image_url}/rocketmq-dashboard:latest
+    container_name: rocketmq-dashboard
+    restart: always
+    privileged: true
+    depends_on:
+      - 'rocketmq_namesrv'
+    environment:
+      - JAVA_OPTS= -Xmx256M -Xms256M -Xmn128M -Dserver.port=7897 -Drocketmq.namesrv.addr=127.0.0.1:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false
+    network_mode: "host"

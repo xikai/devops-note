@@ -598,7 +598,7 @@ systemctl restart openvpn@server
 ```
 
 
-# 通过openvpn服国器代理转发流量到客户端
+# 通过openvpn服务器代理转发流量到客户端
 ```
 openvpn服务器公有IP：120.79.20.71
 openvpn服务器私有IP：172.16.14.139

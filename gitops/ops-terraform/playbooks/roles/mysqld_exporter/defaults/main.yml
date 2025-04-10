@@ -1,0 +1,6 @@
+mysqld_exporter_web_listen_address: "0.0.0.0:9104"
+mysqld_exporter_web_telemetry_path: "/metrics"
+
+_mysqld_exporter_system_group: "ec2-user"
+_mysqld_exporter_system_user: "{{ _mysqld_exporter_system_group }}"
+_mysqld_exporter_binary_install_dir: "/usr/local/mysqld_exporter"

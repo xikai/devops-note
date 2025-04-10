@@ -1,0 +1,6 @@
+- name: start tomcat and jenkins
+  systemd:
+    daemon_reload: yes
+    name: tomcat
+    enabled: yes
+    state: started

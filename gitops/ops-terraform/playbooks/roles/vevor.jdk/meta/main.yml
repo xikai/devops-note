@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: Mario Steinhoff
+  description: Downloads and installs the Oracle Java SDK.
+  license: MPLv2
+  min_ansible_version: 20
+  platforms:
+    - name: EL
+      versions:
+        - 6
+  galaxy_tags:
+    - java
+    - oracle
+    - jdk

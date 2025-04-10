@@ -1,0 +1,12 @@
+mysql_rpm_url: "https://vevor-packages.oss-cn-shanghai.aliyuncs.com/mysql"
+mysql_rpm_packages:
+  - "mysql-community-common-5.7.32-1.el7.x86_64.rpm"
+  - "mysql-community-libs-5.7.32-1.el7.x86_64.rpm"
+  - "mysql-community-libs-compat-5.7.32-1.el7.x86_64.rpm"
+  - "mysql-community-client-5.7.32-1.el7.x86_64.rpm"
+  - "mysql-community-server-5.7.32-1.el7.x86_64.rpm"
+
+db_user: "root"
+db_password: "kgSlQG1.GPb@u2mI"
+db_name: "mysql"
+sql_dir: "/srv/ops-terraform/docker/mysql/sqls"

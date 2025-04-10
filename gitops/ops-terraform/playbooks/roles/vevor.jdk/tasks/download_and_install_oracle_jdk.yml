@@ -1,0 +1,49 @@
+---
+- block:
+  - name: Create Oracle JDK directory
+    file:
+      state: directory
+      path: "{{ java_oracle_jdk_install_directory }}"
+      owner: root
+      group: root
+      mode: "u=rwx,go=rx"
+
+  - name: Create temporary download directory
+    shell: mktemp -d
+    register: tempdir_command_output
+
+  - name: Determine path of temporary download directory
+    set_fact:
+      java_oracle_jdk_download_directory: "{{ tempdir_command_output.stdout }}"
+
+  - name: Determine Java download url
+    set_fact:
+      jdk_tarball_url: "{{ java_oracle_jdk_download_info[java_oracle_jdk_version][java_oracle_jdk_subversion].url }}.tar.gz"
+
+  - name: Download Oracle JDK tar.gz file
+    get_url:
+      url: "{{ jdk_tarball_url }}"
+      headers:
+        Cookie: oraclelicense=accept-securebackup-cookie
+      dest: "{{ java_oracle_jdk_download_directory }}/{{ jdk_tarball_url | basename }}"
+
+  - name: Extract Oracle JDK tar.gz file
+    unarchive:
+      src: "{{ java_oracle_jdk_download_directory }}/{{ jdk_tarball_url | basename }}"
+      dest: "{{ java_oracle_jdk_target_directory }}"
+      owner: root
+      group: root
+      mode: "go-w"
+      copy: no
+
+  rescue:
+  - name: Remove Oracle JDK directory
+    file:
+      state: absent
+      path: "{{ java_oracle_jdk_install_directory }}"
+
+  always:
+  - name: Remove temporary download directory
+    file:
+      state: absent
+      path: "{{ java_oracle_jdk_download_directory }}"

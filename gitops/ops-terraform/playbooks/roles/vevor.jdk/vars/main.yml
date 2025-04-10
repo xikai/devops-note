@@ -1,0 +1,82 @@
+---
+java_oracle_jdk_download_info:
+  7:
+    75:
+      version_name: 1.7.0_75
+      url: http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jdk-7u75-linux-{{ jdk_arch }}
+    80:
+      version_name: 1.7.0_80
+      url: http://download.oracle.com/otn-pub/java/jdk/7u80-b15/jdk-7u80-linux-{{ jdk_arch }}
+  8:
+    0:
+      version_name: 1.8.0
+      url: http://download.oracle.com/otn-pub/java/jdk/8-b132/jdk-8-linux-{{ jdk_arch }}
+    5:
+      version_name: 1.8.0_5
+      url: http://download.oracle.com/otn-pub/java/jdk/8u5-b13/jdk-8u5-linux-{{ jdk_arch }}
+    11:
+      version_name: 1.8.0_11
+      url: http://download.oracle.com/otn-pub/java/jdk/8u11-b12/jdk-8u11-linux-{{ jdk_arch }}
+    20:
+      version_name: 1.8.0_20
+      url: http://download.oracle.com/otn-pub/java/jdk/8u20-b26/jdk-8u20-linux-{{ jdk_arch }}
+    25:
+      version_name: 1.8.0_25
+      url: http://download.oracle.com/otn-pub/java/jdk/8u25-b17/jdk-8u25-linux-{{ jdk_arch }}
+    31:
+      version_name: 1.8.0_31
+      url: http://download.oracle.com/otn-pub/java/jdk/8u31-b13/jdk-8u31-linux-{{ jdk_arch }}
+    45:
+      version_name: 1.8.0_45
+      url: http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jdk-8u45-linux-{{ jdk_arch }}
+    51:
+      version_name: 1.8.0_51
+      url: http://download.oracle.com/otn-pub/java/jdk/8u51-b16/jdk-8u51-linux-{{ jdk_arch }}
+    60:
+      version_name: 1.8.0_60
+      url: http://download.oracle.com/otn-pub/java/jdk/8u60-b27/jdk-8u60-linux-{{ jdk_arch }}
+    65:
+      version_name: 1.8.0_65
+      url: http://download.oracle.com/otn-pub/java/jdk/8u65-b17/jdk-8u65-linux-{{ jdk_arch }}
+    66:
+      version_name: 1.8.0_66
+      url: http://download.oracle.com/otn-pub/java/jdk/8u66-b17/jdk-8u66-linux-{{ jdk_arch }}
+    72:
+      version_name: 1.8.0_72
+      url: http://download.oracle.com/otn-pub/java/jdk/8u72-b15/jdk-8u72-linux-{{ jdk_arch }}
+    73:
+      version_name: 1.8.0_73
+      url: http://download.oracle.com/otn-pub/java/jdk/8u73-b02/jdk-8u73-linux-{{ jdk_arch }}
+    74:
+      version_name: 1.8.0_74
+      url: http://download.oracle.com/otn-pub/java/jdk/8u74-b02/jdk-8u74-linux-{{ jdk_arch }}
+    77:
+      version_name: 1.8.0_77
+      url: http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-{{ jdk_arch }}
+    91:
+      version_name: 1.8.0_91
+      url: http://download.oracle.com/otn-pub/java/jdk/8u91-b14/jdk-8u91-linux-{{ jdk_arch }}
+    92:
+      version_name: 1.8.0_92
+      url: http://download.oracle.com/otn-pub/java/jdk/8u92-b14/jdk-8u92-linux-{{ jdk_arch }}
+    101:
+      version_name: 1.8.0_101
+      url: http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-{{ jdk_arch }}
+    102:
+      version_name: 1.8.0_102
+      url: http://download.oracle.com/otn-pub/java/jdk/8u102-b14/jdk-8u102-linux-{{ jdk_arch }}
+    111:
+      version_name: 1.8.0_111
+      url: http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-linux-{{ jdk_arch }}
+    112:
+      version_name: 1.8.0_112
+      url: http://download.oracle.com/otn-pub/java/jdk/8u112-b15/jdk-8u112-linux-{{ jdk_arch }}
+    131:
+      version_name: 1.8.0_131
+      url: http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-{{ jdk_arch }}
+    192:
+      version_name: 1.8.0_192
+      url: http://download.oracle.com/otn-pub/java/jdk/8u192-b12/750e1c8617c5452694857ad95c3ee230/jdk-8u192-linux-{{ jdk_arch }}
+    231:
+      version_name: 1.8.0_231
+      url: "https://{{ oss_url }}/jdk/jdk-18-231"

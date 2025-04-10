@@ -1,0 +1,28 @@
+#!/bin/bash
+set -x
+
+# mount data volume
+device_name="/dev/sdh"
+mount_p="${mount_data_dir}"
+mkdir $mount_p
+mkfs.xfs $device_name
+UUID=$(blkid -s UUID -o value "$device_name")
+echo "UUID=$UUID $mount_p  xfs  defaults  0  0" >> /etc/fstab
+mount $device_name $mount_p
+
+# install ansible、git
+# pip3 install ansible==2.9.7
+# cp -a /usr/local/bin/ansible* /bin/
+# yum install -y git
+amazon-linux-extras install epel -y
+yum install -y git ansible telnet unzip bind-utils lrzsz
+
+oss_url="${oss_region}.aliyuncs.com"
+
+# pull playbook yaml
+rm -rf /srv/ops-terraform
+git clone https://oauth2:${git_token}@codeup.aliyun.com/newvevor-devops/ops-terraform.git /srv/ops-terraform
+
+%{ for playbook in playbooks }
+ansible-playbook -v -e "oss_url=$oss_url project=${project} env=${env} server_id=${server_id}" /srv/ops-terraform/${playbook} >> /tmp/start.log 2>&1
+%{ endfor }

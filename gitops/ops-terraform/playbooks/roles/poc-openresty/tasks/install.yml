@@ -1,0 +1,63 @@
+- name: install openresty
+  yum:
+    name: openresty
+    state: latest
+
+- name: copy config file
+  template:
+    src: "nginx.conf.j2"
+    dest: "{{ server_base_path }}/nginx/conf/nginx.conf"
+    force: true
+
+- name: Find template files
+  find:
+    paths: "{{ role_path }}/templates"
+    patterns: "poc-*.hzgm.tech.conf.j2"
+  register: template_files
+
+- name: Copy and render template files
+  template:
+    src: "{{ item.path }}"
+    dest: "{{ data_path }}/conf.d/{{ item.path | basename | regex_replace('\\.j2$', '') }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ template_files.files }}"
+
+- name: Install global npm packages
+  npm:
+    name: "{{ item }}"
+    global: yes
+    registry: https://registry.npmmirror.com
+  loop:
+    - pm2
+    - cross-env
+  environment:
+    PATH: "/usr/local/node/bin:{{ ansible_env.PATH }}"
+
+- name: Check if vevor-admin is running
+  shell: PM2_HOME='/root/.pm2' pm2 list | grep vevor-admin | wc -l
+  register: vevor_admin_count
+  changed_when: false
+  environment:
+    PATH: "/usr/local/node/bin:{{ ansible_env.PATH }}"
+
+- name: Start vevor-admin if not running
+  shell: PM2_HOME='/root/.pm2' cross-env CONFIG_ENV=hzgm pm2 start dist/main.js --name vevor-admin
+  args:
+    chdir: "{{ data_path }}/www/vevor-admin-ssr"
+  when: vevor_admin_count.stdout == "0"
+  environment:
+    PATH: "/usr/local/node/bin:{{ ansible_env.PATH }}"
+- name: List PM2 processes
+  shell: PM2_HOME='/root/.pm2' pm2 list
+  changed_when: false
+  environment:
+    PATH: "/usr/local/node/bin:{{ ansible_env.PATH }}"
+
+- name: Run start script
+  shell: bash -x start.sh
+  args:
+    chdir: "{{ data_path }}/www/vevor-admin-ssr"
+  environment:
+    PATH: "/usr/local/node/bin:{{ ansible_env.PATH }}"

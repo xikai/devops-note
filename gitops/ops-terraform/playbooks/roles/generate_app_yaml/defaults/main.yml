@@ -1,0 +1,35 @@
+---
+# defaults file for generate_yaml
+
+app_list:
+- {app_port: '8066', app_name: 'basic-data-service', git_url: 'git@codeup.aliyun.com:newvevor/vevor-basic/vevor-basic.git', jar_name: 'basic-data-service.jar', origin_jar_name: 'basic-data-service.jar'}
+- {app_port: '8016', app_name: 'business-monitor-service', git_url: 'git@codeup.aliyun.com:newvevor/monitor-platform/business-exception-monitor-platform.git', jar_name: 'business-monitor-service.jar', origin_jar_name: 'business-monitor-service.jar'}
+- {app_port: '8035', app_name: 'center-download-service', git_url: 'git@codeup.aliyun.com:newvevor/midware/center-download.git', jar_name: 'center-download-service.jar', origin_jar_name: 'center-download-service-*-RELEASE.jar'}
+- {app_port: '8091', app_name: 'center-user-service', git_url: 'git@codeup.aliyun.com:newvevor/user-center/center-user-service.git', jar_name: 'center-user-service.jar', origin_jar_name: 'center-user-service-*-RELEASE.jar'}
+- {app_port: '10020', app_name: 'cop-application-open-service', git_url: 'git@codeup.aliyun.com:newvevor/vevor-cop/cop-application-open.git', jar_name: 'cop-application-open-service.jar', origin_jar_name: 'cop-application-open-service.jar'}
+- {app_port: '10040', app_name: 'cop-data-extract-service', git_url: 'git@codeup.aliyun.com:newvevor/vevor-cop/cop-data-extract.git', jar_name: 'cop-data-extract-service.jar', origin_jar_name: 'cop-data-extract-service.jar'}
+- {app_port: '10010', app_name: 'cop-dct-service', git_url: 'git@codeup.aliyun.com:newvevor/vevor-cop/cop-dct.git', jar_name: 'cop-dct-service.jar', origin_jar_name: 'cop-data-transform-service.jar'}
+- {app_port: '8065', app_name: 'crp-collector-admin-service', git_url: 'git@codeup.aliyun.com:newvevor/vevor-crp/crp-collector-admin.git', jar_name: 'crp-collector-admin-service.jar', origin_jar_name: 'crp-collector-admin-starter-*.RELEASE.jar'}
+- {app_port: '8061', app_name: 'crp-collector-service', git_url: 'git@codeup.aliyun.com:newvevor/vevor-crp/crp-collector.git', jar_name: 'crp-collector-service.jar', origin_jar_name: 'crp-collector-starter-*.RELEASE.jar'}
+- {app_port: '8066', app_name: 'crp-component-admin-service', git_url: 'git@codeup.aliyun.com:newvevor/vevor-crp/crp-component.git', jar_name: 'crp-component-admin-service.jar', origin_jar_name: 'component-admin-starter-*-SNAPSHOT.jar'}
+- {app_port: '8064', app_name: 'crp-data-portal-service', git_url: 'git@codeup.aliyun.com:newvevor/vevor-crp/crp-data-portal.git', jar_name: 'crp-data-portal-service.jar', origin_jar_name: 'crp-data-portal-starter*spring-boot.jar'}
+- {app_port: '8089', app_name: 'crp-file-upload-service', git_url: 'git@codeup.aliyun.com:newvevor/vevor-crp/crp-file-upload.git', jar_name: 'crp-file-upload-service.jar', origin_jar_name: 'crp-file-upload-starter-*.RELEASE.jar'}
+- {app_port: '8085', app_name: 'flow-center-service', git_url: 'git@codeup.aliyun.com:newvevor/user-center/flow-center-service.git', jar_name: 'flow-center-service.jar', origin_jar_name: 'jflow-web.jar'}
+- {app_port: '8068', app_name: 'vevor-goods-blueprint-service', git_url: 'git@codeup.aliyun.com:newvevor/mdm/vevor-goods-blueprint.git ', jar_name: 'vevor-goods-blueprint-service.jar', origin_jar_name: 'vevor-goods-blueprint-service.jar'}
+- {app_port: '8983', app_name: 'guanmiao-erp', git_url: 'git@codeup.aliyun.com:newvevor/guanmiao-erp/guanmiao-erp.git', jar_name: 'guanmiao-erp.jar', origin_jar_name: 'erp-starter-*-SNAPSHOT.jar'}
+- {app_port: '8678', app_name: 'vevor-tag-center', git_url: 'git@codeup.aliyun.com:newvevor/mdm/vevor-tag-center.git', jar_name: 'vevor-tag-center.jar', origin_jar_name: 'tag-web-*-SNAPSHOT-spring-boot.jar'}
+- {app_port: '8600', app_name: 'mdm-goods-data-service', git_url: 'git@codeup.aliyun.com:newvevor/mdm/vevor-mdm-goods.git', jar_name: 'mdm-goods-data-service.jar', origin_jar_name: 'mdm-goods-data-service.jar'}
+- {app_port: '8666', app_name: 'mdm-goods-service', git_url: 'git@codeup.aliyun.com:newvevor/mdm/vevor-mdm.git', jar_name: 'mdm-goods-service.jar', origin_jar_name: 'mdm-goods-service-*-spring-boot.jar'}
+- {app_port: '8035', app_name: 'mdm-goods-synchronized-service', git_url: 'git@codeup.aliyun.com:newvevor/mdm/vevor-mdm.git', jar_name: 'mdm-goods-synchronized-service.jar', origin_jar_name: 'mdm-goods-synchronized-service-*-spring-boot.jar'}
+- {app_port: '8013', app_name: 'open-amazon-service', git_url: 'git@codeup.aliyun.com:newvevor/vevor-open-admin/open-amazon.git', jar_name: 'open-amazon-service.jar', origin_jar_name: 'open-amazon-service-*-spring-boot.jar'}
+- {app_port: '8020', app_name: 'open-center-service', git_url: 'git@codeup.aliyun.com:newvevor/vevor-open-admin/open-center.git', jar_name: 'open-center-service.jar', origin_jar_name: 'open-center-service.jar'}
+- {app_port: '8012', app_name: 'open-ebay-service', git_url: 'git@codeup.aliyun.com:newvevor/vevor-open-admin/open-ebay.git', jar_name: 'open-ebay-service.jar', origin_jar_name: 'open-ebay-service.jar'}
+- {app_port: '8087', app_name: 'prm-listing-service', git_url: 'git@codeup.aliyun.com:newvevor/prm/vevor-prm-listing.git', jar_name: 'prm-listing-service.jar', origin_jar_name: 'prm-listing-service-*-SNAPSHOT.jar'}
+- {app_port: '8000', app_name: 'vevor-gateway-lb', git_url: 'git@codeup.aliyun.com:newvevor/vevor-common/vevor-gateway-parent-lb.git', jar_name: 'vevor-gateway-lb.jar', origin_jar_name: 'vevor-gateway-lb-*-spring-boot.jar'}
+
+nacos_url: 172.21.1.195:8848
+
+# the path restore app jars
+jars_dir: /app/ansible/roles/poc-java-deploy/files
+
+

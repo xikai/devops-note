@@ -1,0 +1,38 @@
+- name: create java base directory
+  file:
+    name: '{{ item }}'
+    recurse: yes
+    state: directory
+  with_items:
+    - '{{ java_parent_dir }}'
+    - '{{ java_logs_dir }}'
+
+- name: create java project directory
+  file:
+    name: '{{ java_parent_dir }}/{{ item }}'
+    recurse: yes
+    state: directory
+  loop: '{{ service_name }}'
+
+- name: make sure deploy.sh exists
+  template:
+    src: deploy.sh.j2
+    mode: 0755
+    dest: '{{ java_parent_dir }}/{{ item }}/deploy.sh'
+  loop: "{{ service_name }}"
+
+- name: debug which service is
+  debug:
+    msg: "{{ item }}"
+  loop: "{{ service_name }}"
+
+
+- name: sync 'package ' to target
+  copy:
+    src: "{{ item }}.jar"
+    dest: "{{ java_parent_dir }}/{{ item }}/{{ item }}.jar"
+  loop: "{{ service_name }}"
+
+- name: start service
+  shell: "{{ java_parent_dir }}/{{ item }}/deploy.sh restart"
+  loop: "{{ service_name }}"

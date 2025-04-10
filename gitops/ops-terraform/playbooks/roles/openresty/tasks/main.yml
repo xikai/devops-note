@@ -1,0 +1,22 @@
+- name: download
+  import_tasks: download.yml
+  tags: download
+
+- name: install
+  import_tasks: install.yml
+  tags: install
+
+- name: copy file
+  import_tasks: copy.yml
+  tags: copy
+
+- name: start
+  import_tasks: start.yml
+  tags: start
+
+- name: reload
+  import_tasks: reload.yml
+  tags:
+    - reload
+    - never
+  
