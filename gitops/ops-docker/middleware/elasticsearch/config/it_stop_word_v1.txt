@@ -1,0 +1,1284 @@
+https://product-downloads.atlassian.com/software/confluence/downloads/atlassian-confluence-7.3.3-x64.bin
+
+
+
+
+./java -jar /opt/atlassian/confluence/bin/atlassian-agent.jar -p conf -m markwp@dingtalk.com -n pangshare -o https://localhost -s BIRP-DM2O-DRWN-IE0E
+
+
+00:0C:29:A5:63:FA
+
+
+grant all privileges on *.* to root@"%" identified by "java123@Service123";
+
+
+grant all on ApolloConfigDB.* to 'apollo'@'%' identified by 'Apollo@123456';
+grant all on ApolloPortalDB.* to 'apollo'@'%' identified by 'Apollo@123456';
+
+
+bind 127.0.0.1
+
+
+requirepass
+port 6379
+
+
+# unixsocket /tmp/redis.sock
+w
+config.vevor-test.com
+
+
+sed -i /s/bind 127.0.0.1/bind 0.0.0.0/g /etc/redis.conf
+
+requirepass redisPass6379
+unixsocket /tmp/redis6379.sock
+
+ echo "unixsocket /tmp/redis6379.sock" >>/etc/redis.conf
+ echo "unixsocket /tmp/redis6380.sock" >>/etc/redis6380.conf
+ echo "unixsocket /tmp/redis6381.sock" >>/etc/redis6381.conf
+ echo "unixsocket /tmp/redis6382.sock" >>/etc/redis6382.conf
+ echo "unixsocket /tmp/redis6383.sock" >>/etc/redis6383.conf
+ echo "unixsocket /tmp/redis6384.sock" >>/etc/redis6384.conf
+ 
+ 
+ sed -i  's/dbfilename dump.rdb/dbfilename dump.rdb/g' /etc/redis.conf
+ sed -i  's/# appendfsync no/appendfsync no/g' /etc/redis.conf
+ 
+ sed -i  's/dbfilename dump.rdb/dbfilename dump6380.rdb/g' /etc/redis6380.conf
+ sed -i  's/# appendfsync no/appendfsync no/g' /etc/redis6380.conf
+ 
+ sed -i  's/dbfilename dump.rdb/dbfilename dump6381.rdb/g' /etc/redis6381.conf
+ sed -i  's/# appendfsync no/appendfsync no/g' /etc/redis6381.conf
+ 
+ sed -i  's/dbfilename dump.rdb/dbfilename dump6382.rdb/g' /etc/redis6382.conf
+ sed -i  's/# appendfsync no/appendfsync no/g' /etc/redis6382.conf
+ 
+ sed -i  's/dbfilename dump.rdb/dbfilename dump6383.rdb/g' /etc/redis6383.conf
+ sed -i  's/# appendfsync no/appendfsync no/g' /etc/redis6383.conf
+ 
+ sed -i  's/dbfilename dump.rdb/dbfilename dump6384.rdb/g' /etc/redis6384.conf
+ sed -i  's/# appendfsync no/appendfsync no/g' /etc/redis6384.conf
+ 
+ 
+sed -i  's/^requirepass/#requirepass/g' /etc/redis63*.conf
+
+echo "requirepass RedisTFE()123" >>/etc/redis63*.conf 
+
+requirepass redisPass6379 
+ sed -i  's/dbfilename dump.rdb/port 6381/g' /etc/redis6381.conf
+ sed -i  's/dbfilename dump.rdb/port 6382/g' /etc/redis6382.conf
+ sed -i  's/dbfilename dump.rdb/port 6383/g' /etc/redis6383.conf
+ sed -i  's/dbfilename dump.rdb/port 6384/g' /etc/redis6384.conf
+ 
+ 
+ sed -i  's/redis.conf/redis6381.conf/g' /usr/lib/systemd/system/redis6381.service
+ 
+ sed -i  's/redis.conf/redis6382.conf/g' /usr/lib/systemd/system/redis6382.service
+ 
+ sed -i  's/redis.conf/redis6383.conf/g' /usr/lib/systemd/system/redis6383.service
+ sed -i  's/redis.conf/redis6384.conf/g' /usr/lib/systemd/system/redis6384.service
+ 
+ 
+ sed -i  's/$1/6380/g' /etc/redis6380.conf
+ 
+ 
+ 
+ 
+ * hard nofile 65536
+ 
+ 
+ 跳板机，外网：34.68.107.15 
+ 数据目录统一放到 /data
+ 内网机器IP范围 10.128.0.3-10.128.0.14，可以统一优化下服务器配置
+ 
+ 10.128.0.6  跳板机内网IP，安装了nginx ,看下是否需要优化
+ 
+ 10.128.0.7　 zk 单点 zookeeper-3.5.5 
+ 
+ 10.128.0.10  es 单点 5.6.4
+ 
+ 
+ 
+config admin admino123Apoll
+ 
+ 
+ yum -y install java-1.8.0-openjdk java-1.8.0-openjdk-devel
+ 
+export 	JAVA_HOME="/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.292.b10-1.el7_9.x86_64"
+export PATH="$JAVA_HOME/bin:$PATH"
+
+ 
+ ./kafka-topics.sh --create --zookeeper 10.128.0.7:2181 --config max.message.bytes=12800000 --config flush.messages=1 --replication-factor 1 --partitions 1 --topic test
+
+
+./kafka-topics.sh --list --zookeeper 10.128.0.7:2181
+./kafka-topics.sh --describe --zookeeper 10.128.0.7:2181  --topic test
+./kafka-console-producer.sh --broker-list localhost:9092 --topic test
+./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
+
+
+https://sademo.datasink.sensorsdata.cn/sa?project=VideoWebcastDemo
+
+
+>config set masterauth redisPass6379
+
+
+user soa654321
+search search888
+
+
+grant all on gateway.* to 'gateway'@'%' identified by 'gateway@123G';
+
+
+fireEye 2.0.10
+soa-sdk 1.4.1
+apollo 1.2.0-globalegrow
+component-config  1.1.0
+mq-starter 2.1.1
+soa-parent sdk 1.2.0
+soa-parent 1.3.3
+soa-dubbox 1.2.1
+soa-kafka 1.0.1
+fst 2.27-fix
+log-starter 1.2.0
+soa-cache 2.0.1
+shield 1.1.0
+brainkeeper-agent-core 2.2.0 
+http 1.0.0
+component-jdbcx 2.0.2_2
+
+
+grant all on vevor_cart.* to 'ss-java-master'@'%' identified by 'master@Java123';
+grant all on vevor_goods.* to 'ss-java-master'@'%' identified by 'master@Java123';
+grant all on vevor_logistics.* to 'ss-java-master'@'%' identified by 'master@Java123';
+grant all on vevor_member.* to 'ss-java-master'@'%' identified by 'master@Java123';
+grant all on vevor_order.* to 'ss-java-master'@'%' identified by 'master@Java123';
+grant all on vevor_pay.* to 'ss-java-master'@'%' identified by 'master@Java123';
+grant all on vevor_promotion.* to 'ss-java-master'@'%' identified by 'master@Java123';
+grant all on vevor_risk.* to 'ss-java-master'@'%' identified by 'master@Java123';
+grant all on vevor_shop.* to 'ss-java-master'@'%' identified by 'master@Java123';
+grant all on vevor_stock.* to 'ss-java-master'@'%' identified by 'master@Java123';
+
+
+jdbc:search://10.128.0.10:9300?pingTimeout=5s&clusterName=es-cluster1&backupUrl=
+
+https://codeup.aliyun.com/60b6ff4db8301d20d58b7cd2/share/framework/component-jdbcx
+
+printf "gateway:$(openssl passwd -crypt search888)\n" >> .gatewayhtpasswd
+
+
+
+com.vevor.xx.spi
+com.vevor.spi
+com.vevor.sdk
+com.vevor.search
+com.vevor.xx
+HQYG
+
+
+
+create database base_goods_web_style default character set utf8 collate utf8_general_ci;
+
+create database base_promotion default character set utf8 collate utf8_general_ci;
+create database base_logistics default character set utf8 collate utf8_general_ci;
+
+create database base_integration default character set utf8 collate utf8_general_ci;
+
+
+grant all on base_integration.* to 'ss-java-master'@'%' identified by 'master@Java123';
+
+create database suk_goods default character set utf8 collate utf8_general_ci;
+create database suk_goods_extend default character set utf8 collate utf8_general_ci;
+
+grant all on suk_goods.* to 'ss-java-master'@'%' identified by 'master@Java123';
+grant all on suk_goods_extend.* to 'ss-java-master'@'%' identified by 'master@Java123';
+
+
+grant all on recommend_search.* to 'search'@'%' identified by 'search1@WSX';
+
+grant all on canal_manager.* to 'canal'@'%' identified by 'Canal@123';
+
+
+
+[{"orgId":"vevor","orgName":"前台研发中心"},{"orgId":"ps","orgName":"中台研发中心"}]
+
+navicat SSH:expected key exchange group packet form server
+
+
+
+
+create database components_cantor default character set utf8 collate utf8_general_ci;
+grant all on components_cantor.* to 'cantor'@'%' identified by 'master@123Cantor';
+
+
+
+
+
+create database soa_search_test default character set utf8 collate utf8_general_ci;
+grant all on soa_search_test.* to 'search'@'%' identified by 'search1@WSX';
+
+
+create database vevor_pay_secret default character set utf8 collate utf8_general_ci;
+grant all on vevor_pay_secret.* to 'ss-java-master'@'%' identified by 'master@Java123';
+
+
+create database elastic_job default character set utf8 collate utf8_general_ci;
+grant all on elastic_job.* to 'ss-java-master'@'%' identified by 'master@Java123';
+
+
+
+create database saturn default character set utf8 collate utf8_general_ci;
+grant all on saturn.* to 'ss-java-master'@'%' identified by 'master@Java123';
+
+
+create database xxl_job default character set utf8 collate utf8_general_ci;
+grant all on xxl_job.* to 'xxl_job'@'%' identified by 'xxl_job@Java123';
+
+#create database xxl_job default character set utf8 collate utf8_general_ci;
+
+grant all on xxl_job.* to 'xxl_job'@'%' identified by 'master@Java123';
+
+
+
+
+
+update Item set `Value`='ss-java-master' where `Key` like '%jdbc.username%';
+
+update Item set `Value`='ss-java-master' where `Value` = 'java-service';
+
+update Item set `Value`='master@Java123' where `Key` like '%jdbc.password%';
+
+update Item set `Value`='master@Java123' where `Value` = 'java123456';
+
+
+
+update Item set `Value`=REPLACE(`Value`,'10.40.6.89','34.68.107.15') where `Value` like '%10.40.6.89%';
+update Item set `Value`=REPLACE(`Value`,'10.40.2.45','34.68.107.15') where `Value` like '%10.40.2.45%';
+update Item set `Value`=REPLACE(`Value`,'10.40.2.62','34.68.107.15') where `Value` like '%10.40.2.62%';
+update Item set `Value`=REPLACE(`Value`,'10.40.2.216','34.68.107.15') where `Value` like '%10.40.2.216%';
+update Item set `Value`=REPLACE(`Value`,'10.40.2.46','34.68.107.15') where `Value` like '%10.40.2.46%';
+update Item set `Value`=REPLACE(`Value`,'10.40.2.131','34.68.107.15') where `Value` like '%10.40.2.131%';
+update Item set `Value`=REPLACE(`Value`,'10.60.34.117','34.68.107.15') where `Value` like '%10.60.34.117%';
+update Item set `Value`=REPLACE(`Value`,'10.38.2.72','34.68.107.15') where `Value` like '%10.38.2.72%';
+
+update Item set `Value`=REPLACE(`Value`,'http://','vevor://') where `Value` like '%http://%';
+
+update Item set `Value`=REPLACE(`Value`,'https://','vevors://') where `Value` like '%https://%';
+
+update Item set `Key`=REPLACE(`Key`,'http://','vevors://') where `Key` like '%http://%';
+
+update Item set `Value`='admin' where `Key` like 'rabbitmq.%username';
+update Item set `Value`='rabpa123QWE' where `Key` like 'rabbitmq.%password';
+
+
+update Item set `Value`='RedisTFE()123' where `Key` like 'redis.%password';
+
+select `Key`,`Value` from Item where `Key` like 'redis.%password';
+
+select REPLACE(`Value`,'http://','vevor://'),`Key`,`Value` from Item where `Value` like '%https://%';
+
+select REPLACE(`Value`,'http://','vevor://'),`Key`,`Value` from Item where `Key` like '%http://%';
+
+
+
+
+
+
+update  Cluster set IsDeleted =1 where `Name`='default'
+
+
+select `Key`,`Value` from Item where `Key` like '%jdbc%username%';
+
+select `Key`,`Value` from Item where `Key` like '%jdbc%password%';
+
+select `Key`,`Value` from Item where `Value` = 'java-service';
+select `Key`,`Value` from Item where `Value` = 'java123456';
+
+
+
+
+
+./kafka-server-start.sh ../config/server.properties 1>/dev/null 2>&1 &
+
+
+
+
+create database ansible default character set utf8 collate utf8_general_ci;
+
+
+grant all on ansible.* to 'ansible'@'%' identified by 'ansible@Ansible123';
+
+
+
+
+ip tunnel add grevpn mode gre remote 34.68.107.15 local 43.230.206.43 ttl 255
+
+
+
+
+ip tunnel add grevpn mode gre remote 43.230.206.43 local 34.68.107.15 ttl 255
+
+
+
+
+ip link set grevpn up mtu 1500
+
+
+
+ip addr add 172.16.0.253  dev grevpn
+
+
+ip addr add 172.16.0.253/24 peer 172.16.0.254/24 dev grevpn
+
+
+ip route add 10.128.0.0/24 dev grevpn
+
+
+34.68.107.15
+
+lsmod |grep ip_gre
+
+modprobe ip_gre
+
+
+
+ip tunnel add grevpn mode gre remote 172.16.0.76 local 34.68.107.15 ttl 255
+
+
+ip route add 172.16.0.0/24 dev grevpn
+
+
+ip route add 172.16.0.0/24 dev eth0
+
+
+mysql.vevor-test.com
+zookeeper.vevor-test.com
+
+
+echo "10.128.0.7 zookeeper.vevor-test.com" >>/etc/hosts
+echo "10.128.0.7 config.vevor-test.com" >>/etc/hosts
+echo "10.128.0.8 rabbitmq.vevor-test.com" >>/etc/hosts
+echo "10.128.0.8 kafka.vevor-test.com" >>/etc/hosts
+echo "10.128.0.9 redis.vevor-test.com" >>/etc/hosts
+
+34.68.107.15 zookeeper.vevor-test.com config.vevor-test.com rabbitmq.vevor-test.com kafka.vevor-test.com redis.vevor-test.com mysql.vevor-test.com
+
+
+
+DEVICE=tun0
+BOOTPROTO=none
+ONBOOT=yes
+DEVICETYPE=tunnel
+TYPE=GRE
+PEER_INNER_IPADDR=172.16.0.254
+PEER_OUTER_IPADDR=43.230.206.43
+MY_INNER_IPADDR=172.16.0.253
+MY_OUTER_IPADDR=34.68.107.15
+
+
+172.16.0.0/24 via 172.16.0.254
+
+
+
+route add -net 172.16.0.0/24 dev grevpn
+
+ifconfig 
+
+ ifconfig grevpn mtu 1400
+ 
+172.16.0.254
+
+192.169.1.1
+
+
+172.16.0.253
+
+
+Ruijie>enable                                 //进入特权模式
+Ruijie#configure terminal               //进入全局配置模式
+Ruijie(config)#interface tunnel 1
+Ruijie(config-if-Tunnel 1)# ip address 192.168.1.1 255.255.255.0      //配置GRE隧道地址
+Ruijie(config-if-Tunnel 1)#tunnel source 43.230.206.43              //配置GRE隧道源IP（路由器R1的外接口IP）
+Ruijie(config-if-Tunnel 1)#tunnel destination 34.92.196.131       //配置GRE隧道目的IP（路由器R2的外接口IP）
+Ruijie(config-if-Tunnel 1)#exit
+show interfaces tunnel 1
+
+
+tunnel destination 34.68.107.15
+
+
+iperf -c 10.128.0.2 -p 25001  -f K -n 10M -b 10M -t 10 -i 1
+
+
+iperf -s -p 25001 -B 10.128.0.2 -i 1
+ 
+
+
+
+
+
+
+
+
+
+-- 删除列
+delete FROM search_columns   where  search_table_id in (
+
+select t.id from search_table t where t.search_scheme_id in (30,41,42,46,47,51,54,55,56,57,58,59,60,62,63,65,67,49,50)
+
+)
+
+-- 删除表关系
+delete FROM search_table_relate   where  search_table_id in (
+select id from search_table t where t.search_scheme_id  in (30,41,42,46,47,51,54,55,56,57,58,59,60,62,63,65,67,49,50)
+)
+
+-- 删除表
+delete FROM search_table  where search_scheme_id  in (30,41,42,46,47,51,54,55,56,57,58,59,60,62,63,65,67,49,50)
+
+-- 删除方案
+delete FROM search_scheme  where id  in (30,41,42,46,47,51,54,55,56,57,58,59,60,62,63,65,67,49,50)
+
+
+http://10.128.0.10:9200/_template/log/
+{
+  "template": "*",
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": "0"
+  }
+}
+
+
+
+
+
+
+delete from  Item where NamespaceId in (
+
+select n.id from Namespace n where n.ClusterName in 
+(
+'ppp','20191022151350-a01a2b6f0bb15e04','20190702160915-f2192b6f0b0cf29e','20190403110157-3d1d2b6f0b0ad957'
+));
+
+DELETE from Namespace  where ClusterName in 
+(
+select AppId from App where AppId in ('ppp','20191022151350-a01a2b6f0bb15e04','20190702160915-f2192b6f0b0cf29e','20190403110157-3d1d2b6f0b0ad957')
+);
+
+DELETE from Cluster  where `Name` in 
+(
+
+'ppp','20191022151350-a01a2b6f0bb15e04','20190702160915-f2192b6f0b0cf29e','20190403110157-3d1d2b6f0b0ad957'
+
+);
+
+
+#查找缺失namespace
+select tt.AppId from 
+
+(select t.* from Namespace t where t.ClusterName='test' )tt 
+
+left join 
+(select t.* from Namespace t where t.ClusterName='dev') dd
+ on 
+tt.AppId=dd.AppId and tt.NamespaceName=dd.NamespaceName
+
+where dd.AppId is null
+
+group by tt.AppId
+order by dd.AppId;
+
+
+
+insert into `ApolloConfigDB`.`Cluster` (`Name`, `AppId`, `ParentClusterId`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_CreatedTime`, `DataChange_LastModifiedBy`, `DataChange_LastTime`) select   
+ 'dev', AppId, 0, b'0', 'chenwupeng', '2021-06-11 16:28:17', 'chenwupeng', '2021-06-11 16:28:17'
+ from App where OrgId in ('ps')
+)
+
+INSERT INTO `ApolloConfigDB`.`Namespace` (`AppId`, `ClusterName`, `NamespaceName`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_CreatedTime`, `DataChange_LastModifiedBy`, `DataChange_LastTime`) 
+select 
+  AppId, 'dev', NamespaceName, b'0', 'chenwupeng', '2021-06-11 16:28:17', 'chenwupeng', '2021-06-11 16:28:17'
+ from Namespace where ClusterName='test' and AppId in (
+	select AppId from App where OrgId in ('ps')
+	)
+
+
+INSERT INTO `ApolloConfigDB`.`Item` (`NamespaceId`, `Key`, `Value`, `Comment`, `LineNum`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_CreatedTime`, `DataChange_LastModifiedBy`, `DataChange_LastTime`) 
+select  n.id, i.`Key`, i.`Value`, i.`Comment`, i.LineNum, b'0',  'chenwupeng', now(), 'chenwupeng', now()
+ from `Namespace` o, `Namespace` n,Item i,App a where 
+a.OrgId in ('ps') and a.AppId=o.AppId and o.AppId=n.AppId and o.ClusterName='test' and n.ClusterName='dev' and o.id=i.NamespaceId and i.IsDeleted=0
+and o.NamespaceName=n.NamespaceName
+;
+
+
+	
+	
+select  AppId,`Name`,count(1) from Cluster group by AppId,`Name` HAVING count(1)>1;
+
+select  AppId,`NamespaceName`,ClusterName,count(1) from Namespace group by AppId,`NamespaceName`,ClusterName HAVING count(1)>1;
+
+
+
+
+
+
+select * from Item 
+
+where NamespaceId not in (
+
+select id from Namespace
+)
+
+DELETE from Item 
+
+where NamespaceId not in (
+
+select id from Namespace
+)
+
+CREATE USER canal IDENTIFIED BY 'canal';  
+GRANT SELECT, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'canal'@'%';
+-- GRANT ALL PRIVILEGES ON *.* TO 'canal'@'%' ;
+FLUSH PRIVILEGES;
+
+
+
+canal.instance.filter.regex=vevor_goods_730\\.goods_pipeline_relation,vevor_goods_730\\.site_multi_lang_goods_.*,vevor_goods_730\\.site_multi_lang_brand,vevor_goods_730\\.goods,vevor_goods_730\\.site_multi_lang_category,vevor_goods_730\\.pipeline_category_relation,vevor_goods_730\\.goods_category_relation,vevor_goods_730\\.goods_price_relation,vevor_promotion\\.price_.*,vevor_goods_730\\.goods_gallery,vevor_goods_730\\.goods_picture,vevor_goods_730\\.goods_info_extend_.*,vevor_goods_730\\.goods_attr_value_relation_.*,vevor_stock_730\\.goods_sales_stock
+
+canal.mq.dynamicTopic=vevor_goods_730_goods_pipeline_relation:vevor_goods_730\\.goods_pipeline_relation,vevor_goods_730_site_multi_lang_goods:vevor_goods_730\\.site_multi_lang_goods_.*,vevor_goods_730_site_multi_lang_brand:vevor_goods_730\\.site_multi_lang_brand,vevor_goods_730_goods:vevor_goods_730\\.goods,vevor_goods_730_site_multi_lang_category:vevor_goods_730\\.site_multi_lang_category,vevor_goods_730_pipeline_category_relation:vevor_goods_730\\.pipeline_category_relation,vevor_goods_730_goods_category_relation:vevor_goods_730\\.goods_category_relation,vevor_goods_730_goods_price_relation:vevor_goods_730\\.goods_price_relation,vevor_promotion_price:vevor_promotion\\.price_.*,vevor_goods_730_goods_gallery:vevor_goods_730\\.goods_gallery,vevor_goods_730_goods_picture:vevor_goods_730\\.goods_picture,vevor_goods_730_goods_info_extend:vevor_goods_730\\.goods_info_extend_.*,vevor_goods_730_goods_attr_value_relation:vevor_goods_730\\.goods_attr_value_relation_.*,vevor_stock_730_goods_sales_stock:vevor_stock_730\\.goods_sales_stock
+
+
+
+
+
+
+
+
+
+if not ex database
+create database search_recommend default character set utf8 collate utf8_general_ci;
+create database service_governance default character set utf8 collate utf8_general_ci;
+create database vevor_cart_730 default character set utf8 collate utf8_general_ci;
+create database vevor_goods_730 default character set utf8 collate utf8_general_ci;
+create database vevor_logistics_730 default character set utf8 collate utf8_general_ci;
+create database vevor_order_730 default character set utf8 collate utf8_general_ci;
+create database vevor_pay default character set utf8 collate utf8_general_ci;
+create database vevor_pay_secret default character set utf8 collate utf8_general_ci;
+create database vevor_risk default character set utf8 collate utf8_general_ci;
+create database vevor_shop default character set utf8 collate utf8_general_ci;
+create database vevor_stock_730 default character set utf8 collate utf8_general_ci;
+create database vevor_promotion default character set utf8 collate utf8_general_ci;
+create database components_cantor default character set utf8 collate utf8_general_ci;
+create database gateway default character set utf8 collate utf8_general_ci;
+create database canal_manager default character set utf8 collate utf8_general_ci;
+create database elastic_job default character set utf8 collate utf8_general_ci;
+create database fireeye_service default character set utf8 collate utf8_general_ci;
+
+
+
+
+
+
+
+information_schema
+ApolloConfigDB
+ApolloPortalDB
+ansible
+base_goods
+base_integration
+base_logistics
+base_logistics_old
+base_promotion
+canal_manager
+components_cantor
+elastic_job
+fireeye_service
+gateway
+mysql
+performance_schema
+recommend_search
+saturn
+search_recommend
+service_governance
+soa_search_test
+sys
+vevor_cart
+vevor_cart_730
+vevor_goods
+vevor_goods_730
+vevor_goods_extend
+vevor_logistics
+vevor_logistics_730
+vevor_member
+vevor_order
+vevor_order_730
+vevor_pay
+vevor_pay_secret
+vevor_platform_goods
+vevor_promotion
+vevor_risk
+vevor_shop
+vevor_stock
+vevor_stock_730
+xxl_job
+
+
+{
+	"settings": {
+		"index": {
+			"number_of_shards": "1",
+			"max_result_window": "1000000",
+			"number_of_replicas": "1"
+		}
+	},
+	"mappings": {
+		"search_error_type": {
+			"properties": {
+				"b_good_sn": {
+					"type": "long"
+				},
+				"a_good_sn": {
+					"type": "keyword"
+				},
+				"b_maps": {
+					"type": "keyword"
+				},
+				"a_maps": {
+					"type": "keyword"
+				},
+				"traceId": {
+					"type": "keyword"
+				},
+				"indexName": {
+					"type": "keyword"
+				},
+				"time": {
+					"type": "long"
+				},
+				"errorDesc": {
+					"type": "keyword"
+				},
+				"exceptionType": {
+					"type": "keyword"
+				},
+				"tableName": {
+					"type": "keyword"
+				},
+				"optionType": {
+					"type": "keyword"
+				},
+				"execTotal": {
+					"type": "long"
+				},
+				"nextTime": {
+					"type": "long"
+				},
+				"lastTime": {
+					"type": "long"
+				}
+			}
+		}
+	}
+}
+
+
+canal.instance.filter.regex=vevor_goods_730\\.goods_pipeline_relation,vevor_goods_730\\.site_multi_lang_goods_.*,vevor_goods_730\\.site_multi_lang_brand,vevor_goods_730\\.goods,vevor_goods_730\\.site_multi_lang_category,vevor_goods_730\\.pipeline_category_relation,vevor_goods_730\\.goods_category_relation,vevor_goods_730\\.goods_price_relation,vevor_promotion\\.price_.*,vevor_goods_730\\.goods_gallery,vevor_goods_730\\.goods_picture,vevor_goods_730\\.goods_info_extend_.*,vevor_goods_730\\.goods_attr_value_relation_.*,vevor_stock_730\\.goods_sales_stock,vevor_goods_730\\.goods_label,search_recommend\\.order_goods
+
+canal.mq.dynamicTopic=vevor_goods_730_goods_pipeline_relation:vevor_goods_730\\.goods_pipeline_relation,vevor_goods_730_site_multi_lang_goods:vevor_goods_730\\.site_multi_lang_goods_.*,vevor_goods_730_site_multi_lang_brand:vevor_goods_730\\.site_multi_lang_brand,vevor_goods_730_goods:vevor_goods_730\\.goods,vevor_goods_730_site_multi_lang_category:vevor_goods_730\\.site_multi_lang_category,vevor_goods_730_pipeline_category_relation:vevor_goods_730\\.pipeline_category_relation,vevor_goods_730_goods_category_relation:vevor_goods_730\\.goods_category_relation,vevor_goods_730_goods_price_relation:vevor_goods_730\\.goods_price_relation,vevor_promotion_price:vevor_promotion\\.price_.*,vevor_goods_730_goods_gallery:vevor_goods_730\\.goods_gallery,vevor_goods_730_goods_picture:vevor_goods_730\\.goods_picture,vevor_goods_730_goods_info_extend:vevor_goods_730\\.goods_info_extend_.*,vevor_goods_730_goods_attr_value_relation:vevor_goods_730\\.goods_attr_value_relation_.*,vevor_stock_730_goods_sales_stock:vevor_stock_730\\.goods_sales_stock,vevor_goods_730_goods_label:vevor_goods_730\\.goods_label,search_recommend_order_goods:search_recommend\\.order_goods
+
+字符串: string,keyword,text,
+整数 : byte, short, integer, long
+浮点数: float, double
+布尔型: boolean
+日期: date
+
+analyzed
+
+eyJhbGciOiJSUzI1NiIsImtpZCI6Ik9oTW9oZFVMa2dRWlBkQlRvUTNISE9MNkdHcDRGRFktS1E1WmhJNERuOGMifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJla3MtYWRtaW4tdG9rZW4tZHE0bTciLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZWtzLWFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiN2RhMjU5M2YtMjU1Zi00NDI2LTk5NGItMDhkNmJiMjcxNWM1Iiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmVrcy1hZG1pbiJ9.0vb8tdcZDQK5o02REoeoXTfkmczyfACbSoA6y6O7jslsqeOnu9zefdRBimbbkPloRuAyYSwaz8uoZGxk6Gz0KlGEyqXJua7tp9WaCgGfB4C1rAX8pM2eSIbE573lrqQbdP9ipE-6IIARPlMnXyUdjMQOvK4qo0oszNSoLLHVEs3fL__Slw5HubMPlGIWSpF_9vwI0RGg1K1renP30UVNJ_H88GZktr_tLJhoegDbmcgR3GXIZThCgDk90rQOlv0_25Y3CRgGds-RTt7N16U30HVW_2Pl7XzYIMpxMiR3zOR8X8xq0m0z4mbR2d6V8I65JOx6WXDdcb71ESoaak55RQ			
+
+
+
+cp service-tps-job-3.0.0-bin.jar service.tps.1s.job.jar
+
+cp service.tps.1s.job.jar app.redis.qps.1m.job.jar
+cp service.tps.1s.job.jar app.tps.15m.job.jar
+cp service.tps.1s.job.jar app.tps.1d.job.jar
+cp service.tps.1s.job.jar app.tps.1h.job.jar
+cp service.tps.1s.job.jar app.tps.1m.job.jar
+cp service.tps.1s.job.jar app.tps.5s.job.jar
+cp service.tps.1s.job.jar druid.connection.1m.job.jar
+cp service.tps.1s.job.jar druid.qps.1m.job.jar
+cp service.tps.1s.job.jar dubbo.connection.1m.job.jar
+cp service.tps.1s.job.jar dubbo.qps.1m.job.jar
+cp service.tps.1s.job.jar jvm.1h.top.job.jar
+cp service.tps.1s.job.jar jvm.1m.job.jar
+cp service.tps.1s.job.jar jvm.gc.1h.top.job.jar
+cp service.tps.1s.job.jar jvm.gc.1m.job.jar
+cp service.tps.1s.job.jar jvm.gc.job.jar
+cp service.tps.1s.job.jar jvm.job.jar
+cp service.tps.1s.job.jar log.app.1m.job.jar
+cp service.tps.1s.job.jar log.app.5s.job.jar
+cp service.tps.1s.job.jar log.endpoint.1m.job.jar
+cp service.tps.1s.job.jar log.endpoint.5s.job.jar
+cp service.tps.1s.job.jar log.exception.app.1m.job.jar
+cp service.tps.1s.job.jar log.exception.app.5s.job.jar
+cp service.tps.1s.job.jar log.exception.endpoint.1m.job.jar
+cp service.tps.1s.job.jar log.exception.endpoint.5s.job.jar
+cp service.tps.1s.job.jar log.exception.metadata.job.jar
+cp service.tps.1s.job.jar os.1m.job.jar
+cp service.tps.1s.job.jar os.system.1h.top.job.jar
+cp service.tps.1s.job.jar os.system.job.jar
+cp service.tps.1s.job.jar rabbitmq.connection.1m.job.jar
+cp service.tps.1s.job.jar rabbitmq.consumer.qps.1m.job.jar
+cp service.tps.1s.job.jar rabbitmq.producer.qps.1m.job.jar
+cp service.tps.1s.job.jar redis.connection.1m.job.jar
+cp service.tps.1s.job.jar redis.qps.1m.job.jar
+cp service.tps.1s.job.jar service.tps.15m.job.jar
+cp service.tps.1s.job.jar service.tps.1d.job.jar
+cp service.tps.1s.job.jar service.tps.1h.job.jar
+cp service.tps.1s.job.jar service.tps.1m.job.jar
+cp service.tps.1s.job.jar service.tps.5s.job.jar
+cp service.tps.1s.job.jar site.service.tps.1m.job.jar
+cp service.tps.1s.job.jar site.service.tps.5s.job.jar
+cp service.tps.1s.job.jar site.tps.15m.job.jar
+cp service.tps.1s.job.jar site.tps.1d.job.jar
+cp service.tps.1s.job.jar site.tps.1h.job.jar
+cp service.tps.1s.job.jar site.tps.1m.job.jar
+cp service.tps.1s.job.jar site.tps.5s.job.jar
+cp service.tps.1s.job.jar site.all.tps.5s.job.jar
+cp service.tps.1s.job.jar site.all.service.tps.5s.job.jar
+
+
+
+cp service-agent-job-3.0.0-bin.jar agent.metadata.job.jar
+cp service-agent-job-3.0.0-bin.jar agent.source.job.jar
+cp service-agent-job-3.0.0-bin.jar agent.type.metadata.job.jar
+cp service-agent-job-3.0.0-bin.jar agent.vhost.metadata.job.jar
+
+
+cp generic-alarm-job-3.0.0-bin.jar service.tps.5s.alert.job.jar
+cp generic-alarm-job-3.0.0-bin.jar service.1m.alert.job.jar
+cp generic-alarm-job-3.0.0-bin.jar new.app.1m.alert.job.jar
+cp generic-alarm-job-3.0.0-bin.jar exception.1m.alert.job.jar
+cp generic-alarm-job-3.0.0-bin.jar app.tps.5s.alert.job.jar
+cp generic-alarm-job-3.0.0-bin.jar app.1m.alert.job.jar
+
+cp service-alarm-convergence-job-3.0.0-bin.jar convergence.alert.job.jar
+
+
+
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_stock_goods_sales_stock
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_goods
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_goods_attr_value_relation
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_goods_category_relation
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_goods_gallery
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_goods_info_extend
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_goods_label
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_goods_picture
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_goods_pipeline_relation
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_goods_price_relation
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_pipeline_category_relation
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_site_multi_lang_brand
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_site_multi_lang_category
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_goods_site_multi_lang_goods
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_promotion_price
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic vevor_promotion_promotion_count_log
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic review_vevor_goods_review_statistic
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic search_recommend_order_goods
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic search_us
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic search_au
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic search_ca
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic search_de
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic search_es
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic search_eu
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic search_fr
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic search_it
+./kafka-topics.sh --create --bootstrap-server kafka-business01.vevor.local:9092  --partitions 1 --replication-factor 3  --topic search_uk
+
+
+
+10.10.29.145 Qi1t11s7f3zDSL6e
+10.10.68.204 s2WNyaopwK3vc9wb
+10.10.16.45 JTJJcTBZ8Oekkort
+10.10.74.244 qGjiAK4XQN3sz6oA
+10.10.70.52 XgpJqGw65oMXr4pu
+
+
+
+admin	l3jmSq7eWY4df4fb
+
+php-instance,canal_goods,site_bussiness,search-recommend
+
+zk-soa01.vevor.local:2181,zk-soa02.vevor.local:2181,zk-soa03.vevor.local:2181
+
+zk-msoa01.vevor.local:2181,zk-msoa02.vevor.local:2181,zk-msoa03.vevor.local:2181
+
+
+
+kafka-log01.vevor.local:9092,kafka-log02.vevor.local:9092,kafka-log03.vevor.local:9092
+
+kafka-business01.vevor.local:9092,kafka-business02.vevor.local:9092,kafka-business03.vevor.local:9092
+
+
+rabbitmq01.vevor.local,rabbitmq02.vevor.local,rabbitmq03.vevor.local
+
+
+cassandra01.vevor.local,cassandra02.vevor.local,cassandra03.vevor.local
+adminroot	L12ve58bPMezKsJ4
+
+
+member-redis01.vevor.local:26383;member-redis02.vevor.local:26383;member-redis03.vevor.local:26383
+sentinel framework  PohEAJgOTGS8se8G
+
+
+
+jdbcUrl: 'jdbc:mysql://middle-mysql.vevor.local:3306/gateway_msoa?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true'
+jdbcUsername: msoa_gw
+jdbcPassword: SBqZ4taXxwtFInya
+
+
+
+  mysql_url = "jdbc:mysql://middle-mysql.vevor.local:3306/service_governance?useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8";
+  mysql_username = "brainkeeper";
+  mysql_password = "A89FCjH1AYcjuzQz";
+	
+
+1SKjT9sxbaoyLq43
+
+me3DpVAwTyyCHht6
+
+chenwupeng
+16.163.27.84
+http://10.10.16.44:8888
+
+chenwupeng Hjip0IbMy5K75oJ3
+
+me3DpVAwTyyCHht6
+
+soa 89SvAczyT01zViSb
+
+php 24vD9w2qEttGk44R
+
+test_team   y3erJ619XXrLnBOn
+
+admin ChqYG6TdUKuc6nwZ
+
+adminroot / qFBihYbfGzEsmbDa
+
+
+msoa_search_tongbu、3i2fahn2PAE6KZr9
+
+search_recommend_tongbu、MuL3MEaHugb7Uagf
+
+10.10.13.192	front	smQCJ0K9OY2Muz0R
+
+
+172.31.37.60 wYa2mOOY75Rhi9Dd root
+
+
+select * from 
+
+jdbc:search://es01-trade.vevor.local:9300?pingTimeout=20s&clusterName=trade-cluster&backupUrl=es02-trade.vevor.local:9300;es03-trade.vevor.local:9300&printQuery=false
+
+
+es01-trade.vevor.local:9300;es02-trade.vevor.local:9300;es03-trade.vevor.local:9300
+
+
+http://soa-gateway.prevevor.com
+
+http://msoa-gateway.prevevor.com
+
+#sentinel模式
+use.redis.cluster = sentinel
+redis.timeout = 2000
+redis.maxActive = 300
+redis.maxIdle = 100
+redis.maxWait = 1000
+redis.testOnBorrow = true
+#哨兵地址 IP:port,IP:port
+redis.goods_vevor.host = commodity-redis01.vevor.local:26379,commodity-redis02.vevor.local:26379,commodity-redis03.vevor.local:26379
+#哨兵监听的master名称
+redis.goods_vevor.master = commodity
+#哨兵模式这个port参数不需要配置
+#redis.goods_vevor.port = 
+#redis.goods_vevor.password =
+
+
+{"password":"3i2fahn2PAE6KZr9","testWhileIdle":"true","maxIdle":"5","driverClass":"com.mysql.jdbc.Driver","maxTotal":"10","username":"msoa_search_tongbu"}
+
+
+jdbc:search://es01-trade.vevor.local:9300?pingTimeout=20s&clusterName=trade-cluster&backupUrl=es02-trade.vevor.local:9300;es03-trade.vevor.local:9300&printQuery=false
+
+es01-trade.vevor.local:9300,es02-trade.vevor.local:9300,es03-trade.vevor.local:9300
+
+
+middle-mysql.vevor.local
+middle-mysql-slave.vevor.local
+pci-mysql.vevor.local
+pci-mysql-slave.vevor.local
+search-mysql.vevor.local
+search-mysql-slave.vevor.local
+site-mysql.vevor.local
+site-mysql-slave.vevor.local
+front-mysql.vevor.local
+front-mysql-slave.vevor.local
+base-mysql.vevor.local
+base-msyql-slave.vevor.local
+
+
+pay-mysql-slave.vevor.local
+
+
+
+
+vevor_goods	TuUQvUmdUjBDnXy7
+vevor_stock	1ZQHELxwbQMzSmWb
+base_promotion	1ZQHELxwbQMzSmWb
+vevor_order	iI39z5IKVzhI72iC
+vevor_cart	RZkgdu0felxEvXpC
+vevor_member	dM2xnhi06uhxORkC
+vevor_promotion	bPCEVeCSHYJnfpmR
+vevor_logistics	c0o8ROkzWXtWognx
+vevor_pay	c0o8ROkzWXtWognx
+vevor_pay_secret	t3SDEWZl2X8Cvb5V
+vover_infrastructure	nzAyBVEOiyfqfp6v
+elastic_job	fbpxyVl19HnKNoL8
+soa_search	zfcWgMLHiaPWkNE8
+msoa_gw	SBqZ4taXxwtFInya
+soa_gw	QgDJcAMoLYaPJiqG
+apollo	NLZPWZowhUjHlxXo
+apollo	NLZPWZowhUjHlxXo
+shopify_simulate	4gSTJ2RwWkeJiqjD
+soa_easydata	4QiODn3j0GDLAqlt
+brainkeeper	r4oiM70tWcnPWXMT 
+search_recommend	plcSX610LGcUVNhd
+canal_manager	cGH7yIEBXvkmuJPm
+
+
+
+
+
+
+{"minIdle":"10","maxIdle":"10","testOnBorrow":"false","testWhileIdle":"true","validationQuery":"select x","timeBetweenEvictionRunsMillis":"60000","minEvictableIdleTimeMillis":"300000","testOnReturn":"false","maxWait":"60000","maxActive":"300"}
+
+
+site mysql-bin.000016	1005812726
+base mysql-bin.000006	213381290
+pay mysql-bin.000006	36312727
+
+site mysql-bin.000019	1048355446
+
+{"base-msyql-slave.vevor.local":{"host":"base-msyql-slave.vevor.local","journalName":"mysql-bin.000005","position":34109802,"serverId":1,"timestamp":1636853400000},"10.10.46.116":{"host":"10.10.46.116","journalName":"mysql-bin.000005","position":1023088050,"serverId":1,"timestamp":1636853220000},"site-mysql-slave.vevor.local":{"host":"site-mysql-slave.vevor.local","journalName":"mysql-bin.000016","position":1005640181,"serverId":1,"timestamp":1636853565000}}
+
+{"base-msyql-slave.vevor.local":{"host":"base-msyql-slave.vevor.local","journalName":"mysql-bin.000006","position":213381290,"serverId":1,"timestamp":1636853400000}}
+
+{"site-mysql-slave.vevor.local":{"host":"site-mysql-slave.vevor.local","journalName":"mysql-bin.000019","position":1048355446,"serverId":1,"timestamp":1636853565000}}
+
+{"site-mysql-slave.vevor.local":{"host":"site-mysql-slave.vevor.local","journalName":"mysql-bin.000026","position":1048355446,"serverId":1,"timestamp":1636853565000}}
+{"site-mysql-slave.vevor.local":{"host":"site-mysql-slave.vevor.local","journalName":"mysql-bin.000024","position":176664485,"serverId":1,"timestamp":1638423918000}}
+
+
+{"10.10.46.116":{"host":"10.10.46.116","journalName":"mysql-bin.000007","position":361211556,"serverId":1,"timestamp":1636853220000}}
+
+mysql-bin.000026	636266346	
+mysql-bin.000007	361211556
+
+
+995914
+
+
+
+
+select * from metrics_5s where col1 = 'site.tps.5s.job' and col2 = 'ALL' and col3 = ''  and col4 = '' and col5 ='' and event_time >= '2021-11-09 16:00:00' and event_time < '2021-11-10 07:00:00';
+
+select * from metrics_5s where col1 = 'site.tps.5s.job' and col2 = 'ALL' limit 10;
+
+cd /usr/local/zookeeper/bin/
+
+./zkCli.sh -server zk_mid01.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_mid02.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_mid03.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_soa04.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_soa05.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_soa06.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_msoa08.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_msoa09.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_msoa10.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+
+
+4444 3333 2222 1111
+
+
+　
+
+http://10.10.13.35:9200/ website-cluster
+http://10.10.0.173:9200/ trade-cluster
+http://10.10.9.231:9200/ log-cluster
+http://172.31.27.38:9200/  my-cluster
+
+2021-12-7-test
+
+2021-12-3-test
+2021-12-3-test
+
+1.0.2-test-1129-improve_stg2-2021-12-06
+recommend-full-load-start
+[client]
+password   = your_password
+port        = 3306
+socket      = /tmp/mysql.sock
+
+[mysqld]
+port        = 3306
+socket      = /tmp/mysql.sock
+datadir = /data/mysql/data
+basedir = /usr/local/mysql
+skip-external-locking
+key_buffer_size = 128M
+max_allowed_packet = 1024M
+table_open_cache = 512
+sort_buffer_size = 2M
+net_buffer_length = 512K
+read_buffer_size = 2M
+read_rnd_buffer_size = 512K
+myisam_sort_buffer_size = 32M
+thread_cache_size = 64
+tmp_table_size = 64M
+performance_schema_max_table_instances = 4000
+log-error=/data/mysql/log/mysql-err.log
+slow_query_log=on
+slow_query_log_file=/data/mysql/log/mysql-slow.log
+long_query_time=2
+
+explicit_defaults_for_timestamp = true
+#skip-networking
+max_connections = 10000
+max_connect_errors = 100
+open_files_limit = 65535
+character-set-server = UTF8MB4
+sql_mode ='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'
+default_authentication_plugin=mysql_native_password
+
+log-bin=/data/mysql/data/mysql-bin
+binlog_format=row
+server-id   = 2
+log_slave_updates=1
+#replicate-do-db=wenbin
+replicate-ignore-db=information_schema
+replicate-ignore-db=mysql
+replicate-ignore-db=performance_schema
+replicate-ignore-db=sys
+early-plugin-load = ""
+
+lower-case-table-names=1
+
+# 开启gtid
+gtid-mode = ON
+enforce-gtid-consistency = ON
+
+default_storage_engine = InnoDB
+innodb_file_per_table = 1
+innodb_data_home_dir = /data/mysql/data
+innodb_data_file_path = ibdata1:12M;ibdata2:12M:autoextend
+innodb_buffer_pool_size = 49152M
+innodb_log_file_size = 128M
+innodb_log_buffer_size = 32M
+innodb_flush_log_at_trx_commit = 1
+innodb_lock_wait_timeout = 40
+
+[mysqldump]
+quick
+max_allowed_packet = 1024M
+net_buffer_length = 512k
+
+[myisamchk]
+key_buffer_size = 128M
+sort_buffer_size = 20M
+#read_buffer = 20M
+#write_buffer = 20M
+
+[mysqlhotcopy]
+interactive-timeout
+
+
+
+slave-parallel-type=DATABASE
+slave-parallel-type可以有两个值
+DATABASE 为默认值，意为基于库的并行复制方式；
+
+LOGICAL_CLOCK：基于组提交的并行复制方式
+
+
+innodb_flush_log_at_trx_commit=1
+sync_binlog=1
+
+slave_parallel_type=DATABASE
+slave_parallel_workers=5 
+
+#5为设置的并发线程个数，之后根据项目对数据传输的具体要求再更改
+
+
+
+
+
+
+
+
+alidocs.dingtalk.com
+
+
+10.128.0.2 gateway.vevor-test.com gateway-admin.vevor-test.com pay.vevor-test.com fireeye.vevor-test.com flink.vevor-test.com cassandra.vevor-test.com
+
+10.128.0.7 zookeeper.vevor-test.com
+
+10.128.0.7 config.vevor-test.com
+
+10.128.0.8 rabbitmq.vevor-test.com
+
+10.128.0.8 kafka.vevor-test.com
+
+10.128.0.9 redis.vevor-test.com
+
+10.128.0.10 elasticsearch.vevor-test.com
+
+10.128.0.11 mysql.vevor-test.com
+
+10.128.0.14 mysql-php.vevor-test.com
+
+
+
+set /VEVOR_JOB/msoa-promotion-basic/fixedCouponCheckJob com.vevor.components.job.core.JobWapper
+set /VEVOR_JOB/msoa-promotion-basic/flushGoodsCouponIndexJob com.vevor.components.job.core.JobWapper
+set /VEVOR_JOB/msoa-promotion-basic/priceChangeJobAction com.vevor.components.job.core.JobWapper
+set /VEVOR_JOB/msoa-promotion-basic/priceValidateJobAction com.vevor.components.job.core.JobWapper
+set /VEVOR_JOB/msoa-promotion-common/importCouponJob com.vevor.components.job.core.JobWapper
+!991
+!992
+!993
+!994
+!995
+!996
+!997
+!998
+!999
+!1000
+
+
+(17309.87*7.1804+42122.99*4.5484)/6.3570
+
+1791.68
+1487.85
+
+
+(95.99+169.99)*7.1804/6.3570
+
+zk_mid01.vevor.local:2181,zk_mid02.vevor.local:2181,zk_mid03.vevor.local:2181
+
+
+zk_soa04.vevor.local:2181,zk_soa05.vevor.local:2181,zk_soa06.vevor.local:2181
+
+
+zk_msoa08.vevor.local:2181,zk_msoa09.vevor.local:2181,zk_msoa10.vevor.local:2181
+
+
+./zkCli.sh -server zk_mid01.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_mid02.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_mid03.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+
+./zkCli.sh -server zk_soa04.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_soa05.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_soa06.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+
+./zkCli.sh -server zk_msoa08.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_msoa09.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_msoa10.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+
+
+{"10.10.46.116":{"host":"10.10.46.116","journalName":"mysql-bin.000014","position":1047682431,"serverId":1,"timestamp":1639046684000}}
+{"site-mysql-slave.vevor.local":{"host":"site-mysql-slave.vevor.local","journalName":"mysql-bin.000028","position":452091119,"serverId":1,"timestamp":1639046659000}}
+{"base-msyql-slave.vevor.local":{"host":"base-msyql-slave.vevor.local","journalName":"mysql-bin.000011","position":194575329,"serverId":1,"timestamp":1639046690000}}
+
+
+kafka http://10.10.16.44:8888/#/  admin IiFVyJc2GpQtbzGz
+mq   http://10.10.3.177:15672/#/    admin l3jmSq7eWY4df4fb
+延时调度 http://10.10.16.44:18686/ 
+后台搜索 http://10.10.16.44:8083/
+网站搜索 https://rsearch.vevor.com/#/search/version-config
+网站推荐 https://rsearch.vevor.com/#/recommand/jobversion
+
+
+cd /usr/local/zookeeper/bin/
+
+./zkCli.sh -server zk_mid01.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_mid02.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_mid03.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_soa04.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_soa05.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_soa06.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_msoa08.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_msoa09.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+./zkCli.sh -server zk_msoa10.vevor.local:2181 ls / 2>/dev/null  > /dev/null && echo "success"
+
+http://10.10.13.35:9200/ website-cluster
+http://10.10.0.173:9200/ trade-cluster
+http://10.10.9.231:9200/ log-cluster
+
+
+4444 3333 2222 1111
+ 
+
+http://10.10.13.35:9200/ website-cluster
+http://10.10.0.173:9200/ trade-cluster
+http://10.10.9.231:9200/ log-cluster
+
+
+http://172.31.27.38:9200/  my-cluster
+
+
+/bin/kafka-topics.sh --zookeeper localhost:2181 --alter --topic testTopic --config max.message.bytes=5242880
+
+
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic my-topic --partitions 1 \
+  --replication-factor 1 --config max.message.bytes=64000 --config flush.messages=1
+
+bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name my-topic
+  --alter --add-config max.message.bytes=128000
+bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type topics --entity-name my-topic --describe
+bin/kafka-configs.sh --bootstrap-server localhost:9092  --entity-type topics --entity-name my-topic
+  --alter --delete-config max.message.bytes
+
+
+
+select o.good_sn,o.target_good_sn,n.target_good_sn from v_recommand_scene_good_detail_au o,v_recommand_scene_good_detail_au n 
+where 
+o.version='2022-01-20_1642723200255_7' and n.version='2022-01-20_1642758300533_17' 
+and o.good_sn=n.good_sn
+and o.target_good_sn!=n.target_good_sn;
+
+
+
+select o.user_id,o.good_sn,n.good_sn from v_recommand_scene_recommend_for_you_au o,v_recommand_scene_recommend_for_you_au n 
+where 
+o.version='2022-01-20_1642723200244_8' and n.version='2022-01-20_1642758948373_18' 
+and o.user_id=n.user_id
+and o.good_sn!=n.good_sn
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

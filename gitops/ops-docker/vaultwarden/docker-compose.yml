@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: always
+    environment:
+      WEBSOCKET_ENABLED: "true"
+      DOMAIN: "https://vault.vevor-inner.com"
+      ADMIN_TOKEN: "IoOa/ntMa5fyg3CSUPFHJAzXdfTqFz0wjUV+XL9ry64vGFuuKhbks7m5j4FGee2I"
+      SMTP_HOST: "smtp.qiye.aliyun.com"
+      SMTP_FROM: "devops@vevor.com"
+      SMTP_PORT: 587
+      SMTP_SECURITY: "starttls"
+      SMTP_USERNAME: "devops@vevor.com"
+      SMTP_PASSWORD: "n9ZgEXU9FL6CBXaE"
+      SIGNUPS_ALLOWED: "false"
+    volumes:
+      - /data/vaultwarden:/data
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d/:ro
+      - ./nginx/cert:/etc/nginx/cert/:ro
+    depends_on:
+      - vaultwarden

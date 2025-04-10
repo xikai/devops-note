@@ -1,0 +1,41 @@
+version: '3.1'
+
+services:
+  zoo1:
+    image: zookeeper:3.6.3
+    restart: always
+    hostname: zoo1
+    ports:
+      - 2181:2181
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+    volumes:
+      - /data/zookeeper_1/data:/data
+      - /data/zookeeper_1/logs:/datalog
+
+  zoo2:
+    image: zookeeper:3.6.3
+    restart: always
+    hostname: zoo2
+    ports:
+      - 2182:2181
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+    volumes:
+      - /data/zookeeper_2/data:/data
+      - /data/zookeeper_2/logs:/datalog
+
+  zoo3:
+    image: zookeeper:3.6.3
+    restart: always
+    hostname: zoo3
+    ports:
+      - 2183:2181
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+    volumes:
+      - /data/zookeeper_3/data:/data
+      - /data/zookeeper_3/logs:/datalog

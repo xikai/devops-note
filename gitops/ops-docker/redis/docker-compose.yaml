@@ -1,0 +1,286 @@
+version: '2'
+
+services:
+  redis6380:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6380
+      - REDIS_PORT=6380
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6380:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26380:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26380
+      - REDIS_MASTER_HOST=redis6380
+      - REDIS_MASTER_PORT_NUMBER=6380
+      - REDIS_MASTER_SET=master6380
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"
+
+  redis6381:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6381
+      - REDIS_PORT=6381
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6381:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26381:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26381
+      - REDIS_MASTER_HOST=redis6381
+      - REDIS_MASTER_PORT_NUMBER=6381
+      - REDIS_MASTER_SET=master6381
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"
+
+  redis6382:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6382
+      - REDIS_PORT=6382
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6382:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26382:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26382
+      - REDIS_MASTER_HOST=redis6382
+      - REDIS_MASTER_PORT_NUMBER=6382
+      - REDIS_MASTER_SET=master6382
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"
+
+  redis6383:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6383
+      - REDIS_PORT=6383
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6383:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26383:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26383
+      - REDIS_MASTER_HOST=redis6383
+      - REDIS_MASTER_PORT_NUMBER=6383
+      - REDIS_MASTER_SET=master6383
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"
+
+  redis6384:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6384
+      - REDIS_PORT=6384
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6384:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26384:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26384
+      - REDIS_MASTER_HOST=redis6384
+      - REDIS_MASTER_PORT_NUMBER=6384
+      - REDIS_MASTER_SET=master6384
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"
+
+  redis6385:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6385
+      - REDIS_PORT=6385
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6385:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26385:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26385
+      - REDIS_MASTER_HOST=redis6385
+      - REDIS_MASTER_PORT_NUMBER=6385
+      - REDIS_MASTER_SET=master6385
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    ports:
+      - '26385:26379'
+    network_mode: "host"
+
+  redis6386:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6386
+      - REDIS_PORT=6386
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6386:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26386:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26386
+      - REDIS_MASTER_HOST=redis6386
+      - REDIS_MASTER_PORT_NUMBER=6386
+      - REDIS_MASTER_SET=master6386
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"
+
+  redis6387:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6387
+      - REDIS_PORT=6387
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6387:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26387:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26387
+      - REDIS_MASTER_HOST=redis6387
+      - REDIS_MASTER_PORT_NUMBER=6387
+      - REDIS_MASTER_SET=master6387
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"
+
+  redis6388:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6388
+      - REDIS_PORT=6388
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6388:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26388:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26388
+      - REDIS_MASTER_HOST=redis6388
+      - REDIS_MASTER_PORT_NUMBER=6388
+      - REDIS_MASTER_SET=master6388
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"
+
+  redis6389:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6389
+      - REDIS_PORT=6389
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6389:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26389:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26389
+      - REDIS_MASTER_HOST=redis6389
+      - REDIS_MASTER_PORT_NUMBER=6389
+      - REDIS_MASTER_SET=master6389
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"
+
+  redis6390:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6390
+      - REDIS_PORT=6390
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6390:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26390:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26390
+      - REDIS_MASTER_HOST=redis6390
+      - REDIS_MASTER_PORT_NUMBER=6390
+      - REDIS_MASTER_SET=master6390
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"
+
+  redis6391:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6391
+      - REDIS_PORT=6391
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6391:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26391:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26391
+      - REDIS_MASTER_HOST=redis6391
+      - REDIS_MASTER_PORT_NUMBER=6391
+      - REDIS_MASTER_SET=master6391
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"
+
+  redis6392:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6392
+      - REDIS_PORT=6392
+      - REDIS_PASSWORD=zg@203&tcl!
+    ports:
+      - '6392:6379'
+    volumes:
+      - /data/redis/6392:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26392:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26392
+      - REDIS_MASTER_HOST=redis6392
+      - REDIS_MASTER_PORT_NUMBER=6392
+      - REDIS_MASTER_SET=master6392
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"
+
+  redis6393:
+    image: 'bitnami/redis:4.0.9-r1'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_MASTER_PORT_NUMBER=6393
+      - REDIS_PORT=6393
+      - REDIS_PASSWORD=zg@203&tcl!
+    volumes:
+      - /data/redis/6393:/bitnami/redis/data
+    network_mode: "host"
+  redis-sentinel26393:
+    image: 'bitnami/redis-sentinel:4.0.9-r1'
+    environment:
+      - REDIS_SENTINEL_PORT_NUMBER=26393
+      - REDIS_MASTER_HOST=redis6393
+      - REDIS_MASTER_PORT_NUMBER=6393
+      - REDIS_MASTER_SET=master6393
+      - REDIS_MASTER_PASSWORD=zg@203&tcl!
+    network_mode: "host"

@@ -1,0 +1,16 @@
+version: '3'
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:5.7.34
+    ports:
+      - "3306:3306"
+    command: [mysqld, --character-set-server=utf8, --collation-server=utf8_bin, --default-authentication-plugin=mysql_native_password]
+    volumes:
+      - /data/mysql:/var/lib/mysql:rw
+      - ./conf.d:/etc/mysql/conf.d:rw
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: vevor@124
+    user: root
+    stop_grace_period: 1m

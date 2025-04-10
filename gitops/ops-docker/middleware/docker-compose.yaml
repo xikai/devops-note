@@ -1,0 +1,74 @@
+version: '3'
+
+services:
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.7.28-management
+    restart: always
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    volumes: 
+      - /data/rabbitmq/mnesia:/var/lib/rabbitmq/mnesia
+      - /data/rabbitmq/log:/var/log/rabbitmq/log
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: 123456
+    network_mode: "host"
+
+  kafka-zookeeper:
+    container_name: kafka-zookeeper
+    image: 'bitnami/zookeeper:3.6.3'
+    volumes:  #As this is a non-root container, the mounted files and directories must have the proper permissions for the UID 1001
+      - "/data/kafka/zookeeper_data:/bitnami"
+    environment:
+      - ZOO_PORT_NUMBER=2180
+      - ZOO_ENABLE_ADMIN_SERVER=no
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    network_mode: "host"
+
+  kafka:
+    container_name: kafka
+    image: bitnami/kafka:2.8
+    volumes:  #As this is a non-root container, the mounted files and directories must have the proper permissions for the UID 1001
+      - "/data/kafka/kafka_data:/bitnami"
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=127.0.0.1:2180
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    network_mode: "host"
+    depends_on:
+      - kafka-zookeeper
+
+  kafka-map:
+    container_name: kafka-map
+    image: dushixiang/kafka-map:latest
+    volumes:
+      - /data/kafka-map/data:/usr/local/kafka-map/data
+    environment:
+      - DEFAULT_USERNAME=admin
+      - DEFAULT_PASSWORD=admin
+    network_mode: "host"
+    
+
+  elasticsearch:
+    container_name: elasticsearch
+    #image: docker.elastic.co/elasticsearch/elasticsearch:5.6.15
+    build:
+      context: elasticsearch/
+    restart: always
+    ulimits:
+      #memlock:
+      #  soft: -1
+      #  hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    environment:
+      #- bootstrap.memory_lock=true
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms8g -Xmx8g"
+    volumes:  #The container runs Elasticsearch as user elasticsearch using uid:gid 1000:1000
+      - /data/elasticsearch/data:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    network_mode: "host"
