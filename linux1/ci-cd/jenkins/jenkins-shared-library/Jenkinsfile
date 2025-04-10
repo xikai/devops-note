@@ -1,0 +1,15 @@
+@Library('jenkins-shared-library') _
+
+def apollo = new org.devops.Apollo()
+
+pipeline {
+    agent none
+    stage ('Example') {
+        steps {
+            script { 
+               sayHello 'xikai'
+               sayHello()  /* invoke with default arguments */
+            }
+        }
+    }
+}
